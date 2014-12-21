@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'coffee-rails'
 gem 'jbuilder'
+gem 'haml-rails'
 gem 'jquery-rails'
 gem 'mysql2'
 gem 'rails', '4.2.0'

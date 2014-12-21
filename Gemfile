@@ -16,6 +16,7 @@ gem 'uglifier'
 gem 'light_blue', path: '../light_blue'
 
 group :development, :test do
+  gem 'silencer'
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'

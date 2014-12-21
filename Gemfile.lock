@@ -148,6 +148,8 @@ GEM
       sprockets-rails (>= 2.0, < 4.0)
       tilt (~> 1.1)
     sexp_processor (4.4.4)
+    silencer (0.6.0)
+      railties (>= 3)
     slop (3.6.0)
     spring (1.2.0)
     sprockets (2.12.3)
@@ -184,5 +186,6 @@ DEPENDENCIES
   pry-rails
   rails (= 4.2.0)
   sass-rails
+  silencer
   spring
   uglifier

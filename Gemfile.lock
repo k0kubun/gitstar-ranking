@@ -1,3 +1,9 @@
+PATH
+  remote: ../light_blue
+  specs:
+    light_blue (0.0.1)
+      rails (~> 4.2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -165,6 +171,7 @@ DEPENDENCIES
   haml-rails
   jbuilder
   jquery-rails
+  light_blue!
   mysql2
   rails (= 4.2.0)
   sass-rails

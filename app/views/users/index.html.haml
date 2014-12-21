@@ -1,28 +1,5 @@
-.content.container
-  %h2.page-title
-    Tables -
-    %span.fw-semi-bold Dynamic
-  %section.widget
-    %header
-      %h4
-        Table
-        %span.fw-semi-bold Styles
-      .widget-controls
-        .width-200
-          .input-group.input-group-sm.input-group-transparent.input-group-rounded
-            %span.input-group-addon
-              %i.fa.fa-search
-            %input#search-countries.form-control{placeholder: "Search Countries", type: "text"}/
-    .body
-      %p
-        Editable, validatable, filterable and sortable table made with
-        %a{href: "http://backgridjs.com/", target: "_blank"} Backgrid.js
-      #table-dynamic
-
-.loader-wrap.hiding.hide
-  %i.fa.fa-circle-o-notch.fa-spin
-
 - content_for :page_scripts do
+  -# FIXME: change link for asset pipeline
   / page specific scripts
   / page specific libs
   %script{src: "assets/light_blue/bootstrap-select/dist/js/bootstrap-select.min.js"}
@@ -34,3 +11,27 @@
   %script{src: "assets/light_blue/datatables/media/js/jquery.dataTables.min.js"}
   / page application js
   %script{src: "assets/light_blue/tables-dynamic.js"}
+
+.content.container
+  %h2.page-title
+    User Stars
+
+  %section.widget
+    %header
+      %h4
+        Table
+        %span.fw-semi-bold Styles
+    .body
+      %table.table.table-striped.no-margin.mb-sm
+        %thead
+          %tr
+            %th
+              a
+            %th
+              a
+        %tbody
+          %tr
+            %td
+              214
+            %td
+              aa

@@ -9,31 +9,19 @@
   %body
     .logo
       %h4
-        %a{href: "index.html"}
-          Light
-          %strong Blue
+        = link_to root_path do
+          GitHub
+          %strong Ranks
     %nav#sidebar.sidebar.nav-collapse.collapse
       %ul#side-nav.side-nav
         %li.active
-          %a{href: "index.html"}
-            %i.fa.fa-home
-            %span.name Dashboard
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#forms-collapse"}
+          = link_to root_path do
             %i.fa.fa-pencil
-            %span.name Forms
-          %ul#forms-collapse.panel-collapse.collapse
-            - 5.times do
-              %li
-                %a{href: "form_account.html"} Account
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#stats-collapse"}
+            %span.name User stars
+        %li
+          = link_to root_path do
             %i.fa.fa-area-chart
-            %span.name Statistics
-          %ul#stats-collapse.panel-collapse.collapse
-            - 3.times do
-              %li
-                %a{href: "stat_statistics.html"} Stats
+            %span.name Repo stars
 
     .wrap
       %header.page-header
@@ -68,7 +56,10 @@
             %li.hidden-xs
               %a{href: "login.html"}
                 %i.fa.fa-sign-out
+
       = yield
+      .loader-wrap.hiding.hide
+        %i.fa.fa-circle-o-notch.fa-spin
 
     / common libraries. required for every page
     %script{src: "assets/light_blue/jquery/dist/jquery.min.js"}

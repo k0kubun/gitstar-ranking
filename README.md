@@ -1,6 +1,6 @@
 # GitHub Ranks
 
-GitHub rockstar users and repositories rankings
+GitHub rankings for rockstar users and repositories
 
 ## Copyright
 

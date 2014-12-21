@@ -23,258 +23,22 @@
             %i.fa.fa-pencil
             %span.name Forms
           %ul#forms-collapse.panel-collapse.collapse
-            %li
-              %a{href: "form_account.html"} Account
-            %li
-              %a{href: "form_article.html"} Article
-            %li
-              %a{href: "form_elements.html"} Elements
-            %li
-              %a{href: "form_validation.html"} Validation
-            %li
-              %a{href: "form_wizard.html"} Wizard
+            - 5.times do
+              %li
+                %a{href: "form_account.html"} Account
         %li.panel
           %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#stats-collapse"}
             %i.fa.fa-area-chart
             %span.name Statistics
           %ul#stats-collapse.panel-collapse.collapse
-            %li
-              %a{href: "stat_statistics.html"} Stats
-            %li
-              %a{href: "stat_charts.html"} Charts
-            %li
-              %a{href: "stat_realtime.html"} Realtime
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#ui-collapse"}
-            %i.fa.fa-magic
-            %span.name User Interface
-          %ul#ui-collapse.panel-collapse.collapse
-            %li
-              %a{href: "ui_buttons.html"} Buttons
-            %li
-              %a{href: "ui_dialogs.html"} Dialogs
-            %li
-              %a{href: "ui_notifications.html"} Notifications
-            %li
-              %a{href: "ui_icons.html"} Icons
-            %li
-              %a{href: "ui_tabs.html"} Tabs
-            %li
-              %a{href: "ui_accordion.html"} Accordion
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#components-collapse"}
-            %i.fa.fa-tree
-            %span.name Components
-          %ul#components-collapse.panel-collapse.collapse
-            %li
-              %a{href: "component_calendar.html"} Calendar
-            %li
-              %a{"data-no-pjax" => "", href: "component_maps.html"} Maps
-            %li
-              %a{href: "component_gallery.html"} Gallery
-            %li
-              %a{"data-no-pjax" => "", href: "component_fileupload.html"} Fileupload
-            %li
-              %a{href: "component_bootstrap.html"} Bootstrap
-            %li
-              %a{href: "component_list_groups.html"} List Groups
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#tables-collapse"}
-            %i.fa.fa-cog
-            %span.name Tables
-          %ul#tables-collapse.panel-collapse.collapse
-            %li
-              %a{href: "tables_static.html"}
-                Static
-                %sup.text-danger.fw-bold upd
-            %li
-              %a{href: "tables_dynamic.html"} Dynamic
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#grid-collapse"}
-            %i.fa.fa-th
-            %span.name Widgets
-          %ul#grid-collapse.panel-collapse.collapse
-            %li
-              %a{href: "grid_basic.html"} Basic
-            %li
-              %a{href: "grid_live.html"} Live
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#special-collapse"}
-            %i.fa.fa-leaf
-            %span.name Special
-          %ul#special-collapse.panel-collapse.collapse
-            %li
-              %a{href: "special_search.html"}
-                Search
-                %sup.text-warning.fw-bold new
-            %li
-              %a{href: "special_invoice.html"} Invoice
-            %li
-              %a{href: "special_inbox.html"}
-                Inbox &nbsp;
-                %span.label.label-important 3
-            %li
-              %a{href: "login.html", target: "_blank"} Login
-            %li
-              %a{href: "error.html", target: "_blank"} Error Page
-            %li
-              %a{"data-no-pjax" => "", href: "../transparent/landing.html"} Landing
-            %li
-              %a{"data-no-pjax" => "", href: "../transparent/index.html"} Transparent
-        %li.panel
-          %a.accordion-toggle.collapsed{"data-parent" => "#side-nav", "data-toggle" => "collapse", href: "#menu-levels-collapse"}
-            %i.fa.fa-folder-open
-            %span.name Menu Levels
-          %ul#menu-levels-collapse.panel-collapse.collapse
-            %li
-              %a{href: "#"} Item 1.1
-            %li
-              %a{href: "#"} Item 1.2
-            %li.panel
-              %a.accordion-toggle.collapsed{"data-parent" => "#menu-levels-collapse", "data-toggle" => "collapse", href: "#sub-menu-1-collapse"} Item 1.3
-              %ul#sub-menu-1-collapse.panel-collapse.collapse
-                %li.panel
-                  %a.accordion-toggle.collapsed{"data-parent" => "#sub-menu-1-collapse", "data-toggle" => "collapse", href: "#sub-menu-3-collapse"} Item 2.1
-                  %ul#sub-menu-3-collapse.panel-collapse.collapse
-                    %li
-                      %a{href: "#"} Item 3.1
-                    %li
-                      %a{href: "#"} Item 3.2
-                    %li
-                      %a{href: "#"} Item 3.3
-                %li
-                  %a{href: "#"} Item 2.2
-                %li.panel
-                  %a.accordion-toggle.collapsed{"data-parent" => "#sub-menu-1-collapse", "data-toggle" => "collapse", href: "#sub-menu-2-collapse"} Item 2.3
-                  %ul#sub-menu-2-collapse.panel-collapse.collapse
-                    %li
-                      %a{href: "#"} Item 3.4
-                    %li
-                      %a{href: "#"} Item 3.5
-                    %li
-                      %a{href: "#"} Item 3.6
-        %li.visible-xs
-          %a{href: "login.html"}
-            %i.fa.fa-sign-out
-            %span.name Sign Out
-      %h5.sidebar-nav-title
-        Labels
-        %a.action-link{href: "#"}
-          %i.glyphicon.glyphicon-plus
-      / some styled links in sidebar. ready to use as links to email folders, projects, groups, etc
-      %ul.sidebar-labels
-        %li
-          %a{href: "#"}
-            / yep, .circle again
-            %i.fa.fa-circle.text-warning
-            %span.label-name My Recent
-        %li
-          %a{href: "#"}
-            %i.fa.fa-circle.text-gray
-            %span.label-name Starred
-        %li
-          %a{href: "#"}
-            %i.fa.fa-circle.text-danger
-            %span.label-name Background
-      %h5.sidebar-nav-title Projects
-      / A place for sidebar notifications &amp; alerts
-      .sidebar-alerts
-        .alert.fade.in
-          %a.close{"aria-hidden" => "true", "data-dismiss" => "alert", href: "#"} &times;
-          %span.text-white.fw-semi-bold Sales Report
-          %br/
-          .progress.progress-xs.mt-xs.mb-0
-            .progress-bar.progress-bar-gray-light{style: "width: 16%"}
-          %small Calculating x-axis bias... 65%
-        .alert.fade.in
-          %a.close{"aria-hidden" => "true", "data-dismiss" => "alert", href: "#"} &times;
-          %span.text-white.fw-semi-bold Personal Responsibility
-          %br/
-          .progress.progress-xs.mt-xs.mb-0
-            .progress-bar.progress-bar-danger{style: "width: 23%"}
-          %small Provide required notes
+            - 3.times do
+              %li
+                %a{href: "stat_statistics.html"} Stats
 
     .wrap
       %header.page-header
         .navbar
           %ul.nav.navbar-nav.navbar-right.pull-right
-            %li.visible-phone-landscape
-              %a#search-toggle{href: "#"}
-                %i.fa.fa-search
-            %li.dropdown
-              %a#messages.dropdown-toggle{"data-toggle" => "dropdown", href: "#", title: "Messages"}
-                %i.fa.fa-comments
-              %ul#messages-menu.dropdown-menu.messages{role: "menu"}
-                %li{role: "presentation"}
-                  %a.message{href: "#"}
-                    %img{alt: "", src: "assets/light_blue/1.jpg"}/
-                  .details
-                    .sender Jane Hew
-                    .text
-                      Hey, John! How is it going? ...
-                %li{role: "presentation"}
-                  %a.message{href: "#"}
-                    %img{alt: "", src: "assets/light_blue/2.jpg"}/
-                  .details
-                    .sender Alies Rumiancaŭ
-                    .text
-                      I'll definitely buy this template
-                %li{role: "presentation"}
-                  %a.message{href: "#"}
-                    %img{alt: "", src: "assets/light_blue/3.jpg"}/
-                  .details
-                    .sender Michał Rumiancaŭ
-                    .text
-                      Is it really Lore ipsum? Lore ...
-                %li{role: "presentation"}
-                  %a.text-align-center.see-all{href: "#"}
-                    See all messages
-                    %i.fa.fa-arrow-right
-            %li.dropdown
-              %a.dropdown-toggle{"data-toggle" => "dropdown", href: "#", title: "8 support tickets"}
-                %i.fa.fa-group
-                %span.count 8
-              %ul#support-menu.dropdown-menu.support{role: "menu"}
-                %li{role: "presentation"}
-                  %a.support-ticket{href: "#"}
-                  .picture
-                    %span.label.label-important
-                      %i.fa.fa-bell-o
-                  .details
-                    Check out this awesome ticket
-                %li{role: "presentation"}
-                  %a.support-ticket{href: "#"}
-                  .picture
-                    %span.label.label-warning
-                      %i.fa.fa-question-circle
-                  .details
-                    "What is the best way to get ...
-                %li{role: "presentation"}
-                  %a.support-ticket{href: "#"}
-                  .picture
-                    %span.label.label-success
-                      %i.fa.fa-tag
-                  .details
-                    This is just a simple notification
-                %li{role: "presentation"}
-                  %a.support-ticket{href: "#"}
-                  .picture
-                    %span.label.label-info
-                      %i.fa.fa-info-circle
-                  .details
-                    12 new orders has arrived today
-                %li{role: "presentation"}
-                  %a.support-ticket{href: "#"}
-                  .picture
-                    %span.label.label-important
-                      %i.fa.fa-plus
-                  .details
-                    One more thing that just happened
-                %li{role: "presentation"}
-                  %a.text-align-center.see-all{href: "#"}
-                    See all tickets
-                    %i.fa.fa-arrow-right
-            %li.divider
             %li.hidden-xs
               %a#settings{"data-placement" => "bottom", "data-toggle" => "popover", href: "#", title: "Settings"}
                 %i.fa.fa-cog
@@ -297,21 +61,13 @@
                   %a.link{href: "#"}
                     %i.fa.fa-inbox
                     Inbox
+            %li.divider
             %li.visible-xs
               %a.btn-navbar{"data-target" => ".sidebar", "data-toggle" => "collapse", href: "#", title: ""}
                 %i.fa.fa-bars
             %li.hidden-xs
               %a{href: "login.html"}
                 %i.fa.fa-sign-out
-          %form#search-form.navbar-form.pull-right{role: "search"}
-            %input.form-control.search-query{placeholder: "Search...", type: "search"}/
-          .notifications.pull-right
-            .alert.pull-right
-              %a.close.ml-xs{"data-dismiss" => "alert", href: "#"} &times;
-              %i.fa.fa-info-circle.mr-xs
-              Check out Light Blue
-              %a#notification-link{href: "#"} settings
-              on the right!
       = yield
 
     / common libraries. required for every page

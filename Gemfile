@@ -12,6 +12,7 @@ gem 'uglifier'
 
 # Mountable engine of Light Blue design template:
 # https://wrapbootstrap.com/theme/light-blue-responsive-admin-web-app-WB0T41TX4
+# TODO: totally rewrite design (light_blue is closed source, I want this to be open)
 gem 'light_blue', path: '../light_blue'
 
 group :development, :test do
@@ -20,4 +21,3 @@ group :development, :test do
   gem 'pry-rails'
   gem 'spring'
 end
-

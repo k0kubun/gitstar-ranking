@@ -3,10 +3,11 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.0'
 
 gem 'coffee-rails'
-gem 'jbuilder'
 gem 'haml-rails'
+gem 'jbuilder'
 gem 'jquery-rails'
 gem 'mysql2'
+gem 'octokit'
 gem 'sass-rails'
 gem 'uglifier'
 

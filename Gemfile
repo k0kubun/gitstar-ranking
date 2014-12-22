@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.0'
 
+gem 'activerecord-import'
 gem 'coffee-rails'
 gem 'haml-rails'
 gem 'jbuilder'
@@ -17,9 +18,9 @@ gem 'uglifier'
 gem 'light_blue', path: '../light_blue'
 
 group :development, :test do
-  gem 'silencer'
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'
+  gem 'silencer'
   gem 'spring'
 end

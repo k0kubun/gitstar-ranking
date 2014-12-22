@@ -11,6 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20141222080100) do
+
+  create_table "users", force: :cascade do |t|
+    t.string   "login",      limit: 255
+    t.string   "avatar_url", limit: 255
+    t.string   "type",       limit: 255
+    t.boolean  "site_admin", limit: 1
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
 end

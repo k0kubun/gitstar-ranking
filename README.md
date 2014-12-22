@@ -1,6 +1,6 @@
 # GitHub Ranks
 
-GitHub rankings for rockstar users and repositories
+GitHub rankings for active users and repositories
 
 http://githubranks.com
 

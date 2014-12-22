@@ -1,7 +1,5 @@
 - content_for :page_scripts do
   -# FIXME: change link for asset pipeline
-  / page specific scripts
-  / page specific libs
   %script{src: "assets/light_blue/bootstrap-select/dist/js/bootstrap-select.min.js"}
   %script{src: "assets/light_blue/underscore/underscore.js"}
   %script{src: "assets/light_blue/backbone/backbone.js"}
@@ -9,7 +7,6 @@
   %script{src: "assets/light_blue/backgrid/lib/backgrid.min.js"}
   %script{src: "assets/light_blue/backgrid-paginator/backgrid-paginator.js"}
   %script{src: "assets/light_blue/datatables/media/js/jquery.dataTables.min.js"}
-  / page application js
   %script{src: "assets/light_blue/tables-dynamic.js"}
 
 .content.container
@@ -19,19 +16,26 @@
   %section.widget
     %header
       %h4
-        Table
-        %span.fw-semi-bold Styles
+        Starred Users
+
     .body
       %table.table.table-striped.no-margin.mb-sm
         %thead
           %tr
             %th
-              a
+              id
             %th
-              a
+              login
+            %th
+              type
+
         %tbody
-          %tr
-            %td
-              214
-            %td
-              aa
+          - @users.each do |user|
+            %tr
+              %td
+                = user.id
+              %td
+                = image_tag user.avatar_url, class: 'user_avatar'
+                = user.login
+              %td
+                = user.type

@@ -6,7 +6,7 @@
     = javascript_include_tag 'application'
     = csrf_meta_tags
 
-  %body
+  %body{ class: "#{controller_path.gsub(/\//, '_')}_controller #{action_name}_action" }
     .logo
       %h4
         = link_to root_path do

@@ -27,4 +27,4 @@
 //= require light_blue/backgrid-paginator/backgrid-paginator.js
 //= require light_blue/datatables/media/js/jquery.dataTables.min.js
 //
-//= require_tree .
+//= require menu

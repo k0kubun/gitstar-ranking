@@ -1,5 +1,6 @@
-PATH
-  remote: light_blue
+GIT
+  remote: git@bitbucket.org:k0kubun/light_blue.git
+  revision: 5ed2952f994bbf349e6aba388cccec397baef675
   specs:
     light_blue (0.0.1)
       rails (~> 4.2.0)

@@ -1,0 +1,29 @@
+.content.container
+  %h2.page-title
+    Repo Stars
+
+  %section.widget
+    %header
+      %h4
+        Starred Repos
+
+    .body
+      %table.table.table-striped.no-margin.mb-sm
+        %thead
+          %tr
+            %th
+              id
+            %th
+              login
+            %th
+              star
+
+        %tbody
+          - @repos.each do |repo|
+            %tr
+              %td
+                = repo.id
+              %td
+                = repo.full_name
+              %td
+                = repo.stargazers_count

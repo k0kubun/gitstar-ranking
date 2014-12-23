@@ -3,7 +3,7 @@ require 'logger'
 
 module Github
   class UserImporter
-    API_REQUEST_INTERVAL = 0.05
+    API_REQUEST_INTERVAL = 0.02
     MAX_IMPORT_COUNT = 50
     FETCH_ATTRIBUTES = %i[
       id

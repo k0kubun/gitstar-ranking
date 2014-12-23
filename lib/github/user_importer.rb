@@ -1,8 +1,5 @@
-require 'octokit'
-require 'logger'
-
 module Github
-  class UserImporter
+  class UserImporter < BaseImporter
     API_REQUEST_INTERVAL = 0.02
     MAX_IMPORT_COUNT = 50
     FETCH_ATTRIBUTES = %i[
@@ -16,8 +13,7 @@ module Github
     def import
       logger.info 'User import task invoked'
 
-      token     = select_token
-      client    = Octokit::Client.new(access_token: token)
+      client    = select_client
       remaining = client.rate_limit.remaining
       count     = User.count
 
@@ -50,22 +46,6 @@ module Github
       end
 
       User.import(users)
-    end
-
-    def select_token
-      count = access_tokens.length
-      index = Time.now.min % count
-      logger.info "Selected #{index}th token"
-
-      access_tokens[index]
-    end
-
-    def access_tokens
-      @access_tokens ||= Rails.application.secrets[:github_access_tokens]
-    end
-
-    def logger
-      @logger ||= Logger.new('log/user_importer.log')
     end
   end
 end

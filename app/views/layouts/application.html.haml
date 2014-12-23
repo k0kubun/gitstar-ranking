@@ -20,7 +20,7 @@
         ]
       %ul#side-nav.side-nav
         - menus.each do |name, icon, path|
-          %li{ class: ('active' if path == request.path) }
+          %li.menu_item{ class: ('active' if path == request.path) }
             = link_to path do
               %i.fa{ class: "fa-#{icon}" }
               %span.name

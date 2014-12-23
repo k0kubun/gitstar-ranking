@@ -1,0 +1,94 @@
+require 'logger'
+require 'dotenv'
+
+Dotenv.load
+
+namespace :db do
+  def dump_database(password, filename)
+    cmd = command("mysqldump -u#{ENV['GITHUB_RANKS_DATABASE_USER']} #{'-p' if password.length > 0} -P 3306 github_ranks_production > '#{filename}'")
+    output << cmd
+    cmd.started = true
+
+    with_ssh do |ssh|
+      ssh.open_channel do |chan|
+        chan.exec cmd.to_command do |ch, success|
+          chan.on_extended_data do |ch, type, data|
+            if data.match(/^Enter password: /)
+              chan.send_data("#{password}\n")
+            end
+          end
+        end
+        chan.wait
+      end
+      ssh.loop
+    end
+  end
+
+  def import_database(dump_file, database)
+    mysql_query("DROP DATABASE IF EXISTS #{database}")
+    mysql_query("CREATE DATABASE #{database}")
+    `cat #{dump_file} | mysql -uroot -h 127.0.0.1 -P 3306 #{database}`
+  end
+
+  def copy_database(from, to)
+    mysql_query("DROP DATABASE IF EXISTS #{to}")
+    mysql_query("CREATE DATABASE #{to}")
+    mysql_query('SHOW TABLES', from).each_line do |line|
+      table_name = line.strip
+      next if table_name =~ /^Tables_in_/
+
+      mysql_query("RENAME TABLE #{from}.#{table_name} TO #{to}.#{table_name}")
+    end
+  end
+
+  def mysql_query(sql, database = nil)
+    `mysql -uroot -h 127.0.0.1 -P 3306 -e '#{sql}' #{database}`
+  end
+
+  def local_file
+    @local_file ||= "/tmp/dump#{Time.now.to_i}.sql"
+  end
+
+  def remote_file
+    @remote_file ||= "/tmp/dump#{Time.now.to_i}.sql"
+  end
+
+  def logger
+    @logger ||= Logger.new(STDOUT)
+  end
+
+  desc 'Import remote data to local dev db'
+  task :pull do
+    on roles(:db) do
+      logger.info("Exporting data from #{fetch(:stage)}")
+      set :mysql_pass, ENV['GITHUB_RANKS_DATABASE_PASSWORD'] || ask('password for db user', 'root')
+
+      logger.info('Dumping mysql data...')
+      dump_database(fetch(:mysql_pass), remote_file)
+
+      download! remote_file, local_file
+      execute "rm #{remote_file}"
+
+      old_dumps = Dir.glob('/tmp/dump*.sql')[0..-2]
+      logger.info("Remove old dump files #{old_dumps.join(', ')}...")
+      old_dumps.each do |file|
+        `rm #{file}`
+      end
+
+      Rake::Task['db:replace'].invoke
+    end
+  end
+
+  desc 'Replace local db with sql dump in /tmp'
+  task :replace do
+    dump = Dir.glob('/tmp/dump*.sql').last
+
+    logger.info('Executing dumped queries in temporary database...')
+    import_database(dump, 'github_ranks_temp')
+
+    logger.info('Replacing databases...')
+    copy_database('github_ranks_temp', 'github_ranks_development')
+
+    logger.info('Done!')
+  end
+end

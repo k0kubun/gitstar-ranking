@@ -1,7 +1,7 @@
 module Github
   class RepositoryImporter < BaseImporter
     API_REQUEST_INTERVAL = 0.02
-    MAX_IMPORT_COUNT = 50
+    MAX_IMPORT_COUNT = 30
     FETCH_ATTRIBUTES = %i[
       id
       name

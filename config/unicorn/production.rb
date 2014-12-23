@@ -1,3 +1,6 @@
+require 'dotenv'
+Dotenv.load
+
 # paths
 app_path = ENV['DEPLOY_TO']
 working_directory "#{app_path}/current"

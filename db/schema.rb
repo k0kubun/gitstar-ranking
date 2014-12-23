@@ -13,7 +13,7 @@
 
 ActiveRecord::Schema.define(version: 20141223180042) do
 
-  create_table "repos", force: :cascade do |t|
+  create_table "repostories", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "full_name",   limit: 255
     t.integer  "owner_id",    limit: 4

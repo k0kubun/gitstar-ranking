@@ -1,7 +1,7 @@
-class CreateReposAgain < ActiveRecord::Migration
+class CreateRepositories < ActiveRecord::Migration
   def up
     drop_table :repos
-    create_table :repos do |t|
+    create_table :repostories do |t|
       t.string :name
       t.string :full_name
       t.integer :owner_id
@@ -14,7 +14,7 @@ class CreateReposAgain < ActiveRecord::Migration
   end
 
   def down
-    drop_table :repos
+    drop_table :repositories
     create_table :repos do |t|
       t.string :name
       t.string :full_name

@@ -4,6 +4,7 @@ gem 'rails', '4.2.0'
 
 gem 'activerecord-import'
 gem 'coffee-rails'
+gem 'dotenv-rails'
 gem 'haml-rails'
 gem 'jbuilder'
 gem 'jquery-rails'

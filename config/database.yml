@@ -48,7 +48,10 @@ test:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
 production:
-  <<: *default
-  database: github_ranks_production
-  username: github_ranks
+  adapter: mysql2
+  encoding: utf8
+  username: <%= ENV['GITHUB_RANKS_DATABASE_USER'] %>
   password: <%= ENV['GITHUB_RANKS_DATABASE_PASSWORD'] %>
+  pool: 5
+  socket: /var/lib/mysql/mysql.sock
+  database: github_ranks_production

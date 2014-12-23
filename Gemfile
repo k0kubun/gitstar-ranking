@@ -10,6 +10,7 @@ gem 'jquery-rails'
 gem 'mysql2'
 gem 'octokit'
 gem 'sass-rails'
+gem 'therubyracer'
 gem 'uglifier'
 gem 'unicorn'
 

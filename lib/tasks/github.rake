@@ -1,7 +1,7 @@
 namespace :github do
-  desc 'Import github data'
-  task import: :environment do
-    importer = Github::Importer.new
+  desc 'Import github users'
+  task import_users: :environment do
+    importer = Github::UserImporter.new
     importer.import
   end
 end

@@ -26,7 +26,7 @@ module Github
     end
 
     def logger
-      @logger ||= Logger.new('log/user_importer.log')
+      @logger ||= Logger.new(STDOUT)
     end
   end
 end

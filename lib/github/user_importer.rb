@@ -47,5 +47,9 @@ module Github
 
       User.import(users)
     end
+
+    def logger
+      @logger ||= Logger.new('log/user_importer.log')
+    end
   end
 end

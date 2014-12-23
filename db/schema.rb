@@ -13,12 +13,11 @@
 
 ActiveRecord::Schema.define(version: 20141223180042) do
 
-  create_table "repostories", force: :cascade do |t|
+  create_table "repositories", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "full_name",   limit: 255
     t.integer  "owner_id",    limit: 4
     t.text     "description", limit: 65535
-    t.string   "homepage",    limit: 255
     t.boolean  "fork",        limit: 1
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false

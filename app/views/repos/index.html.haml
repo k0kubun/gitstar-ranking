@@ -16,7 +16,7 @@
             %th
               login
             %th
-              star
+              description
 
         %tbody
           - @repos.each do |repo|
@@ -26,4 +26,4 @@
               %td
                 = repo.full_name
               %td
-                = repo.stargazers_count
+                = repo.description

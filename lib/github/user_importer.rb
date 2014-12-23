@@ -19,6 +19,7 @@ module Github
       token     = access_tokens.first
       client    = Octokit::Client.new(access_token: token)
       remaining = client.rate_limit.remaining
+      count     = User.count
 
       MAX_IMPORT_COUNT.times do
         import_users(client)
@@ -29,6 +30,8 @@ module Github
         remaining = rl.remaining
         sleep API_REQUEST_INTERVAL
       end
+
+      logger.info "User count #{count} => #{User.count}"
     rescue => e
       logger.error "#{e.class}: #{e}"
     end

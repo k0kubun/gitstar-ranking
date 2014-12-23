@@ -1,3 +1,5 @@
+require 'dotenv'
+
 # Load DSL and Setup Up Stages
 require 'capistrano/setup'
 
@@ -5,8 +7,11 @@ require 'capistrano/setup'
 require 'capistrano/deploy'
 
 require 'capistrano/rbenv'
+
+Dotenv.load
+
 set :rbenv_type, :system
-set :rbenv_ruby, '2.1.5'
+set :rbenv_ruby, ENV['RUBY_VERSION']
 
 require 'capistrano/bundler'
 require 'capistrano/rails/assets'

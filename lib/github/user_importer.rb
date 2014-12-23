@@ -16,7 +16,7 @@ module Github
     def import
       logger.info 'User import task invoked'
 
-      token     = access_tokens.first
+      token     = select_token
       client    = Octokit::Client.new(access_token: token)
       remaining = client.rate_limit.remaining
       count     = User.count
@@ -50,6 +50,14 @@ module Github
       end
 
       User.import(users)
+    end
+
+    def select_token
+      count = access_tokens.length
+      index = Time.now.min % count
+      logger.info "Selected #{index}th token"
+
+      access_tokens[index]
     end
 
     def access_tokens

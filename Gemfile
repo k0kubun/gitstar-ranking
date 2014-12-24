@@ -26,6 +26,7 @@ group :development, :test do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
+  gem 'capistrano-sidekiq'
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'

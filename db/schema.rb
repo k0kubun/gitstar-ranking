@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141223180042) do
+ActiveRecord::Schema.define(version: 20141224164040) do
 
   create_table "repositories", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20141223180042) do
     t.boolean  "site_admin", limit: 1
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.datetime "queued_at"
   end
 
 end

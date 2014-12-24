@@ -1,5 +1,5 @@
 module Github
-  class RepositoryImporter < BaseImporter
+  class RepositoryImporter
     API_REQUEST_INTERVAL = 0.02
     MAX_IMPORT_COUNT = 30
     FETCH_ATTRIBUTES = %i[
@@ -13,7 +13,7 @@ module Github
     def import
       logger.info 'Repository import task invoked'
 
-      client    = select_client
+      client    = LimitBalancer.instance.client
       remaining = client.rate_limit.remaining
       count     = Repository.last.id
 

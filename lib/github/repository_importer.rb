@@ -15,7 +15,7 @@ module Github
 
       client    = select_client
       remaining = client.rate_limit.remaining
-      count     = Repository.count
+      count     = Repository.last.id
 
       MAX_IMPORT_COUNT.times do
         import_repos(client)
@@ -27,7 +27,7 @@ module Github
         sleep API_REQUEST_INTERVAL
       end
 
-      logger.info "Repository count #{count} => #{Repository.count}"
+      logger.info "Repository count #{count} => #{Repository.last.id}"
     rescue => e
       logger.error "#{e.class}: #{e}"
     end

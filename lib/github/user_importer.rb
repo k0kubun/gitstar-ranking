@@ -15,7 +15,7 @@ module Github
 
       client    = select_client
       remaining = client.rate_limit.remaining
-      count     = User.count
+      count     = User.last.id
 
       MAX_IMPORT_COUNT.times do
         import_users(client)
@@ -27,7 +27,7 @@ module Github
         sleep API_REQUEST_INTERVAL
       end
 
-      logger.info "User count #{count} => #{User.count}"
+      logger.info "User count #{count} => #{User.last.id}"
     rescue => e
       logger.error "#{e.class}: #{e}"
     end

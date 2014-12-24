@@ -16,6 +16,7 @@ class UserUpdateJob < ActiveJob::Base
   def perform(user_id)
     start    = Time.now
     all_rows = all_repos(user_id)
+    star     = 0
 
     all_rows.each_slice(BATCH_SIZE) do |rows|
       repos = []
@@ -26,11 +27,14 @@ class UserUpdateJob < ActiveJob::Base
         repo.owner_id   = row[:owner] && row[:owner][:id]
         repo.fetched_at = start
         repos << repo
+
+        star += row[:stargazers_count]
       end
 
       Repository.import(repos)
     end
 
+    User.where(id: user_id).limit(1).update_all(stargazers_count: star)
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
   rescue => e
     logger.error "#{user_id}: #{e.class}: #{e}"

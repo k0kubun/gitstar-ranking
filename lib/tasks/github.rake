@@ -10,4 +10,9 @@ namespace :github do
     importer = Github::RepositoryImporter.new
     importer.import
   end
+
+  desc 'Schedule user update jobs'
+  task schedule_jobs: :environment do
+    Github::JobScheduler.schedule
+  end
 end

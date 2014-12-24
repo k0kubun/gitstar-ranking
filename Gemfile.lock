@@ -1,6 +1,6 @@
 GIT
   remote: git@bitbucket.org:k0kubun/light_blue.git
-  revision: 5ed2952f994bbf349e6aba388cccec397baef675
+  revision: 1e72b4ed183ea40506a413a72e1e5f3fe5a5288e
   specs:
     light_blue (0.0.1)
       rails (~> 4.2.0)

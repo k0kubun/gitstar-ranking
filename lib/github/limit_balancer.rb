@@ -6,9 +6,7 @@ module Github
     include Singleton
 
     def client
-      clients.max do |client|
-        client.rate_limit.remaining
-      end
+      clients.max { |c| c.rate_limit.remaining }.dup
     end
 
     private

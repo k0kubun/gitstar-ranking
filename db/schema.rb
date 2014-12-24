@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141224190005) do
+ActiveRecord::Schema.define(version: 20141224191915) do
 
   create_table "repositories", force: :cascade do |t|
     t.string   "name",             limit: 255
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20141224190005) do
     t.string   "homepage",         limit: 255
     t.integer  "stargazers_count", limit: 4,     default: 0, null: false
     t.string   "language",         limit: 255
+    t.datetime "fetched_at"
   end
 
   create_table "users", force: :cascade do |t|

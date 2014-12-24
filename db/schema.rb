@@ -11,26 +11,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141224164040) do
+ActiveRecord::Schema.define(version: 20141224190005) do
 
   create_table "repositories", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.string   "full_name",   limit: 255
-    t.integer  "owner_id",    limit: 4
-    t.text     "description", limit: 65535
-    t.boolean  "fork",        limit: 1
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.string   "name",             limit: 255
+    t.string   "full_name",        limit: 255
+    t.integer  "owner_id",         limit: 4
+    t.text     "description",      limit: 65535
+    t.boolean  "fork",             limit: 1
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.string   "homepage",         limit: 255
+    t.integer  "stargazers_count", limit: 4,     default: 0, null: false
+    t.string   "language",         limit: 255
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "login",      limit: 255
-    t.string   "avatar_url", limit: 255
-    t.string   "type",       limit: 255
-    t.boolean  "site_admin", limit: 1
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "login",            limit: 255
+    t.string   "avatar_url",       limit: 255
+    t.string   "type",             limit: 255
+    t.boolean  "site_admin",       limit: 1
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
     t.datetime "queued_at"
+    t.integer  "stargazers_count", limit: 4,   default: 0, null: false
   end
 
 end

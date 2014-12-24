@@ -1,5 +1,3 @@
-require 'dotenv'
-
 # Load DSL and Setup Up Stages
 require 'capistrano/setup'
 
@@ -8,6 +6,7 @@ require 'capistrano/deploy'
 
 require 'capistrano/rbenv'
 
+require 'dotenv'
 Dotenv.load
 
 set :rbenv_type, :system

@@ -1,9 +1,11 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  root to: 'users#index'
+  constraints subdomain: 'sidekiq' do
+    mount Sidekiq::Web, at: '/sidekiq'
+  end
 
-  mount Sidekiq::Web, at: '/sidekiq'
+  root to: 'users#index'
 
   resources :users, only: [] do
     collection do

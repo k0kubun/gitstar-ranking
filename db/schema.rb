@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141224193756) do
+ActiveRecord::Schema.define(version: 20141225031613) do
 
   create_table "repositories", force: :cascade do |t|
     t.string   "name",             limit: 255
@@ -39,5 +39,6 @@ ActiveRecord::Schema.define(version: 20141224193756) do
   end
 
   add_index "users", ["queued_at"], name: "index_users_on_queued_at", using: :btree
+  add_index "users", ["stargazers_count"], name: "index_users_on_stargazers_count", using: :btree
 
 end

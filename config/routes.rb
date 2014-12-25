@@ -1,7 +1,7 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  constraints subdomain: 'sidekiq' do
+  constraints subdomain: 'internal' do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

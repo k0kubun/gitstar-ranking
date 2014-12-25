@@ -12,17 +12,17 @@
         %thead
           %tr
             %th
-              id
+              rank
             %th
               login
             %th
               star
 
         %tbody
-          - @repos.each do |repo|
+          - @repos.each_with_rank_by(:stargazers_count) do |repo, rank|
             %tr
               %td
-                = repo.id
+                = rank
               %td
                 = image_tag repo.owner.avatar_url, class: 'user_avatar'
                 = repo.full_name

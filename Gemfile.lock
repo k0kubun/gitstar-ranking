@@ -87,6 +87,7 @@ GEM
     dotenv (1.0.2)
     dotenv-rails (1.0.2)
       dotenv (= 1.0.2)
+    each_with_rank (0.0.1)
     erubis (2.7.0)
     execjs (2.2.2)
     faraday (0.9.0)
@@ -253,6 +254,7 @@ DEPENDENCIES
   capistrano-sidekiq
   coffee-rails
   dotenv-rails
+  each_with_rank
   foreman
   haml-rails
   jbuilder

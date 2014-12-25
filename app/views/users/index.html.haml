@@ -12,19 +12,19 @@
         %thead
           %tr
             %th
-              id
+              rank
             %th
               login
             %th
-              type
+              star
 
         %tbody
-          - @users.each do |user|
+          - @users.each_with_rank_by(:stargazers_count) do |user, rank|
             %tr
               %td
-                = user.id
+                = rank
               %td
                 = image_tag user.avatar_url, class: 'user_avatar'
                 = user.login
               %td
-                = user.type
+                = user.stargazers_count

@@ -16,7 +16,7 @@
             %th
               login
             %th
-              description
+              star
 
         %tbody
           - @repos.each do |repo|
@@ -24,6 +24,7 @@
               %td
                 = repo.id
               %td
+                = image_tag repo.owner.avatar_url, class: 'user_avatar'
                 = repo.full_name
               %td
-                = repo.description
+                = repo.stargazers_count

@@ -20,10 +20,10 @@ class StarCountJob < ActiveJob::Base
     users = []
     repos = []
     user_ids.each do |user_id|
-      user, repos = count_stars_for(user_id)
+      user, counted_repos = count_stars_for(user_id)
 
       users << user
-      repos += repos
+      repos += counted_repos
     end
 
     User.import(users)

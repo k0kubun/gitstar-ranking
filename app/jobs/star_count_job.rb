@@ -21,6 +21,7 @@ class StarCountJob < ActiveJob::Base
     repos = []
     user_ids.each do |user_id|
       user, counted_repos = count_stars_for(user_id)
+      next if user.blank? || counted_repos.blank?
 
       users << user
       repos += counted_repos

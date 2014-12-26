@@ -1,11 +1,12 @@
 module Github
   class JobScheduler
-    SCHEDULE_COUNT = 500
+    SET_LENGTH = 10
+    SET_COUNT  = 2
 
     def self.schedule
-      user_ids = User.where(queued_at: nil).limit(SCHEDULE_COUNT).pluck(:id)
-      user_ids.each do |user_id|
-        UserUpdateJob.perform_later(user_id)
+      user_ids = User.where(queued_at: nil).limit(SET_LENGTH * SET_COUNT).pluck(:id)
+      user_ids.each_slice(SET_LENGTH) do |id_set|
+        UserUpdateJob.perform_later(id_set)
       end
       User.where(id: user_ids).update_all(queued_at: Time.now)
     end

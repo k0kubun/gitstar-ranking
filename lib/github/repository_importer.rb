@@ -13,21 +13,16 @@ module Github
     def import
       logger.info 'Repository import task invoked'
 
-      client    = LimitBalancer.instance.client
-      remaining = client.rate_limit.remaining
-      count     = Repository.last.id
+      client = LimitBalancer.instance.client
+      count  = Repository.last.id
 
       MAX_IMPORT_COUNT.times do
         import_repos(client)
-
-        rl = client.rate_limit
-        logger.info "API Limit Remaining: #{rl.remaining}/#{rl.limit} (used #{remaining - rl.remaining})"
-
-        remaining = rl.remaining
+        LimitBalancer.instance.log_limit
         sleep API_REQUEST_INTERVAL
       end
 
-      logger.info "Repository count #{count} => #{Repository.last.id}"
+      logger.info "Repository last #{count} => #{Repository.last.id}"
     rescue => e
       logger.error "#{e.class}: #{e}"
     end

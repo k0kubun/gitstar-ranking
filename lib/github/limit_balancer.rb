@@ -9,6 +9,10 @@ module Github
       clients.max { |c| c.rate_limit.remaining }.dup
     end
 
+    def log_limit
+      logger.info clients.map { |c| c.rate_limit.remaining }.join(',')
+    end
+
     private
 
     def clients
@@ -17,6 +21,10 @@ module Github
 
     def access_tokens
       @access_tokens ||= Rails.application.secrets[:github_access_tokens]
+    end
+
+    def logger
+      @logger ||= Logger.new('log/api_limit.log')
     end
   end
 end

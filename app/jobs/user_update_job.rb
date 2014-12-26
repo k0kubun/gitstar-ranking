@@ -35,6 +35,7 @@ class UserUpdateJob < ActiveJob::Base
     end
 
     User.where(id: user_id).limit(1).update_all(stargazers_count: star)
+    Github::LimitBalancer.instance.log_limit
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
   rescue => e
     logger.error "#{user_id}: #{e.class}: #{e}"

@@ -53,5 +53,5 @@ production:
   username: <%= ENV['GITHUB_RANKS_DATABASE_USER'] %>
   password: <%= ENV['GITHUB_RANKS_DATABASE_PASSWORD'] %>
   socket: <%= ENV['GITHUB_RANKS_DATABASE_SOCKET'] %>
-  pool: 5
+  pool: 8
   database: github_ranks_production

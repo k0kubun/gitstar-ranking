@@ -6,7 +6,9 @@ module Github
     include Singleton
 
     def client
-      clients.max { |c| c.rate_limit.remaining }
+      selected = clients.max { |c| c.rate_limit.remaining }
+      logger.info(clients.map { |c| c.rate_limit.remaining }.to_s + ': ' + selected.rate_limit.remaining.to_s)
+      selected
     end
 
     def log_limit

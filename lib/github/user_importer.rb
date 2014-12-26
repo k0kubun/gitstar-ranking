@@ -1,7 +1,7 @@
 module Github
   class UserImporter
-    API_REQUEST_INTERVAL = 0.02
-    MAX_IMPORT_COUNT = 30
+    API_REQUEST_INTERVAL = 1
+    MAX_IMPORT_COUNT = 10
     FETCH_ATTRIBUTES = %i[
       id
       login

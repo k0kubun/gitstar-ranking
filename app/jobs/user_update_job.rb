@@ -14,6 +14,8 @@ class UserUpdateJob < ActiveJob::Base
   queue_as :default
 
   def perform(user_id)
+    return unless Repository.owned_by?(user_id)
+
     start    = Time.now
     all_rows = all_repos(user_id)
     star     = 0

@@ -1,7 +1,7 @@
 module Github
   class JobScheduler
     SET_LENGTH = 15
-    SET_COUNT  = 8
+    SET_COUNT  = 460
 
     def self.schedule
       user_ids = User.where(queued_at: nil).limit(SET_LENGTH * SET_COUNT).pluck(:id)

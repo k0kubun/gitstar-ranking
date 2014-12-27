@@ -35,12 +35,10 @@ class StarCountJob < ActiveJob::Base
       repos += counted_repos
     end
 
-    User.import(users)
-    Repository.import(repos)
+    User.import([:id, :stargazers_count], users)
+    Repository.import(FETCH_ATTRIBUTES + [:owner_id, :fetched_at], repos)
 
     logger.info "Updated #{repos.size} repos for #{range}(#{user_ids.size}) users: #{Time.now - start}s"
-  rescue => e
-    logger.error "#{user_ids}: #{e.class}: #{e}"
   end
 
   private
@@ -50,16 +48,18 @@ class StarCountJob < ActiveJob::Base
     star  = 0
 
     rows.each do |row|
-      repo = Repository.new
-      repo.attributes = row.to_hash.slice(*FETCH_ATTRIBUTES)
-      repo.owner_id   = row[:owner] && row[:owner][:id]
-      repo.fetched_at = Time.now
+      repo = []
+      FETCH_ATTRIBUTES.each do |attribute|
+        repo << row[attribute]
+      end
+      repo << (row[:owner] && row[:owner][:id])
+      repo << Time.now
       repos << repo
 
       star += row[:stargazers_count]
     end
 
-    user = User.new(id: user_id, stargazers_count: star)
+    user = [user_id, star]
     [user, repos]
   end
 

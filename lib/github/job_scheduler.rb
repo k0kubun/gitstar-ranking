@@ -1,14 +1,18 @@
 module Github
   class JobScheduler
-    SET_LENGTH = 15
-    SET_COUNT  = 460
+    BATCH_SIZE = 6900
 
     def self.schedule
-      user_ids = User.where(queued_at: nil).limit(SET_LENGTH * SET_COUNT).pluck(:id)
-      user_ids.each_slice(SET_LENGTH) do |id_set|
-        StarCountJob.perform_later(id_set)
-      end
+      user_ids = User.where(queued_at: nil).limit(BATCH_SIZE).pluck(:id)
       User.where(id: user_ids).update_all(queued_at: Time.now)
+
+      filter_user_ids(user_ids).each do |user_id|
+        StarCountJob.perform_later(user_id)
+      end
+    end
+
+    def self.filter_user_ids(user_ids)
+      Repository.where(owner_id: user_ids).uniq.pluck(:owner_id)
     end
   end
 end

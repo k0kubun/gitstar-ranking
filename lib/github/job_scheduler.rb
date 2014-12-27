@@ -1,6 +1,6 @@
 module Github
   class JobScheduler
-    SET_LENGTH = 10
+    SET_LENGTH = 40
     SET_COUNT  = 8
 
     def self.schedule

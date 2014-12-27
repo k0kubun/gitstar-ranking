@@ -1,5 +1,5 @@
 class StarCountJob < ActiveJob::Base
-  CONCURRENCY = 100
+  CONCURRENCY = 10
   FETCH_ATTRIBUTES = %i[
     id
     name

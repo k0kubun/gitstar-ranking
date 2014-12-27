@@ -18,7 +18,6 @@ module Github
 
       MAX_IMPORT_COUNT.times do
         import_users(client)
-        LimitBalancer.instance.log_limit
         sleep API_REQUEST_INTERVAL
       end
 

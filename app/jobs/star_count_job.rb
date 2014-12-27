@@ -1,5 +1,4 @@
 class StarCountJob < ActiveJob::Base
-  BATCH_SIZE = 100
   FETCH_ATTRIBUTES = %i[
     id
     name
@@ -30,7 +29,6 @@ class StarCountJob < ActiveJob::Base
     User.import(users)
     Repository.import(repos)
 
-    Github::LimitBalancer.instance.log_limit
     logger.info "Updated #{repos.size} repos for #{user_ids.size} users: #{Time.now - start}s"
   rescue => e
     logger.error "#{user_ids}: #{e.class}: #{e}"

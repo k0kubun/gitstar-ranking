@@ -6,7 +6,7 @@ module Github
     include Singleton
 
     def client
-      clients.max_by { |c| c.rate_limit.remaining }
+      clients.sample
     end
 
     def log_limit

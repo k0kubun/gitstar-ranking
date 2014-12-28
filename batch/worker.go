@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
-	"github.com/octokit/go-octokit/octokit"
+	"github.com/k0kubun/pp"
 	"log"
-	"net/url"
 	"os"
 	"strings"
 )
@@ -52,23 +50,8 @@ func updateStarCount(userId int) {
 		return
 	}
 
-	client := octokit.NewClient(
-		octokit.TokenAuth{selectToken()},
-	)
-	uri := fmt.Sprintf("https://api.github.com/users/%s/repos", login)
-	endpoint, _ := url.Parse(uri)
-
-	repos, result := client.Repositories(endpoint).All()
-	if result.HasError() {
-		log.Println(result)
-		return
-	}
-
-	for _, repo := range repos {
-		break
-		fmt.Printf("%#v", repo)
-	}
-	fmt.Printf("%#v", selectToken())
+	repos := allRepositories(login)
+	pp.Println(len(repos))
 }
 
 func loginByUserId(userId int) string {

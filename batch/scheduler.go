@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	//batchSize = 6900
-	batchSize = 10
+	batchSize = 6900
 )
 
 func schedulerLoop(queue chan int) {
@@ -43,14 +42,14 @@ func notQueuedIds(size int) []int {
 		size,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("notQueuedIds: ", err.Error())
 	}
 
 	var id int
 	for rows.Next() {
 		err = rows.Scan(&id)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("notQueuedIds rows.Next()", err.Error())
 		}
 
 		ids = append(ids, id)
@@ -71,7 +70,7 @@ func filterIds(ids []int) []int {
 		),
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("filterIds: ", err.Error())
 	}
 
 	filtered := []int{}
@@ -79,7 +78,7 @@ func filterIds(ids []int) []int {
 	for rows.Next() {
 		err = rows.Scan(&id)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("filterIds rows.Next(): ", err.Error())
 		}
 
 		filtered = append(filtered, id)

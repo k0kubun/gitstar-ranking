@@ -92,7 +92,7 @@ func bulkInsertRepositories(repos []octokit.Repository) {
 	)
 	_, err := db.Query(sql)
 	if err != nil {
-		log.Println(err)
+		log.Println("bulkInsertRepositories: ", err.Error())
 	}
 }
 
@@ -100,6 +100,7 @@ func loginByUserId(userId int) string {
 	var login string
 
 	rows, err := db.Query("SELECT login FROM users WHERE id = ? LIMIT 1;", userId)
+	defer rows.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

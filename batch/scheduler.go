@@ -41,6 +41,7 @@ func notQueuedIds(size int) []int {
 		"SELECT id FROM users WHERE queued_at IS NULL LIMIT ?;",
 		size,
 	)
+	defer rows.Close()
 	if err != nil {
 		log.Fatal("notQueuedIds: ", err.Error())
 	}
@@ -69,6 +70,7 @@ func filterIds(ids []int) []int {
 			commaJoin(ids),
 		),
 	)
+	defer rows.Close()
 	if err != nil {
 		log.Fatal("filterIds: ", err.Error())
 	}

@@ -7,7 +7,12 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:@/github_ranks_development")
+	dsn := fmt.Sprintf(
+		"root:@/%s",
+		getEnv("GR_DB_NAME", "github_ranks_development"),
+	)
+
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}

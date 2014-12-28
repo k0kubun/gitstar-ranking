@@ -7,3 +7,4 @@
 /public/assets
 /.env
 *.rdb
+/batch/batch

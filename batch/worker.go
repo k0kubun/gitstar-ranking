@@ -4,11 +4,15 @@ import (
 	"log"
 )
 
-func workerLoop(index int, queue chan []int) {
+func workerLoop(index int, queue chan int) {
 	log.Printf("[%d] Invoke worker\n", index)
 
 	for {
-		ids := <-queue
-		log.Printf("[%d] %#v\n", index, ids)
+		id := <-queue
+		updateStarCount(id)
 	}
+}
+
+func updateStarCount(userId int) {
+	log.Printf("[%d] %d\n", index, id)
 }

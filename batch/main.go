@@ -34,7 +34,7 @@ func main() {
 	defer db.Close()
 
 	runtime.GOMAXPROCS(workerConcurrency + 1)
-	idQueue := make(chan []int, queueLength)
+	idQueue := make(chan int, queueLength)
 
 	log.Println(divider)
 	for i := 0; i < workerConcurrency; i++ {

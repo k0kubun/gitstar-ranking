@@ -10,11 +10,11 @@ const (
 	batchSize = 6900
 )
 
-func schedulerLoop(queue chan []int) {
+func schedulerLoop(queue chan int) {
 	for {
 		ids := notQueuedIds(batchSize)
 		for _, id := range filterIds(ids) {
-			queue <- []int{id}
+			queue <- id
 		}
 
 		break

@@ -6,6 +6,7 @@ task :deploy do
   system('GOOS=linux GOARCH=amd64 go build')
   system("ssh #{DEPLOY_HOST} 'mkdir -p #{DEPLOY_TO}'")
   system("scp batch #{DEPLOY_HOST}:#{DEPLOY_TO}")
+  system("scp tokens.txt #{DEPLOY_HOST}:#{DEPLOY_TO}")
 end
 
 task default: :deploy

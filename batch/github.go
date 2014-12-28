@@ -31,7 +31,7 @@ func allRepositories(login string) []octokit.Repository {
 		client := octokit.NewClient(octokit.TokenAuth{selectToken()})
 		repos, result := client.Repositories(endpoint).All()
 		if result.HasError() {
-			log.Println(result)
+			log.Println(login, ": ", result)
 			return allRepos
 		}
 

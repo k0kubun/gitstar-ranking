@@ -9,6 +9,10 @@ import (
 
 var db *sql.DB
 
+const (
+	mysqlMaxConn = 100
+)
+
 func init() {
 	dsn := fmt.Sprintf(
 		"%s:%s@/%s",
@@ -22,6 +26,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	db.SetMaxOpenConns(mysqlMaxConn)
 }
 
 func commaJoin(nums []int) string {

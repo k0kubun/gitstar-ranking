@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	batchSize = 100
+	batchSize = 6900
 )
 
 func schedulerLoop(queue chan []int) {

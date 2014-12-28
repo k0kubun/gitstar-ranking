@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bitbucket.org/tebeka/strftime"
 	"bufio"
+	"fmt"
+	"github.com/k0kubun/go-octokit/octokit"
 	"log"
 	"os"
 	"strings"
@@ -53,6 +56,8 @@ func updateStarCount(userId int) {
 
 	userStar := 0
 	repos := allRepositories(login)
+	bulkInsertRepositories(repos)
+
 	for _, repo := range repos {
 		userStar += repo.StargazersCount
 	}
@@ -64,6 +69,31 @@ func updateStarCount(userId int) {
 
 	end := time.Now()
 	log.Printf("Star %d for %s (%s)\n", userStar, login, end.Sub(start).String())
+}
+
+// TODO: support splitting queries (for max length of one query), proper created_at
+func bulkInsertRepositories(repos []octokit.Repository) {
+	if len(repos) == 0 {
+		return
+	}
+	timeStr, _ := strftime.Format("%Y/%m/%d %H:%M:%S", time.Now())
+
+	values := []string{}
+	for _, repo := range repos {
+		value := fmt.Sprintf("(%d,%d,'%s','%s')", repo.ID, repo.StargazersCount, timeStr, timeStr)
+		values = append(values, value)
+	}
+
+	sql := fmt.Sprintf(
+		`INSERT INTO repositories (id,stargazers_count,created_at,updated_at)
+		VALUES %s
+		ON DUPLICATE KEY UPDATE stargazers_count=VALUES(stargazers_count);`,
+		strings.Join(values, ","),
+	)
+	_, err := db.Query(sql)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func loginByUserId(userId int) string {

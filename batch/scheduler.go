@@ -11,29 +11,26 @@ const (
 )
 
 func schedulerLoop(queue chan int) {
-	for {
-		ids := notQueuedIds(batchSize)
-		markAsQueued(ids)
-
-		for _, id := range filterIds(ids) {
-			queue <- id
-		}
-
-		time.Sleep(1 * time.Minute)
-	}
-}
-
-func queueWatchLoop(queue chan int) {
 	var oldLen int
 	var newLen int
+
 	for {
+		if len(queue) < workerConcurrency {
+			ids := notQueuedIds(batchSize)
+			markAsQueued(ids)
+
+			for _, id := range filterIds(ids) {
+				queue <- id
+			}
+		}
+
 		oldLen = newLen
 		newLen = len(queue)
 
 		if oldLen != newLen {
-			log.Printf("[watch] Queue: %d\n", newLen)
+			log.Printf("[master] Queue: %d\n", newLen)
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 

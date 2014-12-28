@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	queueLength       = 14000
+	queueLength       = 8000
 	workerConcurrency = 64
 	divider           = "--------------------------------------------------------"
 )
@@ -40,6 +40,5 @@ func main() {
 	for i := 0; i < workerConcurrency; i++ {
 		go workerLoop(i, idQueue)
 	}
-	go queueWatchLoop(idQueue)
 	schedulerLoop(idQueue)
 }

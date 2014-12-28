@@ -11,7 +11,6 @@ const (
 
 func schedulerLoop(queue chan []int) {
 	for {
-		log.Printf("Len: %d\n", 100)
 		ids := notQueuedIds()
 
 		for _, id := range ids {

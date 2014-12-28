@@ -1,9 +1,1 @@
-# GitHub Ranks
-
-GitHub rankings for active users and repositories
-
-http://githubranks.com
-
-## Copyright
-
-Copyright 2014 Takashi Kokubun
+This is just an experimental application. This will never be hosted.

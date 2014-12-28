@@ -35,12 +35,17 @@ func allRepositories(login string) []octokit.Repository {
 			return allRepos
 		}
 
-		if len(repos) == 0 || len(repos) < 100 {
+		if len(repos) == 0 {
 			return allRepos
 		}
 
 		allRepos = append(allRepos, repos...)
-		page++
+
+		if len(repos) < 100 {
+			return allRepos
+		} else {
+			page++
+		}
 	}
 
 	return allRepos

@@ -61,11 +61,14 @@ func updateStarCount(userId int) {
 	for _, repo := range repos {
 		userStar += repo.StargazersCount
 	}
-	db.Query(
+	_, err := db.Exec(
 		"UPDATE users SET stargazers_count = ? WHERE id = ?",
 		userStar,
 		userId,
 	)
+	if err != nil {
+		log.Println(err)
+	}
 
 	end := time.Now()
 	log.Printf("Star %d for %s (%s)\n", userStar, login, end.Sub(start).String())
@@ -90,7 +93,7 @@ func bulkInsertRepositories(repos []octokit.Repository) {
 		ON DUPLICATE KEY UPDATE stargazers_count=VALUES(stargazers_count);`,
 		strings.Join(values, ","),
 	)
-	_, err := db.Query(sql)
+	_, err := db.Exec(sql)
 	if err != nil {
 		log.Println("bulkInsertRepositories: ", err.Error())
 	}

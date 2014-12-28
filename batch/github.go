@@ -7,12 +7,21 @@ import (
 	"net/url"
 )
 
+const (
+	maxPerPage = 100
+)
+
 func allRepositories(login string) []octokit.Repository {
 	allRepos := []octokit.Repository{}
 	page := 1
 
 	for {
-		uri := fmt.Sprintf("https://api.github.com/users/%s/repos?per_page=100&page=%d", login, page)
+		uri := fmt.Sprintf(
+			"https://api.github.com/users/%s/repos?per_page=%d&page=%d",
+			login,
+			maxPerPage,
+			page,
+		)
 		endpoint, err := url.Parse(uri)
 		if err != nil {
 			log.Println(err)
@@ -26,7 +35,7 @@ func allRepositories(login string) []octokit.Repository {
 			return allRepos
 		}
 
-		if len(repos) == 0 {
+		if len(repos) == 0 || len(repos) < 100 {
 			return allRepos
 		}
 

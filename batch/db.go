@@ -40,20 +40,3 @@ func commaJoin(nums []int) string {
 
 	return string(buf[0 : len(buf)-1])
 }
-
-func sqlTest() {
-	rows, err := db.Query("SELECT id FROM users LIMIT 5;")
-	if err != nil {
-		panic(err)
-	}
-
-	var id int
-	for rows.Next() {
-		err = rows.Scan(&id)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(id)
-	}
-}

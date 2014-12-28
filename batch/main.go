@@ -8,7 +8,7 @@ import (
 
 const (
 	queueLength       = 14000
-	workerConcurrency = 7
+	workerConcurrency = 45
 	divider           = "--------------------------------------------------------"
 )
 

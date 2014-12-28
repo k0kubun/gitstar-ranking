@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bitbucket.org/tebeka/strftime"
 	"bufio"
 	"fmt"
 	"github.com/k0kubun/go-octokit/octokit"
@@ -79,11 +78,11 @@ func bulkInsertRepositories(repos []octokit.Repository) {
 	if len(repos) == 0 {
 		return
 	}
-	timeStr, _ := strftime.Format("%Y/%m/%d %H:%M:%S", time.Now())
 
 	values := []string{}
+	now := timeNow()
 	for _, repo := range repos {
-		value := fmt.Sprintf("(%d,%d,'%s','%s')", repo.ID, repo.StargazersCount, timeStr, timeStr)
+		value := fmt.Sprintf("(%d,%d,'%s','%s')", repo.ID, repo.StargazersCount, now, now)
 		values = append(values, value)
 	}
 

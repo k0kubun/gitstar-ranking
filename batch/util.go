@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bitbucket.org/tebeka/strftime"
 	"os"
+	"time"
 )
 
 func getEnv(key string, def string) string {
@@ -11,4 +13,12 @@ func getEnv(key string, def string) string {
 	}
 
 	return v
+}
+
+func timeNow() string {
+	str, err := strftime.Format("%Y/%m/%d %H:%M:%S", time.Now())
+	if err != nil {
+		panic(err)
+	}
+	return str
 }

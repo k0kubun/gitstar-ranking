@@ -13,6 +13,8 @@ const (
 func schedulerLoop(queue chan int) {
 	for {
 		ids := notQueuedIds(batchSize)
+		markAsQueued(ids)
+
 		for _, id := range filterIds(ids) {
 			queue <- id
 		}
@@ -87,4 +89,16 @@ func filterIds(ids []int) []int {
 	}
 
 	return filtered
+}
+
+func markAsQueued(ids []int) {
+	sql := fmt.Sprintf(
+		"UPDATE users SET users.queued_at = '%s' WHERE id IN (%s);",
+		timeNow(),
+		commaJoin(ids),
+	)
+	_, err := db.Exec(sql)
+	if err != nil {
+		log.Println("markAsQueued: ", err.Error())
+	}
 }

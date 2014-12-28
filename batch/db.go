@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"strconv"
 )
 
 var db *sql.DB
@@ -21,6 +22,23 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func commaJoin(nums []int) string {
+	if len(nums) == 0 {
+		return ""
+	}
+
+	// Use buffer for performance
+	buf := make([]byte, 0, 10)
+
+	for _, num := range nums {
+		numStr := strconv.Itoa(num)
+		buf = append(buf, numStr...)
+		buf = append(buf, ","...)
+	}
+
+	return string(buf[0 : len(buf)-1])
 }
 
 func sqlTest() {

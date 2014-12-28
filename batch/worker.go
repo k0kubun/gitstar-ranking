@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"github.com/k0kubun/pp"
 	"log"
 	"os"
 	"strings"
@@ -39,8 +38,7 @@ func workerLoop(index int, queue chan int) {
 	log.Printf("[%d] Invoke worker\n", index)
 
 	for {
-		id := <-queue
-		updateStarCount(id)
+		updateStarCount(<-queue)
 	}
 }
 
@@ -50,8 +48,17 @@ func updateStarCount(userId int) {
 		return
 	}
 
+	userStar := 0
 	repos := allRepositories(login)
-	pp.Println(len(repos))
+	for _, repo := range repos {
+		userStar += repo.StargazersCount
+	}
+	db.Query(
+		"UPDATE users SET stargazers_count = ? WHERE id = ?",
+		userStar,
+		userId,
+	)
+	log.Printf("Star %d for %s\n", userStar, login)
 }
 
 func loginByUserId(userId int) string {

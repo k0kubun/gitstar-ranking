@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	batchSize = 6900
+	batchSize = 7000
 )
 
 func schedulerLoop(queue chan int) {
@@ -19,10 +19,11 @@ func schedulerLoop(queue chan int) {
 			queue <- id
 		}
 
-		break
 		time.Sleep(1 * time.Minute)
 	}
+}
 
+func queueWatchLoop(queue chan int) {
 	var oldLen int
 	var newLen int
 	for {
@@ -30,9 +31,9 @@ func schedulerLoop(queue chan int) {
 		newLen = len(queue)
 
 		if oldLen != newLen {
-			log.Printf("[master] Queue: %d\n", newLen)
+			log.Printf("[watch] Queue: %d\n", newLen)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }
 

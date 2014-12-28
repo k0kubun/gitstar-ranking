@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 )
 
 var (
@@ -46,8 +45,6 @@ func workerLoop(index int, queue chan int) {
 }
 
 func updateStarCount(userId int) {
-	start := time.Now()
-
 	login := loginByUserId(userId)
 	if login == "" {
 		return
@@ -68,9 +65,6 @@ func updateStarCount(userId int) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	end := time.Now()
-	log.Printf("Star %d for %s (%s)\n", userStar, login, end.Sub(start).String())
 }
 
 // TODO: support splitting queries (for max length of one query), proper created_at

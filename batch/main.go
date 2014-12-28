@@ -40,5 +40,6 @@ func main() {
 	for i := 0; i < workerConcurrency; i++ {
 		go workerLoop(i, idQueue)
 	}
+	go queueWatchLoop(idQueue)
 	schedulerLoop(idQueue)
 }

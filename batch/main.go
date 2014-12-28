@@ -3,11 +3,13 @@ package main
 import (
 	"log"
 	"os"
+	"runtime"
 )
 
 const (
 	queueLength       = 100
-	workerConcurrency = 8
+	workerConcurrency = 7
+	divider           = "--------------------------------------------------------"
 )
 
 var (
@@ -31,10 +33,12 @@ func main() {
 	defer logF.Close()
 	defer db.Close()
 
+	runtime.GOMAXPROCS(workerConcurrency + 1)
 	idQueue := make(chan []int, queueLength)
 
+	log.Println(divider)
 	for i := 0; i < workerConcurrency; i++ {
-		workerLoop(i, idQueue)
+		go workerLoop(i, idQueue)
 	}
 	schedulerLoop(idQueue)
 }

@@ -9,9 +9,11 @@
         %span.icon-bar
 
     #navbar-main.navbar-collapse.collapse
-      = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do
-        = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
-          placeholder: 'Search users or repos'
+      - unless controller_path == 'searches'
+        = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do
+          = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
+            placeholder: 'Search users or repos'
+
       %ul.nav.navbar-nav.navbar-right
         %li
           = link_to '#' do

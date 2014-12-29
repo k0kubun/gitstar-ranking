@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root to: 'users#index'
+  root to: 'top#index'
 
   resources :users, only: [] do
     collection do

@@ -72,7 +72,7 @@
                 - if request.from_pc?
                   = repo.full_name
                 - else
-                  = repo.name
+                  = truncate repo.name, length: 20
             %td= repo.stargazers_count
     = link_to '#' do
       Show more »

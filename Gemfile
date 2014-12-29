@@ -2,8 +2,8 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.0'
 
-gem 'bootstrap-sass', '~> 2.3.2'
 gem 'activerecord-import'
+gem 'bootstrap-sass', '~> 2.3.2'
 gem 'coffee-rails'
 gem 'dotenv-rails'
 gem 'each_with_rank'

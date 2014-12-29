@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141229121343) do
+ActiveRecord::Schema.define(version: 20141229132527) do
 
   create_table "repositories", force: :cascade do |t|
     t.string   "name",             limit: 255
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20141229121343) do
     t.integer  "rank",             limit: 4
   end
 
+  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", using: :btree
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
   add_index "repositories", ["rank"], name: "index_repositories_on_rank", using: :btree
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree

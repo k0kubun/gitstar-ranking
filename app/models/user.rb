@@ -7,4 +7,8 @@ class User < ActiveRecord::Base
   has_many :repositories, foreign_key: :owner_id
 
   scope :not_organization, -> { where(type: 'User') }
+
+  searchable do
+    text :login
+  end
 end

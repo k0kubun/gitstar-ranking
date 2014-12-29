@@ -1,10 +1,9 @@
 production:
   solr:
     hostname: localhost
-    port: 8983
+    port: 8982
     log_level: WARNING
-    path: /solr/production
-    solr_home: /var/local/solr-4.10.2/githubranks
+    path: /solr/development
     # read_timeout: 2
     # open_timeout: 0.5
 

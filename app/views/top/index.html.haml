@@ -19,9 +19,9 @@
         %th Stars
 
       %tbody
-        - @users.each_with_rank do |user, rank|
+        - @users.each do |user|
           %tr
-            %td= rank
+            %td= user.rank
             %td
               = image_tag user.avatar_url, class: 'avatar_image'
               = user.login
@@ -38,9 +38,9 @@
         %th Stars
 
       %tbody
-        - @orgs.each_with_rank do |org, rank|
+        - @orgs.each do |org|
           %tr
-            %td= rank
+            %td= org.rank
             %td
               = image_tag org.avatar_url, class: 'avatar_image'
               = org.login
@@ -57,9 +57,9 @@
         %th Stars
 
       %tbody
-        - @repos.each_with_rank do |repo, rank|
+        - @repos.each do |repo|
           %tr
-            %td= rank
+            %td= repo.rank
             %td
               - if repo.owner
                 = image_tag repo.owner.avatar_url, class: 'avatar_image'

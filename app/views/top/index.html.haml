@@ -23,8 +23,10 @@
           %tr
             %td= user.rank
             %td
-              = image_tag user.avatar_url, class: 'avatar_image'
-              = user.login
+              = link_to user_path(user), class: 'no_underline' do
+                = image_tag user.avatar_url, class: 'avatar_image'
+              = link_to user_path(user) do
+                = user.login
             %td= user.stargazers_count
     = link_to '#' do
       Show more »
@@ -34,7 +36,7 @@
     %table.table.table-striped.table-hover
       %thead
         %th Rank
-        %th Name
+        %th Organization
         %th Stars
 
       %tbody
@@ -42,8 +44,10 @@
           %tr
             %td= org.rank
             %td
-              = image_tag org.avatar_url, class: 'avatar_image'
-              = org.login
+              = link_to user_path(org), class: 'no_underline' do
+                = image_tag org.avatar_url, class: 'avatar_image'
+              = link_to user_path(org) do
+                = org.login
             %td= org.stargazers_count
     = link_to '#' do
       Show more »
@@ -53,7 +57,7 @@
     %table.table.table-striped.table-hover
       %thead
         %th Rank
-        %th Name
+        %th Repository
         %th Stars
 
       %tbody
@@ -62,11 +66,13 @@
             %td= repo.rank
             %td
               - if repo.owner
-                = image_tag repo.owner.avatar_url, class: 'avatar_image'
-              - if request.from_pc?
-                = repo.full_name
-              - else
-                = repo.name
+                = link_to user_path(repo.owner), class: 'no_underline' do
+                  = image_tag repo.owner.avatar_url, class: 'avatar_image'
+              = link_to user_repository_path(repo.owner, repo) do
+                - if request.from_pc?
+                  = repo.full_name
+                - else
+                  = repo.name
             %td= repo.stargazers_count
     = link_to '#' do
       Show more »

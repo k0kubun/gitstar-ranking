@@ -9,5 +9,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :users, only: :show, param: :login, path: '/'
+  resources :users, only: :show, param: :login, path: '/' do
+    resources :repositories, only: :show, param: :name, path: '/'
+  end
 end

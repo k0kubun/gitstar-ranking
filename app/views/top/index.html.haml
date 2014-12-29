@@ -63,7 +63,7 @@
             %td
               - if repo.owner
                 = image_tag repo.owner.avatar_url, class: 'avatar_image'
-              = repo.name
+              = repo.full_name
             %td= repo.stargazers_count
     = link_to '#' do
       Show more »

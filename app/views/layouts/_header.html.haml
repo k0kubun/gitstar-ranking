@@ -9,8 +9,9 @@
         %span.icon-bar
 
     #navbar-main.navbar-collapse.collapse
-      %form.navbar-form.navbar-left
-        %input.form-control.cl-lg-8{ type: 'text', placeholder: 'Search users or repos' }
+      = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do
+        = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
+          placeholder: 'Search users or repos'
       %ul.nav.navbar-nav.navbar-right
         %li
           = link_to '#' do

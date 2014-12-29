@@ -3,12 +3,14 @@
     .navbar-header
       = link_to '#', class: 'navbar-brand' do
         GitHub Ranks Dec. 2014
-      %button{ class: 'navbar-toggle', data: { toggle: 'collapse', target: '#navbar-main' } }
+      %button.navbar-toggle{ data: { toggle: 'collapse', target: '#navbar-main' } }
         %span.icon-bar
         %span.icon-bar
         %span.icon-bar
 
     #navbar-main.navbar-collapse.collapse
+      %form.navbar-form.navbar-left
+        %input.form-control.cl-lg-8{ type: 'text', placeholder: 'Search users or repos' }
       %ul.nav.navbar-nav.navbar-right
         %li
           = link_to '#' do

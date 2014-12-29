@@ -6,5 +6,6 @@
 /light_blue
 /public/assets
 /solr/development/data/*
+/solr/pids/*
 /.env
 *.rdb

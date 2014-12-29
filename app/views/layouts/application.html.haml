@@ -7,16 +7,7 @@
     = csrf_meta_tags
 
   %body
-    .navbar.navbar-default.navbar-fixed-top
-      .container
-        .navbar-header
-          = link_to '#', class: 'navbar-brand' do
-            GitHub Ranks
-        #navbar-main.navbar-collapse.collapse
-          %ul.nav.navbar-nav.navbar-right
-            %li
-              = link_to '#' do
-                Login with GitHub
+    = render 'layouts/header'
 
     .container
       = yield

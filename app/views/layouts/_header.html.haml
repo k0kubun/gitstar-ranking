@@ -1,0 +1,15 @@
+.navbar.navbar-default.navbar-fixed-top
+  .container
+    .navbar-header
+      = link_to '#', class: 'navbar-brand' do
+        GitHub Ranks
+      %button{ class: 'navbar-toggle', data: { toggle: 'collapse', target: '#navbar-main' } }
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+
+    #navbar-main.navbar-collapse.collapse
+      %ul.nav.navbar-nav.navbar-right
+        %li
+          = link_to '#' do
+            Login with GitHub

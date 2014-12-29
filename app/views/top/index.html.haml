@@ -4,7 +4,59 @@
       .jumbotron
         %h1 GitHub Ranks for 2014
         %p
-          GitHub stargazers count rankings for users, organizations and repositories.
+          GitHub stars rankings for users, organizations and repositories.
         %p
           = link_to '#', class: 'btn btn-primary btn-lg' do
             Sign in with GitHub
+
+.row
+  .col-lg-4
+    %h2 Users
+    %table.table.table-striped.table-hover
+      %thead
+        %th Rank
+        %th Name
+        %th Stars
+
+      %tbody
+        - 10.times do |i|
+          %tr
+            %td= i
+            %td sferik
+            %td 1000
+    = link_to '#' do
+      Show more »
+
+  .col-lg-4
+    %h2 Organizations
+    %table.table.table-striped.table-hover
+      %thead
+        %th Rank
+        %th Name
+        %th Stars
+
+      %tbody
+        - 10.times do |i|
+          %tr
+            %td= i
+            %td sferik
+            %td 1000
+    = link_to '#' do
+      Show more »
+
+  .col-lg-4
+    %h2 Repositories
+    %table.table.table-striped.table-hover
+      %thead
+        %th Rank
+        %th Name
+        %th Stars
+
+      %tbody
+        - 10.times do |i|
+          %tr
+            %td= i
+            %td sferik
+            %td 1000
+    = link_to '#' do
+      Show more »

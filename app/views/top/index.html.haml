@@ -15,15 +15,17 @@
     %table.table.table-striped.table-hover
       %thead
         %th Rank
-        %th Name
+        %th User
         %th Stars
 
       %tbody
-        - 10.times do |i|
+        - @users.each_with_rank do |user, rank|
           %tr
-            %td= i
-            %td sferik
-            %td 1000
+            %td= rank
+            %td
+              = image_tag user.avatar_url, class: 'avatar_image'
+              = user.login
+            %td= user.stargazers_count
     = link_to '#' do
       Show more »
 
@@ -36,11 +38,13 @@
         %th Stars
 
       %tbody
-        - 10.times do |i|
+        - @orgs.each_with_rank do |org, rank|
           %tr
-            %td= i
-            %td sferik
-            %td 1000
+            %td= rank
+            %td
+              = image_tag org.avatar_url, class: 'avatar_image'
+              = org.login
+            %td= org.stargazers_count
     = link_to '#' do
       Show more »
 
@@ -53,10 +57,13 @@
         %th Stars
 
       %tbody
-        - 10.times do |i|
+        - @repos.each_with_rank do |repo, rank|
           %tr
-            %td= i
-            %td sferik
-            %td 1000
+            %td= rank
+            %td
+              - if repo.owner
+                = image_tag repo.owner.avatar_url, class: 'avatar_image'
+              = repo.name
+            %td= repo.stargazers_count
     = link_to '#' do
       Show more »

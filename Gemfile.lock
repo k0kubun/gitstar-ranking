@@ -153,6 +153,9 @@ GEM
     rack (1.6.0)
     rack-test (0.6.2)
       rack (>= 1.0)
+    rack-user_agent (0.2.3)
+      rack (~> 1.5)
+      woothee (~> 1.0.0)
     rails (4.2.0)
       actionmailer (= 4.2.0)
       actionpack (= 4.2.0)
@@ -235,6 +238,7 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
+    woothee (1.0.0)
     yard (0.8.7.6)
 
 PLATFORMS
@@ -261,6 +265,7 @@ DEPENDENCIES
   pry-byebug
   pry-doc
   pry-rails
+  rack-user_agent
   rails (= 4.2.0)
   sass-rails
   silencer

@@ -63,7 +63,10 @@
             %td
               - if repo.owner
                 = image_tag repo.owner.avatar_url, class: 'avatar_image'
-              = repo.full_name
+              - if request.from_smartphone?
+                = repo.name
+              - else
+                = repo.full_name
             %td= repo.stargazers_count
     = link_to '#' do
       Show more »

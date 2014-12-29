@@ -4,6 +4,10 @@ class UsersController < ApplicationController
     @users_count = User.last.id
   end
 
+  def show
+    @user = User.find_by!(login: params[:login])
+  end
+
   def orgs
     @users = User.where(type: 'Organization').order(stargazers_count: :desc).first(50)
     @users_count = User.last.id

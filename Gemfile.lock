@@ -1,10 +1,3 @@
-GIT
-  remote: git@bitbucket.org:k0kubun/light_blue.git
-  revision: f1f99732ebfac416841c1a19bf7417acb5607afe
-  specs:
-    light_blue (0.0.1)
-      rails (~> 4.2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -240,7 +233,6 @@ DEPENDENCIES
   haml-rails
   jbuilder
   jquery-rails
-  light_blue!
   mysql2
   octokit
   pry-byebug

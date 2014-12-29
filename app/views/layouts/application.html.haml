@@ -3,69 +3,21 @@
   %head
     %title GithubRanks
     %link{ rel: 'shortcut icon', href: 'favicon.ico' }
-    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
     = stylesheet_link_tag    'application', media: 'all'
     = javascript_include_tag 'application'
     = csrf_meta_tags
 
   %body{ class: "#{controller_path.gsub(/\//, '_')}_controller #{action_name}_action" }
-    .logo
-      %h4
-        = link_to root_path do
-          GitHub
-          %strong Ranks
-    %nav#sidebar.sidebar.nav-collapse.collapse
-      :ruby
-        menus = [
-          ['User stars', 'pencil', root_path],
-          ['Org stars', 'pencil', orgs_users_path],
-          ['Repo stars', 'area-chart', repositories_path],
-        ]
-      %ul#side-nav.side-nav
-        - menus.each do |name, icon, path|
-          %li.menu_item{ class: ('active' if path == request.path) }
-            = link_to path do
-              %i.fa{ class: "fa-#{icon}" }
-              %span.name
-                = name
-
-    -# FIXME: clean up
-    -# This is converted from light blue's html
-    .wrap
-      %header.page-header
-        .navbar
-          %ul.nav.navbar-nav.navbar-right.pull-right
-            %li.hidden-xs
-              %a#settings{"data-placement" => "bottom", "data-toggle" => "popover", href: "#", title: "Settings"}
-                %i.fa.fa-cog
-            %li.hidden-xs.dropdown
-              %a#account.dropdown-toggle{"data-toggle" => "dropdown", href: "#", title: "Account"}
-                %i.fa.fa-user
-              %ul#account-menu.dropdown-menu.account{role: "menu"}
-                %li.account-picture{role: "presentation"}
-                  = image_tag 'light_blue/2.jpg'
-                  Philip Daineka
-                %li{role: "presentation"}
-                  %a.link{href: "form_account.html"}
-                    %i.fa.fa-user
-                    Profile
-                %li{role: "presentation"}
-                  %a.link{href: "component_calendar.html"}
-                    %i.fa.fa-calendar
-                    Calendar
-                %li{role: "presentation"}
-                  %a.link{href: "#"}
-                    %i.fa.fa-inbox
-                    Inbox
-            %li.divider
-            %li.visible-xs
-              %a.btn-navbar{"data-target" => ".sidebar", "data-toggle" => "collapse", href: "#", title: ""}
-                %i.fa.fa-bars
-            %li.hidden-xs
-              %a{href: "login.html"}
-                %i.fa.fa-sign-out
-
+    :ruby
+      menus = [
+        ['User stars', 'pencil', root_path],
+        ['Org stars', 'pencil', orgs_users_path],
+        ['Repo stars', 'area-chart', repositories_path],
+      ]
+    %ul
+      - menus.each do |name, icon, path|
+        %li.menu_item{ class: ('active' if path == request.path) }
+          = link_to path do
+            %span.name
+              = name
       = yield
-
-      .loader-wrap.hiding.hide
-        %i.fa.fa-circle-o-notch.fa-spin

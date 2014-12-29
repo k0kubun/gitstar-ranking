@@ -1,23 +1,13 @@
 !!!
 %html
   %head
-    %title GithubRanks
-    %link{ rel: 'shortcut icon', href: 'favicon.ico' }
-    = stylesheet_link_tag    'application', media: 'all'
-    = javascript_include_tag 'application'
+    %title Githubranks
+    = stylesheet_link_tag "application", media: "all"
+    = javascript_include_tag "application"
     = csrf_meta_tags
 
-  %body{ class: "#{controller_path.gsub(/\//, '_')}_controller #{action_name}_action" }
-    :ruby
-      menus = [
-        ['User stars', 'pencil', root_path],
-        ['Org stars', 'pencil', orgs_users_path],
-        ['Repo stars', 'area-chart', repositories_path],
-      ]
-    %ul
-      - menus.each do |name, icon, path|
-        %li.menu_item{ class: ('active' if path == request.path) }
-          = link_to path do
-            %span.name
-              = name
+  %body
+    = render "layouts/header"
+
+    .container
       = yield

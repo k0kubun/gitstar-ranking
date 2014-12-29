@@ -6,8 +6,9 @@
       .col-lg-8
         = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
           placeholder: 'Search users or repos'
-      .col-lg-1
-        = button_tag 'Search', class: 'btn btn-sm btn-info search_button'
+      - if request.from_pc?
+        .col-lg-1
+          = button_tag 'Search', class: 'btn btn-sm btn-info search_button'
 
 .row
   .col-lg-3

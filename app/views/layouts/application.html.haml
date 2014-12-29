@@ -1,7 +1,7 @@
 !!!
 %html
   %head
-    %title GitHub Ranks 2014
+    %title= content_for(:title) || 'GitHub Ranks 2014'
     %link{ rel: 'shortcut icon', href: 'favicon.ico' }
     %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
     = stylesheet_link_tag 'application', media: 'all'

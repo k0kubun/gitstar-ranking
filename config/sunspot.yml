@@ -4,6 +4,7 @@ production:
     port: 8982
     log_level: WARNING
     path: /solr/development
+    solr_home: /home/k0kubun/solr
     # read_timeout: 2
     # open_timeout: 0.5
 

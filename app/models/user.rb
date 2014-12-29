@@ -11,4 +11,8 @@ class User < ActiveRecord::Base
   searchable do
     text :login
   end
+
+  def to_param
+    login
+  end
 end

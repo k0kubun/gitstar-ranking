@@ -1,0 +1,40 @@
+.searches_controller.show_action {
+  .page-header {
+    margin-top: 10px;
+
+    h1 {
+      font-size: 24px;
+      margin: 4px 0 10px 0;
+    }
+
+    .search_form {
+      padding: 0;
+    }
+
+    .search_form .form-control {
+      height: auto;
+      padding: 4px 6px;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+    }
+  }
+
+  .search_menu {
+    margin-bottom: 20px;
+  }
+
+  .search_result {
+    .avatar_image_big {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+      margin: -8px 10px 2px 0;
+    }
+
+    .login {
+      font-size: 24px;
+    }
+  }
+}

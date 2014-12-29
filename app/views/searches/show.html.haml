@@ -1,18 +1,44 @@
 .page-header
-  .row
-    .col-lg-3
-      %h1 Search
-    = form_tag search_path, method: :get, class: 'search_form' do
+  = form_tag search_path, method: :get, class: 'search_form' do
+    .row
+      .col-lg-3
+        %h1 Search
+
       .col-lg-8
-        = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
-          placeholder: 'Search users or repos'
+        = search_field_tag :q, params[:q], class: 'form-control cl-lg-8', placeholder: 'Search users or repos'
+        = hidden_field_tag :type, search_type
+
       - if request.from_pc?
         .col-lg-1
           = button_tag 'Search', class: 'btn btn-sm btn-info search_button'
 
 .row
   .col-lg-3
-    aaa
+    %ul.nav.nav-pills.nav-stacked.search_menu
+      - search_types.each do |type|
+        %li{ class: ('active' if type == search_type) }
+          = link_to type, url_for(params.merge(type: type))
+
   .col-lg-9
-    - @users.each do |user|
-      = user.login
+    - case search_type
+    - when 'Users'
+      - if @users.present?
+        .list-group
+          - @users.each do |user|
+            = link_to user_path(user), class: 'list-group-item search_result' do
+              = image_tag user.avatar_url, class: 'avatar_image_big'
+              %span.login
+                = user.login
+      - else
+        = render 'no_result'
+
+    - when 'Repositories'
+      - if @repos.present?
+        - @repos.each do |repo|
+          = link_to user_repository_path(repo.owner, repo),
+            class: 'list-group-item search_result' do
+            = image_tag repo.owner.avatar_url, class: 'avatar_image_big'
+            %span.login
+              = repo.full_name
+      - else
+        = render 'no_result'

@@ -7,4 +7,8 @@ class Repository < ActiveRecord::Base
     text :name
     text :full_name
   end
+
+  def to_param
+    name
+  end
 end

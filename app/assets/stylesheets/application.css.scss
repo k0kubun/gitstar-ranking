@@ -10,6 +10,8 @@ body { padding-top: 60px; }
 // And finally bootswatch style itself
 @import "bootswatch/yeti/bootswatch";
 
+@import "font-awesome";
+
 @import "common";
 @import "searches";
 @import "top";

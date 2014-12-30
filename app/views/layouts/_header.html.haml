@@ -21,8 +21,10 @@
               = image_tag current_user.avatar_url, class: 'login_avatar'
               = current_user.login
           %li
-            = link_to '#' do
-              Logout
+            = link_to devise_session_path, method: :delete do
+              = fa_icon 'sign-out'
+              %span.hidden-lg.hidden-md.hidden-sm
+                Logout
 
         - else
           %li

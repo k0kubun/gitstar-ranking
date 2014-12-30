@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: { omniauth_callbacks: :omniauth_callbacks }
 
+  devise_scope :user do
+    namespace :devise do
+      resource :session, only: :destroy
+    end
+  end
+
   resources :repositories, only: :index
 
   resources :users, only: :index do

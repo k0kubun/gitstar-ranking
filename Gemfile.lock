@@ -91,6 +91,8 @@ GEM
     execjs (2.2.2)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
+    font-awesome-rails (4.2.0.0)
+      railties (>= 3.2, < 5.0)
     foreman (0.76.0)
       dotenv (~> 1.0.2)
       thor (~> 0.19.1)
@@ -289,6 +291,7 @@ DEPENDENCIES
   devise
   dotenv-rails
   each_with_rank
+  font-awesome-rails
   foreman
   haml-rails
   jbuilder

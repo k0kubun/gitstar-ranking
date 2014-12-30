@@ -5,9 +5,10 @@
         %h1 GitHub Ranks for 2014
         %p
           GitHub stars rankings for users, organizations and repositories.
-        %p
-          = link_to user_omniauth_authorize_path(:github), class: 'btn btn-primary btn-lg' do
-            Sign in with GitHub
+        - unless user_signed_in?
+          %p
+            = link_to user_omniauth_authorize_path(:github), class: 'btn btn-primary btn-lg' do
+              Sign in with GitHub
 
 .row
   .col-lg-4

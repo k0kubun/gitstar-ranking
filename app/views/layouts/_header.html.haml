@@ -15,6 +15,16 @@
             placeholder: 'Search users or repos'
 
       %ul.nav.navbar-nav.navbar-right
-        %li
-          = link_to user_omniauth_authorize_path(:github) do
-            Sign in with GitHub
+        - if user_signed_in?
+          %li
+            = link_to user_path(current_user) do
+              = image_tag current_user.avatar_url, class: 'login_avatar'
+              = current_user.login
+          %li
+            = link_to '#' do
+              Logout
+
+        - else
+          %li
+            = link_to user_omniauth_authorize_path(:github) do
+              Sign in with GitHub

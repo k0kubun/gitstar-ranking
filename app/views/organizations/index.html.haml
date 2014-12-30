@@ -2,10 +2,18 @@
   %h1
     Organizations Ranking
 
+    %span.pull-right
+      = limited_paginate @organizations, window: 2
+
 .row
+  - half = Organization.default_per_page / 2
+  - organizations = @organizations.to_a
   .col-lg-6
     .list-group
-      = render @organizations.first(@organizations.size / 2)
+      = render organizations.first(half)
   .col-lg-6
     .list-group
-      = render @organizations.last(@organizations.size / 2)
+      = render organizations.drop(half)
+
+.text-center
+  = limited_paginate @organizations, window: 10

@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
-  PER_PAGE = 100
+  include Concerns::Pageable
 
   def index
-    @users = User.not_organization.starred_first.first(PER_PAGE)
+    @users = User.not_organization.starred_first.page(params[:page])
   end
 
   def show

@@ -1,7 +1,7 @@
 class OrganizationsController < ApplicationController
-  PER_PAGE = 100
+  include Concerns::Pageable
 
   def index
-    @organizations = Organization.starred_first.first(PER_PAGE)
+    @organizations = Organization.starred_first.page(params[:page])
   end
 end

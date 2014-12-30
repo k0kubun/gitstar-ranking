@@ -2,10 +2,18 @@
   %h1
     Users Ranking
 
+    %span.pull-right
+      = limited_paginate @users, window: 2
+
 .row
+  - half  = User.default_per_page / 2
+  - users = @users.to_a
   .col-lg-6
     .list-group
-      = render @users.first(@users.size / 2)
+      = render users.first(half)
   .col-lg-6
     .list-group
-      = render @users.last(@users.size / 2)
+      = render users.drop(half)
+
+.text-center
+  = limited_paginate @users, window: 10

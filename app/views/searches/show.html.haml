@@ -42,5 +42,8 @@
             = image_tag repo.owner.avatar_url, class: 'avatar_image_big'
             %span.login
               = repo.full_name
+            %span.stargazers_count.pull-right
+              = fa_icon 'star'
+              = repo.stargazers_count
       - else
         = render 'no_result'

@@ -19,6 +19,7 @@ class SearchesController < ApplicationController
     User.search do
       fulltext params[:q]
       paginate page: 1, per_page: 10
+      order_by :stargazers_count, :desc
     end
   end
 
@@ -26,6 +27,7 @@ class SearchesController < ApplicationController
     Repository.search do
       fulltext params[:q]
       paginate page: 1, per_page: 10
+      order_by :stargazers_count, :desc
     end
   end
 

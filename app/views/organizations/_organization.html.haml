@@ -1,0 +1,8 @@
+= link_to user_path(organization), class: 'list-group-item paginated_item' do
+  = image_tag organization.avatar_url, class: 'avatar_image_big'
+  %span.name
+    #{organization.rank}.
+    = organization.login
+  %span.stargazers_count.pull-right
+    = fa_icon 'star'
+    = organization.stargazers_count

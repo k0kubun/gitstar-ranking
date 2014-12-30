@@ -1,1 +1,11 @@
-Organizations
+.page-header
+  %h1
+    Organizations Ranking
+
+.row
+  .col-lg-6
+    .list-group
+      = render @organizations.first(@organizations.size / 2)
+  .col-lg-6
+    .list-group
+      = render @organizations.last(@organizations.size / 2)

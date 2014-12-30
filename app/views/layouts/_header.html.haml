@@ -17,7 +17,7 @@
         }
       %ul.nav.navbar-nav
         - rankings.each do |name, path|
-          %li.hidden-sm
+          %li.hidden-sm{ class: ('active' if request.path == path) }
             = link_to name, path
 
         %li.dropdown.visible-sm-block
@@ -27,7 +27,8 @@
 
           %ul.dropdown-menu
             - rankings.each do |name, path|
-              %li= link_to name, path
+              %li{ class: ('active' if request.path == path) }
+                = link_to name, path
 
       - unless controller_path == 'searches'
         = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do

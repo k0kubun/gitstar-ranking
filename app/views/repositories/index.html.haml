@@ -1,1 +1,11 @@
-Repositories
+.page-header
+  %h1
+    Repositories Ranking
+
+.row
+  .col-lg-6
+    .list-group
+      = render @repositories.first(@repositories.size / 2)
+  .col-lg-6
+    .list-group
+      = render @repositories.last(@repositories.size / 2)

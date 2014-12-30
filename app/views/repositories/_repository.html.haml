@@ -1,0 +1,10 @@
+= link_to user_repository_path(repository.owner, repository),
+  class: 'list-group-item paginated_item' do
+  - if repository.owner
+    = image_tag repository.owner.avatar_url, class: 'avatar_image_big'
+  %span.name
+    #{repository.rank}.
+    = repository.full_name
+  %span.stargazers_count.pull-right
+    = fa_icon 'star'
+    = repository.stargazers_count

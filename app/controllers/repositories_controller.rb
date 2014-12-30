@@ -1,7 +1,8 @@
 class RepositoriesController < ApplicationController
+  PER_PAGE = 100
+
   def index
-    @repos = Repository.preload(:owner).starred_first.first(50)
-    @repos_count = Repository.last.id
+    @repositories = Repository.preload(:owner).starred_first.first(PER_PAGE)
   end
 
   def show

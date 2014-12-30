@@ -6,6 +6,7 @@ class Repository < ActiveRecord::Base
   searchable do
     text :name
     text :full_name
+    integer :stargazers_count
   end
 
   def to_param

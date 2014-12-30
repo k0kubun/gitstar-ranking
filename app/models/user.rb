@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
 
   searchable do
     text :login
+    integer :stargazers_count
   end
 
   def to_param

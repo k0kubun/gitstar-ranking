@@ -9,16 +9,25 @@
         %span.icon-bar
 
     #navbar-main.navbar-collapse.collapse
+      :ruby
+        rankings = {
+          'Users'         => users_path,
+          'Organizations' => organizations_path,
+          'Repositories'  => repositories_path,
+        }
       %ul.nav.navbar-nav
-        %li
-          = link_to users_path do
-            Users
-        %li
-          = link_to organizations_path do
-            Organizations
-        %li
-          = link_to repositories_path do
-            Repositories
+        - rankings.each do |name, path|
+          %li.hidden-sm
+            = link_to name, path
+
+        %li.dropdown.visible-sm-block
+          = link_to '#', class: 'dropdown-toggle', data: { toggle: 'dropdown' } do
+            Rankings
+            %b.caret
+
+          %ul.dropdown-menu
+            - rankings.each do |name, path|
+              %li= link_to name, path
 
       - unless controller_path == 'searches'
         = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do

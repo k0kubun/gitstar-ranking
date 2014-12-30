@@ -9,13 +9,9 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :users, only: :index
+  resources :organizations, only: :index
   resources :repositories, only: :index
-
-  resources :users, only: :index do
-    collection do
-      get :orgs
-    end
-  end
 
   resource :search, only: :show
 

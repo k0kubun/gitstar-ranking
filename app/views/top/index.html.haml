@@ -12,7 +12,7 @@
 
 .row
   .col-lg-4
-    %h2 Users
+    %h2= link_to 'Users', users_path
     %table.table.table-striped.table-hover
       %thead
         %th Rank
@@ -29,11 +29,11 @@
               = link_to user_path(user) do
                 = user.login
             %td= user.stargazers_count
-    = link_to '#' do
+    = link_to users_path do
       Show more »
 
   .col-lg-4
-    %h2 Organizations
+    %h2= link_to 'Organizations', organizations_path
     %table.table.table-striped.table-hover
       %thead
         %th Rank
@@ -50,11 +50,11 @@
               = link_to user_path(org) do
                 = org.login
             %td= org.stargazers_count
-    = link_to '#' do
+    = link_to organizations_path do
       Show more »
 
   .col-lg-4
-    %h2 Repositories
+    %h2= link_to 'Repositories', repositories_path
     %table.table.table-striped.table-hover
       %thead
         %th Rank
@@ -75,5 +75,5 @@
                 - else
                   = truncate repo.name, length: 20
             %td= repo.stargazers_count
-    = link_to '#' do
+    = link_to repositories_path do
       Show more »

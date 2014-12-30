@@ -28,6 +28,9 @@
               = image_tag user.avatar_url, class: 'avatar_image_big'
               %span.login
                 = user.login
+              %span.stargazers_count.pull-right
+                = fa_icon 'star'
+                = user.stargazers_count
       - else
         = render 'no_result'
 

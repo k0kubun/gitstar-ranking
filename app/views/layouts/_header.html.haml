@@ -2,13 +2,24 @@
   .container
     .navbar-header
       = link_to root_url, class: 'navbar-brand' do
-        GitHub Ranks Dec. 2014
+        = fa_icon 'github-alt', text: 'GitHub Ranks 2014'
       %button.navbar-toggle{ data: { toggle: 'collapse', target: '#navbar-main' } }
         %span.icon-bar
         %span.icon-bar
         %span.icon-bar
 
     #navbar-main.navbar-collapse.collapse
+      %ul.nav.navbar-nav
+        %li
+          = link_to users_path do
+            Users
+        %li
+          = link_to organizations_path do
+            Organizations
+        %li
+          = link_to repositories_path do
+            Repositories
+
       - unless controller_path == 'searches'
         = form_tag search_path, method: :get, class: 'navbar-form navbar-left' do
           = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',

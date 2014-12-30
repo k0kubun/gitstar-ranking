@@ -125,6 +125,9 @@ GEM
       thor (>= 0.14, < 2.0)
     json (1.8.1)
     jwt (1.2.0)
+    kaminari (0.16.1)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
     kgio (2.9.2)
     libv8 (3.16.14.7)
     loofah (2.0.1)
@@ -296,6 +299,7 @@ DEPENDENCIES
   haml-rails
   jbuilder
   jquery-rails
+  kaminari
   mysql2
   octokit
   omniauth

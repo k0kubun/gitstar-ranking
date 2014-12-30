@@ -8,9 +8,8 @@
         = search_field_tag :q, params[:q], class: 'form-control cl-lg-8', placeholder: 'Search users or repos'
         = hidden_field_tag :type, search_type
 
-      - if request.from_pc?
-        .col-lg-1
-          = button_tag 'Search', class: 'btn btn-sm btn-info search_button'
+      .col-lg-1.visible-lg-block
+        = button_tag 'Search', class: 'btn btn-sm btn-info search_button'
 
 .row
   .col-lg-3

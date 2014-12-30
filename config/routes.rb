@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root to: 'top#index'
 
+  devise_for :users
+
   resources :repositories, only: :index
 
   resources :users, only: :index do

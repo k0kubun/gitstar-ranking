@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
 
   searchable do
     text :login
+    text :type
     integer :stargazers_count
   end
 

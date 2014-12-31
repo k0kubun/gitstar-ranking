@@ -19,6 +19,10 @@
         Rank
       .user_value.col-xs-7
         = @user.rank
+    .row
+      .queued_at.col-xs-12
+        Fetched on #{l(@user.queued_at, format: :middle)}
+
 
   .col-md-8
     .page-header

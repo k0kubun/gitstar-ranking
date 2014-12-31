@@ -29,6 +29,11 @@
     font-size: 20px;
   }
 
+  .queued_at {
+    margin-top: 8px;
+    color: #aaa;
+  }
+
   @media (min-width: $screen-sm-max) {
     .page-header {
       margin-top: 0;

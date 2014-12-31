@@ -2,8 +2,8 @@
   %h1
     Organizations Ranking
 
-    %span.pull-right
-      = limited_paginate @organizations, window: 2
+    %span.pull-right.hidden-xs.hidden-sm
+      = limited_paginate @organizations, window: 2, theme: 'no_edge'
 
 .row
   - half = Organization.default_per_page / 2
@@ -15,5 +15,8 @@
     .list-group
       = render organizations.drop(half)
 
-.text-center
+.text-center.hidden-xs.hidden-sm
   = limited_paginate @organizations, window: 10
+
+.text-center.hidden-md.hidden-lg
+  = limited_paginate @organizations, window: 2, theme: 'no_edge'

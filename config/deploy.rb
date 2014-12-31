@@ -12,6 +12,7 @@ set :linked_dirs, %w[
   bin
   log
   light_blue
+  solr
   tmp/pids
   tmp/cache
   tmp/sockets

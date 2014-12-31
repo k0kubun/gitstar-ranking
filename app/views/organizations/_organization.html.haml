@@ -2,7 +2,10 @@
   = image_tag organization.avatar_url, class: 'avatar_image_big'
   %span.name
     #{organization.rank}.
-    = organization.login
+    %span.hidden-xs.hidden-sm
+      = truncate organization.login, length: 30
+    %span.hidden-md.hidden-lg
+      = truncate organization.login, length: 24
   %span.stargazers_count.pull-right
     = fa_icon 'star'
     = organization.stargazers_count

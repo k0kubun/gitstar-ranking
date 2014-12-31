@@ -4,7 +4,10 @@
     = image_tag repository.owner.avatar_url, class: 'avatar_image_big'
   %span.name
     #{repository.rank}.
-    = repository.full_name
+    %span.hidden-xs.hidden-sm
+      = truncate repository.full_name, length: 30
+    %span.hidden-md.hidden-lg
+      = truncate repository.name, length: 24
   %span.stargazers_count.pull-right
     = fa_icon 'star'
     = repository.stargazers_count

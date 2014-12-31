@@ -2,7 +2,10 @@
   = image_tag user.avatar_url, class: 'avatar_image_big'
   %span.name
     #{user.rank}.
-    = user.login
+    %span.hidden-xs.hidden-sm
+      = truncate user.login, length: 30
+    %span.hidden-md.hidden-lg
+      = truncate user.login, length: 24
   %span.stargazers_count.pull-right
     = fa_icon 'star'
     = user.stargazers_count

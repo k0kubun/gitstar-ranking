@@ -87,4 +87,8 @@ class SearchesController < ApplicationController
     SEARCH_TYPES
   end
   helper_method :search_types
+
+  def pagination_limit
+    50
+  end
 end

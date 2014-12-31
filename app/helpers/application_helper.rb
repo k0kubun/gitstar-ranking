@@ -5,7 +5,7 @@ module ApplicationHelper
       current_page: scope.current_page,
       per_page:     scope.limit_value,
       total_count:  1000,
-      total_pages:  10,
+      total_pages:  pagination_limit,
       remote:       false,
     )
     paginator.to_s
@@ -15,8 +15,8 @@ module ApplicationHelper
     paginator = Kaminari::Helpers::Paginator.new self, options.reverse_merge(
       current_page: results.current_page,
       per_page:     results.limit_value,
-      total_count:  [results.total_count, 1000].min,
-      total_pages:  [results.total_pages, 10].min,
+      total_count:  results.total_count,
+      total_pages:  [results.total_pages, pagination_limit].min,
       remote:       false,
     )
     paginator.to_s

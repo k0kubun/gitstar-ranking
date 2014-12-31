@@ -22,19 +22,16 @@ class SearchesController < ApplicationController
   end
 
   def fetch_count
-    total_count = Rails.cache.fetch('fetch_count', search_type, params[:q]) do
-      search =
-        case search_type
-        when 'Users'
-          search_users
-        when 'Organizations'
-          search_organizations
-        when 'Repositories'
-          search_repositories
-        end
-      search.results.total_count
-    end
-    render text: total_count
+    search =
+      case search_type
+      when 'Users'
+        search_users
+      when 'Organizations'
+        search_organizations
+      when 'Repositories'
+        search_repositories
+      end
+    render text: search.results.total_count
   end
 
   private

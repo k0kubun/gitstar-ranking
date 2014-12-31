@@ -11,5 +11,7 @@
       %span.stargazers_count.pull-right
         = fa_icon 'star'
         = repo.stargazers_count
+  = paginate repos
+
 - else
   = render 'no_result'

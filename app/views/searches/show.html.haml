@@ -16,11 +16,11 @@
     %ul.nav.nav-pills.nav-stacked.search_menu.visible-lg-block
       - search_types.each do |type|
         %li{ class: ('active' if type == search_type) }
-          = link_to type, url_for(params.merge(type: type))
+          = link_to type, url_for(params.slice(:q).merge(type: type))
     %ul.nav.nav-pills.search_menu.hidden-lg
       - search_types.each do |type|
         %li{ class: ('active' if type == search_type) }
-          = link_to type, url_for(params.merge(type: type))
+          = link_to type, url_for(params.slice(:q).merge(type: type))
 
   .col-lg-9
     - case search_type

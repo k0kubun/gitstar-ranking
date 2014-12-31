@@ -1,6 +1,7 @@
 class SearchesController < ApplicationController
   DEFAULT_SEARCH_TYPE = 'Users'
   SEARCH_TYPES = %w[Users Organizations Repositories].freeze
+  PER_PAGE = 20
 
   def show
     case search_type
@@ -33,7 +34,7 @@ class SearchesController < ApplicationController
   def search_users
     User.search do
       fulltext params[:q]
-      paginate page: 1, per_page: 10
+      paginate page: params[:page], per_page: PER_PAGE
       order_by :stargazers_count, :desc
       with :user_flag, true
     end
@@ -42,7 +43,7 @@ class SearchesController < ApplicationController
   def search_organizations
     Organization.search do
       fulltext params[:q]
-      paginate page: 1, per_page: 10
+      paginate page: params[:page], per_page: PER_PAGE
       order_by :stargazers_count, :desc
     end
   end
@@ -50,7 +51,7 @@ class SearchesController < ApplicationController
   def search_repositories
     Repository.search do
       fulltext params[:q]
-      paginate page: 1, per_page: 10
+      paginate page: params[:page], per_page: PER_PAGE
       order_by :stargazers_count, :desc
     end
   end

@@ -1,3 +1,5 @@
+@import "bootstrap/variables";
+
 .searches_controller.show_action {
   .page-header {
     margin-top: 10px;
@@ -26,16 +28,32 @@
   }
 
   .search_result {
-    .avatar_image_big {
-      width: 32px;
-      height: 32px;
-      margin-right: 8px;
-      margin: -8px 10px 2px 0;
+    @media (min-width: $screen-sm-max) {
+      .avatar_image_big {
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
+        margin: -8px 10px 2px 0;
+      }
+
+      .login,
+      .stargazers_count {
+        font-size: 24px;
+      }
     }
 
-    .login,
-    .stargazers_count {
-      font-size: 24px;
+    @media (max-width: $screen-sm-max) {
+      .avatar_image_big {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+        margin: -2px 10px 2px 0;
+      }
+
+      .login,
+      .stargazers_count {
+        font-size: 16px;
+      }
     }
   }
 }

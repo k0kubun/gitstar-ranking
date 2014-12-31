@@ -17,8 +17,10 @@ class User < ActiveRecord::Base
 
   searchable do
     text :login
-    text :type
     integer :stargazers_count
+    boolean :user_flag do
+      self.type == 'User'
+    end
   end
 
   def to_param

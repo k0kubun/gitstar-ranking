@@ -20,6 +20,7 @@ class SearchesController < ApplicationController
       fulltext params[:q]
       paginate page: 1, per_page: 10
       order_by :stargazers_count, :desc
+      with :user_flag, true
     end
   end
 

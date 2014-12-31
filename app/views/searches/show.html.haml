@@ -23,9 +23,13 @@
           = link_to type, url_for(params.merge(type: type))
 
   .col-lg-9
+
     - case search_type
     - when 'Users'
       - if @users.present?
+        - if @users.size > 1
+          .page-header
+            %h4 We've found #{@users.size} users
         .list-group
           - @users.each do |user|
             = link_to user_path(user), class: 'list-group-item search_result' do
@@ -40,6 +44,9 @@
 
     - when 'Repositories'
       - if @repos.present?
+        - if @repos.size > 1
+          .page-header
+            %h4 We've found #{@repos.size} repositories
         - @repos.each do |repo|
           = link_to user_repository_path(repo.owner, repo),
             class: 'list-group-item search_result' do

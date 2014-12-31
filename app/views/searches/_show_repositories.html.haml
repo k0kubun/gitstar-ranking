@@ -4,7 +4,7 @@
       %h4 We've found #{repos.total_count} repositories
   - repos.each do |repo|
     = link_to user_repository_path(repo.owner, repo),
-      class: 'list-group-item search_result' do
+      class: 'list-group-item paginated_full_item' do
       = image_tag repo.owner.avatar_url, class: 'avatar_image_big'
       %span.login
         = repo.full_name

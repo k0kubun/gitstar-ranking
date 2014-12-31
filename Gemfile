@@ -29,6 +29,7 @@ gem 'therubyracer'
 gem 'uglifier'
 gem 'unicorn'
 gem 'sidekiq'
+gem 'capistrano-sidekiq'
 
 group :development, :test do
   gem 'capistrano'

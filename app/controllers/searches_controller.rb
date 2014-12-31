@@ -19,6 +19,9 @@ class SearchesController < ApplicationController
       search = search_repositories
       @repos = preload_owners(search.results)
     end
+  rescue => e
+    logger.error "#{e.class}: #{e}"
+    render action: :show_error
   end
 
   def fetch_count

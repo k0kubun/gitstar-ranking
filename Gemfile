@@ -28,6 +28,7 @@ gem 'sunspot_solr'
 gem 'therubyracer'
 gem 'uglifier'
 gem 'unicorn'
+gem 'sidekiq'
 
 group :development, :test do
   gem 'capistrano'

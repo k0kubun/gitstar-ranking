@@ -12,11 +12,23 @@ class SearchesController < ApplicationController
       @orgs  = search.results
     when 'Repositories'
       search = search_repositories
-      @repos = search.results
+      @repos = preload_owners(search.results)
     end
   end
 
   private
+
+  # Original association preloader.
+  # Preload can't be applied to sunspot results.
+  def preload_owners(repos)
+    user_ids   = repos.map(&:owner_id)
+    user_by_id = User.where(id: user_ids).index_by(&:id)
+
+    repos.each do |repo|
+      owner = user_by_id[repo.owner_id]
+      repo.association(:owner).target = owner
+    end
+  end
 
   def search_users
     User.search do

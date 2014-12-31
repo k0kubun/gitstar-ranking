@@ -1,4 +1,8 @@
 class RepositoriesController < ApplicationController
+  include Concerns::Pageable
+
+  before_filter :validate_page_param, only: :index
+
   def index
     @repositories = Repository.preload(:owner).starred_first.page(params[:page])
   end

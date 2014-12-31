@@ -1,7 +1,11 @@
 class SearchesController < ApplicationController
+  include Concerns::Pageable
+
   DEFAULT_SEARCH_TYPE = 'Users'
   SEARCH_TYPES = %w[Users Organizations Repositories].freeze
   PER_PAGE = 20
+
+  before_filter :validate_page_param, only: :show
 
   def show
     case search_type

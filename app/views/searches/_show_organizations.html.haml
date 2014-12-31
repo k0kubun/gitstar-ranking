@@ -11,7 +11,7 @@
         %span.stargazers_count.pull-right
           = fa_icon 'star'
           = org.stargazers_count
-  = paginate orgs
+  = sunspot_paginate orgs
 
 - else
   = render 'no_result'

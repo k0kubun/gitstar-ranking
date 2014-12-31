@@ -8,10 +8,10 @@
 .row
   - half  = User.default_per_page / 2
   - users = @users.to_a
-  .col-lg-6
+  .col-md-6
     .list-group
       = render users.first(half)
-  .col-lg-6
+  .col-md-6
     .list-group
       = render users.drop(half)
 

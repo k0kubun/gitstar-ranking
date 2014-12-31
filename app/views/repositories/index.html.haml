@@ -8,10 +8,10 @@
 .row
   - half  = Repository.default_per_page / 2
   - repositories = @repositories.to_a
-  .col-lg-6
+  .col-md-6
     .list-group
       = render repositories.first(half)
-  .col-lg-6
+  .col-md-6
     .list-group
       = render repositories.drop(half)
 

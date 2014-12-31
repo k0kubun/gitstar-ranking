@@ -1,6 +1,33 @@
 .row
-  .col-md-3
+  .col-md-3.hidden-xs.hidden-sm
     = render 'shared/user_profile', user: @user
   .col-md-8
-    = @repo.full_name
-    = @repo.stargazers_count
+    .page-header
+      %h2
+        = link_to user_path(@user) do
+          = @user.login
+        %span.separator= '/'
+        = link_to user_repository_path(@user, @repo) do
+          = @repo.name
+
+    .description_wrapper
+      .description
+        - if @repo.description
+          #{@repo.description} -
+        = link_to 'View it on GitHub', "https://github.com/#{@repo.full_name}"
+      - if @repo.homepage.present?
+        .homepage
+          = link_to @repo.homepage do
+            = @repo.homepage
+
+    .row.repository_info
+      .col-xs-6
+        .repository_attribute.text-center
+          Star
+        .repository_value.text-center
+          = fa_icon 'star', text: @repo.stargazers_count
+      .col-xs-6.text-center
+        .repository_attribute.text-center
+          Rank
+        .repository_value.text-center
+          = @repo.rank

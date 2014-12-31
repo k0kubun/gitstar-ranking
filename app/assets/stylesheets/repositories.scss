@@ -1,0 +1,27 @@
+.repositories_controller.show_action {
+  .description {
+    color: #444;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .description_wrapper {
+    margin-bottom: 14px;
+  }
+
+  .repository_info {
+    padding: 20px 10px;
+    border: 1px solid #ccc;
+    margin: 18px 2px;
+
+    .repository_attribute {
+      color: #999;
+      font-size: 20px;
+    }
+
+    .repository_value {
+      color: #444;
+      font-size: 24px;
+    }
+  }
+}

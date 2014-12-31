@@ -1,0 +1,7 @@
+$set_prefix: -webkit-, -moz-, -ms-, -o-, '';
+
+@mixin border_radius($br_value: 3px) {
+  @each $prefix in $set_prefix {
+    #{$prefix}border-radius: $br_value;
+  }
+}

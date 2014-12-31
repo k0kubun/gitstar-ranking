@@ -1,0 +1,12 @@
+.users_controller.show_action {
+  .user_avatar {
+    @include border-radius(6px);
+    width: 100%;
+  }
+
+  .user_login {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+}

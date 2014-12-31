@@ -1,6 +1,9 @@
 .row
   .col-md-3
-    = @user.login
+    .user_avatar_wrapper
+      = image_tag @user.avatar_url, class: 'user_avatar'
+    %h2.user_login
+      = @user.login
     = @user.rank
   .col-md-8
     = @user.stargazers_count

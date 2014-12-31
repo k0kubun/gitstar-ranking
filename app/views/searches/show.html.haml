@@ -23,38 +23,10 @@
           = link_to type, url_for(params.merge(type: type))
 
   .col-lg-9
-
     - case search_type
     - when 'Users'
-      - if @users.present?
-        - if @users.size > 1
-          .page-header
-            %h4 We've found #{@users.size} users
-        .list-group
-          - @users.each do |user|
-            = link_to user_path(user), class: 'list-group-item search_result' do
-              = image_tag user.avatar_url, class: 'avatar_image_big'
-              %span.login
-                = user.login
-              %span.stargazers_count.pull-right
-                = fa_icon 'star'
-                = user.stargazers_count
-      - else
-        = render 'no_result'
-
+      = render 'show_users', users: @users
+    - when 'Organizations'
+      = render 'show_organizations', orgs: @orgs
     - when 'Repositories'
-      - if @repos.present?
-        - if @repos.size > 1
-          .page-header
-            %h4 We've found #{@repos.size} repositories
-        - @repos.each do |repo|
-          = link_to user_repository_path(repo.owner, repo),
-            class: 'list-group-item search_result' do
-            = image_tag repo.owner.avatar_url, class: 'avatar_image_big'
-            %span.login
-              = repo.full_name
-            %span.stargazers_count.pull-right
-              = fa_icon 'star'
-              = repo.stargazers_count
-      - else
-        = render 'no_result'
+      = render 'show_repositories', repos: @repos

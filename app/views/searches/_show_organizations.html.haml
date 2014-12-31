@@ -1,0 +1,15 @@
+- if orgs.present?
+  - if orgs.total_count > 1
+    .page-header
+      %h4 We've found #{orgs.total_count} organizations
+  .list-group
+    - orgs.each do |org|
+      = link_to user_path(org), class: 'list-group-item search_result' do
+        = image_tag org.avatar_url, class: 'avatar_image_big'
+        %span.login
+          = org.login
+        %span.stargazers_count.pull-right
+          = fa_icon 'star'
+          = org.stargazers_count
+- else
+  = render 'no_result'

@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
   include Concerns::Starrable
 
-  # NOTE: COUNT query is a slow query
+  # NOTE: COUNT query is slow
   TOTAL_USERS = 9489559
 
   paginates_per 100

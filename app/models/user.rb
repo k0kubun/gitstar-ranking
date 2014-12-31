@@ -10,8 +10,9 @@ class User < ActiveRecord::Base
 
   validates :login, presence: true
   validates :type, presence: true
+  validates :avatar_url, presence: true
 
-  has_many :repositories, foreign_key: :owner_id
+  has_many :repositories, -> { starred_first }, foreign_key: :owner_id
 
   scope :not_organization, -> { where(type: 'User') }
 

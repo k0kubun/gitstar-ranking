@@ -1,9 +1,41 @@
 .row
   .col-md-3
-    .user_avatar_wrapper
-      = image_tag @user.avatar_url, class: 'user_avatar'
+    .user_avatar_wrapper.hidden-xs.hidden-sm
+      = link_to "https://github.com/#{@user.login}" do
+        = image_tag @user.avatar_url, class: 'user_avatar'
     %h2.user_login
-      = @user.login
-    = @user.rank
+      = link_to "https://github.com/#{@user.login}" do
+        = image_tag @user.avatar_url, class: 'user_avatar_small hidden-lg hidden-md'
+        = @user.login
+        = fa_icon 'external-link'
+
+    .row
+      .user_attribute.col-xs-3
+        Star
+      .user_value.col-xs-9
+        = fa_icon 'star', text: @user.stargazers_count
+    .row
+      .user_attribute.col-xs-3
+        Rank
+      .user_value.col-xs-7
+        = @user.rank
+
   .col-md-8
-    = @user.stargazers_count
+    .page-header
+      %h3
+        #{@repositories.total_count} Repositories
+
+    .list-group
+      - if @repositories.present?
+        - @repositories.each do |repo|
+          = link_to user_repository_path(@user, repo), class: 'list-group-item paginated_full_item' do
+            %span.login
+              = repo.name
+            %span.stargazers_count.pull-right
+              = fa_icon 'star'
+              = repo.stargazers_count
+        = paginate @repositories, theme: 'no_edge'
+
+      - else
+        .jumbotron
+          %h4 #{@user.login} doesn’t have any public repositories yet.

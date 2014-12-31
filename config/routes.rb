@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   end
 
   resources :users, only: :show, param: :login, path: '/' do
-    resources :repositories, only: :show, param: :name, path: '/'
+    resources :repositories, only: :show, param: :name,
+      constraints: { name: /[^\/]+/ }, path: '/'
   end
 end

@@ -10,3 +10,33 @@
     font-size: 16px;
   }
 }
+
+.paginated_full_item {
+  @media (min-width: $screen-sm-max) {
+    .avatar_image_big {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+      margin: -8px 10px 2px 0;
+    }
+
+    .login,
+    .stargazers_count {
+      font-size: 24px;
+    }
+  }
+
+  @media (max-width: $screen-sm-max) {
+    .avatar_image_big {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      margin: -2px 10px 2px 0;
+    }
+
+    .login,
+    .stargazers_count {
+      font-size: 16px;
+    }
+  }
+}

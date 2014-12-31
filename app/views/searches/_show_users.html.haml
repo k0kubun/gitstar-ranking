@@ -4,7 +4,7 @@
       %h4 We've found #{users.total_count} users
   .list-group
     - users.each do |user|
-      = link_to user_path(user), class: 'list-group-item search_result' do
+      = link_to user_path(user), class: 'list-group-item paginated_full_item' do
         = image_tag user.avatar_url, class: 'avatar_image_big'
         %span.login
           = user.login

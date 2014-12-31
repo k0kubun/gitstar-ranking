@@ -4,9 +4,34 @@
     width: 100%;
   }
 
+  .user_avatar_small {
+    width: 24px;
+    height: 24px;
+  }
+
   .user_login {
+    display: block;
     border-bottom: 1px solid #ddd;
     padding-bottom: 8px;
     margin-bottom: 8px;
+
+    .fa {
+      font-size: 16px;
+    }
+  }
+
+  .user_attribute {
+    color: #999;
+    font-size: 20px;
+  }
+
+  .user_value {
+    font-size: 20px;
+  }
+
+  @media (min-width: $screen-sm-max) {
+    .page-header {
+      margin-top: 0;
+    }
   }
 }

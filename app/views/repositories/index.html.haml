@@ -2,10 +2,21 @@
   %h1
     Repositories Ranking
 
+    %span.pull-right.hidden-xs.hidden-sm
+      = limited_paginate @repositories, window: 2, theme: 'no_edge'
+
 .row
+  - half  = Repository.default_per_page / 2
+  - repositories = @repositories.to_a
   .col-lg-6
     .list-group
-      = render @repositories.first(@repositories.size / 2)
+      = render repositories.first(half)
   .col-lg-6
     .list-group
-      = render @repositories.last(@repositories.size / 2)
+      = render repositories.drop(half)
+
+.text-center.hidden-xs.hidden-sm
+  = limited_paginate @repositories, window: 10
+
+.text-center.hidden-md.hidden-lg
+  = limited_paginate @repositories, window: 2, theme: 'no_edge'

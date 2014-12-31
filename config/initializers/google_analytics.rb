@@ -1,0 +1,1 @@
+GA.tracker = ENV['GA_TRACKING_CODE']

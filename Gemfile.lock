@@ -98,6 +98,7 @@ GEM
       thor (~> 0.19.1)
     globalid (0.3.0)
       activesupport (>= 4.1.0)
+    google-analytics-rails (0.0.6)
     haml (4.1.0.beta.1)
       tilt
     haml-rails (0.6.0)
@@ -296,6 +297,7 @@ DEPENDENCIES
   each_with_rank
   font-awesome-rails
   foreman
+  google-analytics-rails
   haml-rails
   jbuilder
   jquery-rails

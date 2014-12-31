@@ -8,6 +8,7 @@ class RepositoriesController < ApplicationController
   end
 
   def show
+    @user = User.find_by!(login: params[:user_login])
     @repo = Repository.find_by!(full_name: "#{params[:user_login]}/#{params[:name]}")
   end
 end

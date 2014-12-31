@@ -1,28 +1,6 @@
 .row
   .col-md-3
-    .user_avatar_wrapper.hidden-xs.hidden-sm
-      = link_to "https://github.com/#{@user.login}" do
-        = image_tag @user.avatar_url, class: 'user_avatar'
-    %h2.user_login
-      = link_to "https://github.com/#{@user.login}" do
-        = image_tag @user.avatar_url, class: 'user_avatar_small hidden-lg hidden-md'
-        = @user.login
-        = fa_icon 'external-link'
-
-    .row
-      .user_attribute.col-xs-3
-        Star
-      .user_value.col-xs-9
-        = fa_icon 'star', text: @user.stargazers_count
-    .row
-      .user_attribute.col-xs-3
-        Rank
-      .user_value.col-xs-7
-        = @user.rank
-    .row
-      .queued_at.col-xs-12
-        Fetched on #{l(@user.queued_at, format: :middle)}
-
+    = render 'shared/user_profile', user: @user
 
   .col-md-8
     .page-header

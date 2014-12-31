@@ -17,6 +17,19 @@ class SearchesController < ApplicationController
     end
   end
 
+  def fetch_count
+    search =
+      case search_type
+      when 'Users'
+        search_users
+      when 'Organizations'
+        search_organizations
+      when 'Repositories'
+        search_repositories
+      end
+    render text: search.results.total_count
+  end
+
   private
 
   # Original association preloader.

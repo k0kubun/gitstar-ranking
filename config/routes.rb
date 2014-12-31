@@ -13,7 +13,11 @@ Rails.application.routes.draw do
   resources :organizations, only: :index
   resources :repositories, only: :index
 
-  resource :search, only: :show
+  resource :search, only: :show do
+    member do
+      get :fetch_count
+    end
+  end
 
   resources :users, only: :show, param: :login, path: '/' do
     resources :repositories, only: :show, param: :name, path: '/'

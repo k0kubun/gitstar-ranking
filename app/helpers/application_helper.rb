@@ -1,5 +1,8 @@
 module ApplicationHelper
-  # Large offset causes slow query, but maybe kaminari has this kind of option
+  GITHUB_HOST = 'https://github.com'
+
+  # Large offset causes slow query.
+  # FIXME: maybe kaminari has this kind of option
   def limited_paginate(scope, options = {}, &block)
     paginator = Kaminari::Helpers::Paginator.new self, options.reverse_merge(
       current_page: scope.current_page,
@@ -20,5 +23,10 @@ module ApplicationHelper
       remote:       false,
     )
     paginator.to_s
+  end
+
+  def link_to_github(path, options = {}, &block)
+    github_url = File.join(GITHUB_HOST, path)
+    link_to github_url, options.merge(target: '_blank'), &block
   end
 end

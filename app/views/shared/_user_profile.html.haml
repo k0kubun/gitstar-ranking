@@ -22,6 +22,6 @@
       Fetched on #{l(user.queued_at, format: :middle)}
   .row
     .go_to_github.col-xs-12
-      = link_to "https://github.com/#{user.login}" do
+      = link_to_github user.login do
         Go to GitHub
         = fa_icon 'external-link'

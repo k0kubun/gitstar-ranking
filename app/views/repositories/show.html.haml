@@ -14,7 +14,9 @@
       .description
         - if @repo.description
           #{@repo.description} -
-        = link_to 'View it on GitHub', "https://github.com/#{@repo.full_name}"
+        = link_to_github @repo.full_name do
+          View it on GitHub
+          = fa_icon 'external-link'
       - if @repo.homepage.present?
         .homepage
           = link_to @repo.homepage do

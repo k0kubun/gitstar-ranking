@@ -1,4 +1,5 @@
 module ApplicationHelper
+  PAGE_TITLE  = 'GitHub Ranks 2014'
   GITHUB_HOST = 'https://github.com'
 
   # Large offset causes slow query.
@@ -28,5 +29,13 @@ module ApplicationHelper
   def link_to_github(path, options = {}, &block)
     github_url = File.join(GITHUB_HOST, path)
     link_to github_url, options.merge(target: '_blank'), &block
+  end
+
+  def prepend_page_title(content)
+    content_for :title, "#{content} - #{page_title}"
+  end
+
+  def page_title
+    PAGE_TITLE
   end
 end

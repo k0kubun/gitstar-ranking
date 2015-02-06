@@ -6,6 +6,7 @@ set :log_level, :info
 set :linked_files, %w[
   .env
   config/secrets.yml
+  config/database.yml
 ]
 
 set :linked_dirs, %w[

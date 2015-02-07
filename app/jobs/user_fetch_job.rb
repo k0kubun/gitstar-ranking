@@ -35,15 +35,17 @@ class UserFetchJob < ActiveJob::Base
       star += row[:stargazers_count]
     end
 
-    repo_ids = repos.map { |repo| repo[FETCH_ATTRIBUTES.index(:id)] }
-    destroy_deleted_repos(user_id, repo_ids)
+    ActiveRecord::Base.transaction do
+      repo_ids = repos.map { |repo| repo[FETCH_ATTRIBUTES.index(:id)] }
+      destroy_deleted_repos(user_id, repo_ids)
 
-    Repository.import(
-      FETCH_ATTRIBUTES + [:owner_id, :fetched_at],
-      repos,
-      on_duplicate_key_update: %i[name full_name description homepage stargazers_count language],
-    )
-    User.where(id: user_id).limit(1).update_all(stargazers_count: star, queued_at: Time.now)
+      Repository.import(
+        FETCH_ATTRIBUTES + [:owner_id, :fetched_at],
+        repos,
+        on_duplicate_key_update: %i[name full_name description homepage stargazers_count language],
+      )
+      User.where(id: user_id).limit(1).update_all(stargazers_count: star, queued_at: Time.now)
+    end
 
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
   end

@@ -7,7 +7,7 @@ set :linked_files, %w[
   config/database.yml
   config/secrets.yml
   config/sunspot.yml
-  config/initializers/sidekiq.rb
+  config/initializers/redis.rb
 ]
 
 set :linked_dirs, %w[

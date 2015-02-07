@@ -2,6 +2,7 @@ set :stage, :production
 set :branch, 'master'
 set :rails_env, 'production'
 set :migration_role, 'db'
+set :sidekiq_role, 'db'
 set :deploy_to, '/home/k0kubun/githubranks'
 
 set :user, 'k0kubun'

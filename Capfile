@@ -14,6 +14,7 @@ set :rbenv_ruby, ENV['RUBY_VERSION']
 require 'capistrano/bundler'
 require 'capistrano/rails/assets'
 require 'capistrano/rails/migrations'
+require 'capistrano/sidekiq'
 
 require 'new_relic/recipes'
 

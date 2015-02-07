@@ -35,6 +35,7 @@ group :development, :test do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
+  gem 'factory_girl'
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'

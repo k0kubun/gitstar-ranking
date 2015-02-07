@@ -48,6 +48,12 @@ class UserFetchJob < ActiveJob::Base
     end
 
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
+  rescue => e
+    ExceptionNotifier.notify_exception(
+      e,
+      data: { message: "Detected exception for #{user_id}" },
+    )
+    raise e
   end
 
   private

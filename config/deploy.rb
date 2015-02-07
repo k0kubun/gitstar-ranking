@@ -1,4 +1,4 @@
-set :application, 'github_ranks'
+set :application, 'githubranks'
 set :repo_url, 'git@github.com:k0kubun/githubranks.git'
 set :log_level, :info
 

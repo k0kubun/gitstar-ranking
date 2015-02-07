@@ -6,6 +6,7 @@ set :linked_files, %w[
   .env
   config/secrets.yml
   config/database.yml
+  config/initializers/sidekiq.rb
 ]
 
 set :linked_dirs, %w[

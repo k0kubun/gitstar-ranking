@@ -1,0 +1,6 @@
+rvm: 2.2.0
+sudo: false
+before_script:
+  - 'bundle exec rake db:create db:migrate'
+script:
+  - 'bundle exec rake spec'

@@ -1,4 +1,4 @@
-# GitHub Ranks for 2014
+# GitHub Ranks for 2014 [![Build Status](https://travis-ci.org/k0kubun/githubranks.svg?branch=master)](https://travis-ci.org/k0kubun/githubranks)
 
 GitHub stars rankings for users, organizations and repositories.
 

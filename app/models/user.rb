@@ -2,6 +2,10 @@ class User < ActiveRecord::Base
   include Concerns::Rankable
   include Concerns::Starrable
 
+  ADMIN_IDS = [
+    3138447, # k0kubun
+  ].freeze
+
   self.minimum_rankable_star = 1
 
   paginates_per 100
@@ -27,5 +31,9 @@ class User < ActiveRecord::Base
 
   def to_param
     login
+  end
+
+  def admin?
+    ADMIN_IDS.include?(id)
   end
 end

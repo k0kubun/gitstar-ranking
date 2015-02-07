@@ -4,8 +4,9 @@ set :log_level, :info
 
 set :linked_files, %w[
   .env
-  config/secrets.yml
   config/database.yml
+  config/secrets.yml
+  config/sunspot.yml
   config/initializers/sidekiq.rb
 ]
 

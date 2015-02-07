@@ -12,6 +12,11 @@ class UserFetchJob < ActiveJob::Base
 
   queue_as :default
 
+  def self.perform_for(login)
+    user = User.find_by!(login: login)
+    self.new.perform(user.id)
+  end
+
   def perform(user_id)
     start    = Time.now
     all_rows = all_repos(user_id)

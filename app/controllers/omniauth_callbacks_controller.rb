@@ -11,15 +11,9 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       login:      login,
       type:       'User',
       avatar_url: image,
-      rank:       last_rank,
+      rank:       0,
     )
     sign_in @user
     redirect_to @user
-  end
-
-  private
-
-  def last_rank
-    User.order(rank: :desc).select(:rank).first.rank
   end
 end

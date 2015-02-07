@@ -19,8 +19,16 @@ class UserFetchJob < ActiveJob::Base
 
   def perform(user_id)
     start    = Time.now
-    all_rows = all_repos(user_id)
     star     = 0
+
+    begin
+      all_rows = all_repos(user_id)
+    rescue Octokit::NotFound => e
+      User.where(id: user_id).delete_all
+      Repository.where(owner_id: user_id).delete_all
+      logger.info("Not found on GitHub. Destroyed user #{user_id}.")
+      return
+    end
 
     repos = []
     all_rows.each do |row|

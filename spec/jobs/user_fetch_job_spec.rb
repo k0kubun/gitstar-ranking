@@ -159,5 +159,21 @@ describe UserFetchJob do
         expect(user.reload.queued_at).to eq(Time.now)
       end
     end
+
+    context 'when user is deleted on GitHub and API responds with NotFound' do
+      let!(:repository) { FactoryGirl.create(:repository, owner: user) }
+
+      before do
+        allow(job).to receive(:all_repos).with(user.id).and_raise(Octokit::NotFound)
+      end
+
+      it 'destroys given user and his repositories' do
+        expect {
+          job.perform(user.id)
+        }.to change {
+          [User.count, Repository.count]
+        }.from([1, 1]).to([0, 0])
+      end
+    end
   end
 end

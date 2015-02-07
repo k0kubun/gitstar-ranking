@@ -51,3 +51,6 @@ end
 
 # Require factories
 Dir[Rails.root.join("spec/factories/**/*.rb")].each { |f| require f }
+
+# Require support files
+Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }

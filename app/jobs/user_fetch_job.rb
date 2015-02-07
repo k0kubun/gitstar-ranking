@@ -30,7 +30,14 @@ class UserFetchJob < ActiveJob::Base
       star += row[:stargazers_count]
     end
 
-    Repository.import(FETCH_ATTRIBUTES + [:owner_id, :fetched_at], repos)
+    repo_ids = repos.map { |repo| repo[FETCH_ATTRIBUTES.index(:id)] }
+    destroy_deleted_repos(user_id, repo_ids)
+
+    Repository.import(
+      FETCH_ATTRIBUTES + [:owner_id, :fetched_at],
+      repos,
+      on_duplicate_key_update: %i[name full_name description homepage stargazers_count language],
+    )
     User.where(id: user_id).limit(1).update_all(stargazers_count: star)
 
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
@@ -42,6 +49,12 @@ class UserFetchJob < ActiveJob::Base
     client = Github::LimitBalancer.instance.client
     client.auto_paginate = true
     client.repos(user_id)
+  end
+
+  def destroy_deleted_repos(user_id, repo_ids)
+    Repository.where(owner_id: user_id).find_each do |repository|
+      repository.destroy if repo_ids.exclude?(repository.id)
+    end
   end
 
   def logger

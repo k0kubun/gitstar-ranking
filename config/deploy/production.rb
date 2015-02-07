@@ -2,5 +2,9 @@ set :stage, :production
 set :branch, 'master'
 set :rails_env, 'production'
 set :migration_role, 'db'
+set :deploy_to, '/home/k0kubun/githubranks'
 
-server ENV['DEPLOY_SSH_HOST'], user: ENV['DEPLOY_SSH_USER'], roles: %w[web app db]
+set :user, 'k0kubun'
+role :app, 'conoha'
+role :web, 'conoha'
+role :db,  'excloud'

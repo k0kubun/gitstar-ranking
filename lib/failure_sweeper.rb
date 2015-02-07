@@ -1,11 +1,11 @@
 class FailureSweeper
   BATCH_SIZE = 10000
+  LIMITTER   = 100
 
   def run
     max_id    = User.last.id
     max_index = max_id / BATCH_SIZE
     scheduled = 0
-    per_hour  = 5000 * LimitBalancer.instance.token_count
 
     0.upto(max_index).each do |index|
       min = index * BATCH_SIZE
@@ -22,9 +22,9 @@ class FailureSweeper
       logger.info("Sweep between #{min}..#{max} (#{user_ids.size})")
 
       scheduled += user_ids.size
-      if scheduled > per_hour
-        logger.info("Sleep 1 hour...")
-        sleep(60 * 60)
+      if scheduled > LIMITTER
+        logger.info("Sleep 1 minute...")
+        sleep(60)
         scheduled = 0
       end
     end
@@ -33,6 +33,6 @@ class FailureSweeper
   private
 
   def logger
-    @logger ||= Logger.new('log/fail_sweeper.log')
+    @logger ||= Logger.new('log/failure_sweeper.log')
   end
 end

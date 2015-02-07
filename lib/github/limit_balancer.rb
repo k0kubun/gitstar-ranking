@@ -9,6 +9,10 @@ module Github
       Octokit::Client.new(access_token: access_tokens.sample)
     end
 
+    def token_count
+      access_tokens.size
+    end
+
     private
 
     def access_tokens

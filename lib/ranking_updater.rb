@@ -28,8 +28,9 @@ class RankingUpdater
     relation = @relation.starred_first.select([:id, :stargazers_count])
 
     last_page = (limit - 1) / BATCH_SIZE + 1
+    per_page  = [BATCH_SIZE, limit].min
     1.upto(last_page).each do |page|
-      relation.page(page).per(BATCH_SIZE).each do |record|
+      relation.page(page).per(per_page).each do |record|
         index += 1
         rank = index if record.stargazers_count != current
         current = record.stargazers_count

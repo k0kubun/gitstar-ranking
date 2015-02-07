@@ -144,6 +144,8 @@ describe UserFetchJob do
     end
 
     context 'when there is a deleted repo' do
+      include_context 'with frozen time', at: Time.local(2015, 2, 8, 1, 51)
+
       let!(:deleted_repository) { FactoryGirl.create(:repository, owner: user) }
 
       it 'destroys an obsolete repo' do
@@ -154,6 +156,7 @@ describe UserFetchJob do
         }.from(1)
 
         expect(Repository.last.id).to_not eq(deleted_repository.id)
+        expect(user.reload.queued_at).to eq(Time.now)
       end
     end
   end

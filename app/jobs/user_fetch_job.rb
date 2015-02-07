@@ -38,7 +38,7 @@ class UserFetchJob < ActiveJob::Base
       repos,
       on_duplicate_key_update: %i[name full_name description homepage stargazers_count language],
     )
-    User.where(id: user_id).limit(1).update_all(stargazers_count: star)
+    User.where(id: user_id).limit(1).update_all(stargazers_count: star, queued_at: Time.now)
 
     logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
   end

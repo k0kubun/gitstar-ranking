@@ -1,14 +1,16 @@
 class FailureSweeper
   BATCH_SIZE  = 1000
-  IMPORT_SIZE = 100
+  INTERVAL    = 100
+  IMPORT_SIZE = 1000
 
   def run
     batch_size = BATCH_SIZE
     max_id     = User.last.id
     max_index  = max_id / batch_size
     scheduled  = 0
+    total      = 0
 
-    0.upto(max_index).each do |index|
+    2.upto(max_index).each do |index|
       min = index * batch_size
       max = (index + 1) * batch_size
 
@@ -24,7 +26,13 @@ class FailureSweeper
       logger.info("Sweep between #{min}..#{max} (#{user_ids.size})")
 
       scheduled += user_ids.size
-      if scheduled > IMPORT_SIZE
+      total     += user_ids.size
+      if scheduled > INTERVAL
+        scheduled = 0
+        logger.info('sleep 5 minutes')
+        sleep(5 * 60)
+      end
+      if total > IMPORT_SIZE
         logger.info('finish')
         return
       end

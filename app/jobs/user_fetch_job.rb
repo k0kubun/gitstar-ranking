@@ -18,7 +18,6 @@ class UserFetchJob < ActiveJob::Base
   end
 
   def perform(user_id)
-    logger.info("Perform: #{user_id}")
     start    = Time.now
     star     = 0
 
@@ -56,7 +55,7 @@ class UserFetchJob < ActiveJob::Base
       User.where(id: user_id).limit(1).update_all(stargazers_count: star, queued_at: Time.now)
     end
 
-    logger.info "Updated #{all_rows.size} repos for #{user_id}(#{User.find(user_id).login}): #{Time.now - start}s"
+    logger.info "Updated #{all_rows.size} repos for #{user_id}(#{User.find(user_id).login}): #{Time.now - start}s" if all_rows.size > 0
   rescue => e
     ExceptionNotifier.notify_exception(
       e,

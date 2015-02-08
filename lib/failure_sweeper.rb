@@ -1,7 +1,7 @@
 class FailureSweeper
   BATCH_SIZE  = 1000
   INTERVAL    = 100
-  IMPORT_SIZE = 1000
+  IMPORT_SIZE = 10000
 
   def run
     batch_size = BATCH_SIZE
@@ -30,7 +30,7 @@ class FailureSweeper
       if scheduled > INTERVAL
         scheduled = 0
         logger.info('sleep 5 minutes')
-        sleep(5 * 60)
+        sleep(60)
       end
       if total > IMPORT_SIZE
         logger.info('finish')

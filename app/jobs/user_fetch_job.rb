@@ -18,6 +18,7 @@ class UserFetchJob < ActiveJob::Base
   end
 
   def perform(user_id)
+    logger.info("Perform: #{user_id}")
     start    = Time.now
     star     = 0
 
@@ -55,7 +56,7 @@ class UserFetchJob < ActiveJob::Base
       User.where(id: user_id).limit(1).update_all(stargazers_count: star, queued_at: Time.now)
     end
 
-    logger.info "Updated #{all_rows.size} repos for #{user_id}: #{Time.now - start}s"
+    logger.info "Updated #{all_rows.size} repos for #{user_id}(#{User.find(user_id).login}): #{Time.now - start}s"
   rescue => e
     ExceptionNotifier.notify_exception(
       e,
@@ -67,9 +68,12 @@ class UserFetchJob < ActiveJob::Base
   private
 
   def all_repos(user_id)
-    client = Github::LimitBalancer.instance.client
+    client = AccessToken.fetch_client
     client.auto_paginate = true
-    client.repos(user_id)
+    result = client.repos(user_id)
+
+    AccessToken.fetch_rate_limit(client.access_token)
+    result
   end
 
   def destroy_deleted_repos(user_id, repo_ids)
@@ -79,6 +83,6 @@ class UserFetchJob < ActiveJob::Base
   end
 
   def logger
-    @logger ||= Logger.new('log/star_count_job.log')
+    @logger ||= Logger.new('log/user_fetch_job.log')
   end
 end

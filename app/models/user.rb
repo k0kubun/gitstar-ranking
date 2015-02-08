@@ -16,7 +16,7 @@ class User < ActiveRecord::Base
   validates :type, presence: true
   validates :avatar_url, presence: true
 
-  has_one :access_tokens
+  has_one :access_token
   has_many :repositories, -> { starred_first }, foreign_key: :owner_id
 
   scope :organization, -> { where(type: 'Organization') }

@@ -11,8 +11,8 @@ const (
 )
 
 func schedulerLoop(queue chan int) {
-	var oldLen int
-	var newLen int
+	// var oldLen int
+	// var newLen int
 
 	for {
 		if len(queue) < workerConcurrency {
@@ -24,12 +24,12 @@ func schedulerLoop(queue chan int) {
 			}
 		}
 
-		oldLen = newLen
-		newLen = len(queue)
+		// oldLen = newLen
+		// newLen = len(queue)
 
-		if oldLen != newLen {
-			log.Printf("[master] Queue: %d\n", newLen)
-		}
+		// if oldLen != newLen {
+		// 	log.Printf("[master] Queue: %d\n", newLen)
+		// }
 		time.Sleep(5 * time.Second)
 	}
 }

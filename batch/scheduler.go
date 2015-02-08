@@ -38,7 +38,7 @@ func notQueuedIds(size int) []int {
 	ids := []int{}
 
 	rows, err := db.Query(
-		"select id from users where queued_at < '2014-12-30 12:55:00' AND stargazers_count = 0 LIMIT ?;",
+		"select id from users ORDER BY queued_at ASC LIMIT ?;",
 		size,
 	)
 	defer rows.Close()

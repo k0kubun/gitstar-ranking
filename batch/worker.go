@@ -61,7 +61,7 @@ func updateStarCount(login string) {
 		userStar,
 		login,
 	)
-	log.Printf("%s: 0 -> %d\n", login, userStar)
+	log.Printf("%s: %d\n", login, userStar)
 	if err != nil {
 		log.Println(err)
 	}

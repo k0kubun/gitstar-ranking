@@ -1,9 +1,9 @@
 class FailureSweeper
-  BATCH_SIZE  = 10000
+  BATCH_SIZE  = 1000
   IMPORT_SIZE = 100
 
   def run
-    batch_size = [BATCH_SIZE, IMPORT_SIZE].min
+    batch_size = BATCH_SIZE
     max_id     = User.last.id
     max_index  = max_id / batch_size
     scheduled  = 0

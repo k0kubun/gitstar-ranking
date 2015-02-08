@@ -7,8 +7,8 @@ class AccessToken < ActiveRecord::Base
   belongs_to :user
 
   def self.fetch_rate_limit(token)
-    rate_limit = self.new(token: token).rate_limit_without_cache
-    Rails.cache.write("#{CACHE_KEY}-#{token}", rate_limit, expires_in: 1.hour)
+    Rails.cache.delete("#{CACHE_KEY}-#{token}")
+    self.new(token: token).rate_limit
   end
 
   def self.fetch_client

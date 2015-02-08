@@ -6,10 +6,14 @@
     %tr
       %th User
       %th Token
+      %th Remaining
+      %th Limit
   %tbody
     - @access_tokens.each do |access_token|
       %tr
         %td= access_token.user.login
         %td= access_token.token
+        %td= access_token.rate_limit[:remaining]
+        %td= access_token.rate_limit[:limit]
 
 = paginate @access_tokens

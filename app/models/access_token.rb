@@ -11,8 +11,20 @@ class AccessToken < ActiveRecord::Base
 
   def rate_limit
     Rails.cache.fetch("#{CACHE_KEY}-#{token}", expires_in: 1.hour) do
-      rate = client.rate_limit
-      { remaining: rate.remaining, limit: rate.limit }
+      if authorized?
+        rate = client.rate_limit
+        { remaining: rate.remaining, limit: rate.limit }
+      else
+        { remaining: 0, limit: 0 }
+      end
     end
+  end
+
+  private
+
+  def authorized?
+    client.rate_limit.present?
+  rescue Octokit::Unauthorized
+    false
   end
 end

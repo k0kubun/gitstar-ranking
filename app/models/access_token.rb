@@ -5,18 +5,27 @@ class AccessToken < ActiveRecord::Base
 
   belongs_to :user
 
+  def self.fetch_rate_limit(token)
+    rate_limit = self.new(token: token).rate_limit_without_cache
+    Rails.cache.write("#{CACHE_KEY}-#{token}", rate_limit, expires_in: 1.hour)
+  end
+
   def client
     Octokit::Client.new(access_token: token)
   end
 
   def rate_limit
     Rails.cache.fetch("#{CACHE_KEY}-#{token}", expires_in: 1.hour) do
-      if authorized?
-        rate = client.rate_limit
-        { remaining: rate.remaining, limit: rate.limit }
-      else
-        { remaining: 0, limit: 0 }
-      end
+      rate_limit_without_cache
+    end
+  end
+
+  def rate_limit_without_cache
+    if authorized?
+      rate = client.rate_limit
+      { remaining: rate.remaining, limit: rate.limit }
+    else
+      { remaining: 0, limit: 0 }
     end
   end
 

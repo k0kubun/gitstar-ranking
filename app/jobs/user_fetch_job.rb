@@ -69,12 +69,7 @@ class UserFetchJob < ActiveJob::Base
   def all_repos(user_id)
     client = Github::LimitBalancer.instance.client
     client.auto_paginate = true
-    result = client.repos(user_id)
-
-    key = Github::LimitBalancer.cache_key(client.access_token)
-    Rails.cache.write(key, client.rate_limit.remaining)
-
-    result
+    client.repos(user_id)
   end
 
   def destroy_deleted_repos(user_id, repo_ids)

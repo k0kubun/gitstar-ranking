@@ -1,0 +1,15 @@
+%h3
+  Access Tokens (#{AccessToken.count})
+
+%table.table
+  %thead
+    %tr
+      %th User
+      %th Token
+  %tbody
+    - @access_tokens.each do |access_token|
+      %tr
+        %td= access_token.user.login
+        %td= access_token.token
+
+= paginate @access_tokens

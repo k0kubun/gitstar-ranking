@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   authenticate :user, ->(u) { u.admin? } do
     mount Sidekiq::Web, at: '/sidekiq_admin'
+
+    resources :access_tokens, only: :index
   end
 
   devise_for :users, controllers: { omniauth_callbacks: :omniauth_callbacks }

@@ -1,0 +1,12 @@
+#user_profile
+  .user_avatar_wrapper.hidden-xs.hidden-sm
+    = link_to user_path(user) do
+      = image_tag user.avatar_url, class: 'user_avatar'
+  %h2.user_login
+    = link_to user_path(user) do
+      = image_tag user.avatar_url, class: 'user_avatar_small hidden-lg hidden-md'
+      = user.login
+
+  .row
+    .queued_at.col-xs-12
+      Fetched on #{l(user.queued_at, format: :middle)}

@@ -29,7 +29,7 @@ class FailureSweeper
       total     += user_ids.size
       if scheduled > INTERVAL
         scheduled = 0
-        logger.info('sleep 5 minutes')
+        logger.info('sleep 1 minutes')
         sleep(60)
       end
       if total > IMPORT_SIZE

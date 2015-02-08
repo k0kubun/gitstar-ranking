@@ -1,5 +1,6 @@
 class AccessToken < ActiveRecord::Base
-  CACHE_KEY = 'access_token-rate_limit'
+  CACHE_KEY   = 'access_token-rate_limit'
+  TOKEN_LIMIT = 100
 
   paginates_per 50
 
@@ -8,6 +9,16 @@ class AccessToken < ActiveRecord::Base
   def self.fetch_rate_limit(token)
     rate_limit = self.new(token: token).rate_limit_without_cache
     Rails.cache.write("#{CACHE_KEY}-#{token}", rate_limit, expires_in: 1.hour)
+  end
+
+  def self.fetch_client
+    tokens = self.limit(TOKEN_LIMIT).pluck(:token)
+    keys   = tokens.map { |token| "#{CACHE_KEY}-#{token}" }
+    hits   = Rails.cache.read_multi(*keys)
+
+    key   = hits.max_by { |k, v| v[:remaining] }.first
+    token = key.gsub("#{CACHE_KEY}-", '')
+    Octokit::Client.new(access_token: token)
   end
 
   def client

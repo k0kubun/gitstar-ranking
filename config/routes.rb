@@ -15,6 +15,10 @@ Rails.application.routes.draw do
     namespace :devise do
       resource :session, only: :destroy
     end
+
+    resource :user, only: [], path: '/' do
+      post :update_myself, on: :member
+    end
   end
 
   resources :users, only: :index

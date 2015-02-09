@@ -37,4 +37,12 @@ class User < ActiveRecord::Base
   def admin?
     ADMIN_IDS.include?(id)
   end
+
+  def queued_recently?
+    queued_at > 10.minutes.ago
+  end
+
+  def in_queue?
+    10.minutes.ago <= queued_at && updated_at <= queued_at
+  end
 end

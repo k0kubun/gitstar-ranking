@@ -17,11 +17,24 @@
       Rank
     .user_value.col-xs-7
       = user.rank
-  .row
-    .queued_at.col-xs-12
-      Fetched on #{l(user.queued_at, format: :middle)}
+  - unless user_signed_in? && current_user.in_queue?
+    .row
+      .queued_at.col-xs-12
+        Fetched on #{l(user.queued_at, format: :middle)}
   .row
     .go_to_github.col-xs-12
       = link_to_github user.login do
         Go to GitHub
         = fa_icon 'external-link'
+  - if user_signed_in? && @user == current_user
+    .row
+      .col-xs-12
+        - if current_user.in_queue?
+          = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
+            Updating your stars...
+        - elsif current_user.queued_recently?
+          = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
+            Up to date
+        - else
+          = link_to update_myself_user_path, class: 'btn btn-info col-xs-12', method: :post do
+            Update your stars

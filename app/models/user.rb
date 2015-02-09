@@ -39,10 +39,18 @@ class User < ActiveRecord::Base
   end
 
   def queued_recently?
-    queued_at > 10.minutes.ago
+    update_threshold < queued_at
   end
 
   def in_queue?
-    10.minutes.ago <= queued_at && updated_at <= queued_at
+    update_threshold <= queued_at && updated_at <= queued_at
+  end
+
+  private
+
+  # NOTE: golang batch mistakes timezone.
+  # queued_at can be future.
+  def update_threshold
+    (Time.now + 9.hours) - 10.minutes
   end
 end

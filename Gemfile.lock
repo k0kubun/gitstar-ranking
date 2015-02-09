@@ -154,7 +154,7 @@ GEM
     multi_json (1.10.1)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
-    mysql2 (0.3.17)
+    mysql2 (0.3.16)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (2.9.1)
@@ -368,7 +368,7 @@ DEPENDENCIES
   jbuilder
   jquery-rails
   kaminari
-  mysql2
+  mysql2 (= 0.3.16)
   newrelic_rpm (= 3.9.5.251)
   octokit
   omniauth

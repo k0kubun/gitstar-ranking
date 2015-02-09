@@ -156,7 +156,7 @@ describe UserFetchJob do
         }.from(1)
 
         expect(Repository.last.id).to_not eq(deleted_repository.id)
-        expect(user.reload.queued_at).to eq(Time.now)
+        expect(user.reload.updated_at).to eq(Time.now)
       end
     end
 

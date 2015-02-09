@@ -95,7 +95,8 @@ func markAsQueued(ids []int) {
 	}
 
 	sql := fmt.Sprintf(
-		"UPDATE users SET users.queued_at = '%s' WHERE id IN (%s);",
+		"UPDATE users SET users.queued_at = '%s', users.updated_at = '%s' WHERE id IN (%s);",
+		timeNow(),
 		timeNow(),
 		commaJoin(ids),
 	)

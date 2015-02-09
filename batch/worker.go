@@ -57,8 +57,9 @@ func updateStarCount(login string) {
 		userStar += repo.StargazersCount
 	}
 	_, err := db.Exec(
-		"UPDATE users SET stargazers_count = ? WHERE login = ? LIMIT 1;",
+		"UPDATE users SET stargazers_count = ?, updated_at = ? WHERE login = ? LIMIT 1;",
 		userStar,
+		timeNow(),
 		login,
 	)
 	// log.Printf("%s: %d\n", login, userStar)

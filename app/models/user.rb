@@ -48,9 +48,7 @@ class User < ActiveRecord::Base
 
   private
 
-  # NOTE: golang batch mistakes timezone.
-  # queued_at can be future.
   def update_threshold
-    (Time.now + 9.hours) - 10.minutes
+    Time.now - 10.minutes
   end
 end

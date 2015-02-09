@@ -16,7 +16,7 @@ func getEnv(key string, def string) string {
 }
 
 func timeNow() string {
-	str, err := strftime.Format("%Y/%m/%d %H:%M:%S", time.Now())
+	str, err := strftime.Format("%Y/%m/%d %H:%M:%S", time.Now().UTC())
 	if err != nil {
 		panic(err)
 	}

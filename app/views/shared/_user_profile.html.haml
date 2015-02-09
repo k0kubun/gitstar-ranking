@@ -1,4 +1,4 @@
-#user_profile
+#user_profile{ class: ('updating' if user_signed_in? && @user == current_user && @user.in_queue?) }
   .user_avatar_wrapper.hidden-xs.hidden-sm
     = link_to user_path(user) do
       = image_tag user.avatar_url, class: 'user_avatar'
@@ -29,10 +29,10 @@
   - if user_signed_in? && @user == current_user
     .row
       .col-xs-12
-        - if current_user.in_queue?
+        - if @user.in_queue?
           = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
             Updating your stars...
-        - elsif current_user.queued_recently?
+        - elsif @user.queued_recently?
           = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
             Up to date
         - else

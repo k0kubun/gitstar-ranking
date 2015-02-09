@@ -2,9 +2,9 @@
   .col-lg-12
     .bs-component
       .jumbotron
-        %h1 GitHub Ranks for 2014
+        %h1= page_title
         %p
-          GitHub stars rankings for users, organizations and repositories.
+          GitHub star ranking for users, organizations and repositories.
         - unless user_signed_in?
           %p
             = link_to user_omniauth_authorize_path(:github), class: 'btn btn-primary btn-lg' do
@@ -17,7 +17,7 @@
       %thead
         %th Rank
         %th User
-        %th Stars
+        %th Star
 
       %tbody
         - @users.each do |user|
@@ -38,7 +38,7 @@
       %thead
         %th Rank
         %th Organization
-        %th Stars
+        %th Star
 
       %tbody
         - @orgs.each do |org|
@@ -59,7 +59,7 @@
       %thead
         %th Rank
         %th Repository
-        %th Stars
+        %th Star
 
       %tbody
         - @repos.each do |repo|

@@ -1,5 +1,5 @@
 module ApplicationHelper
-  PAGE_TITLE  = 'GitHub Ranks 2014'
+  PAGE_TITLE  = 'GitHub Ranking'
   GITHUB_HOST = 'https://github.com'
 
   # Large offset causes slow query.

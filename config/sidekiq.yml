@@ -1,4 +1,4 @@
-:concurrency: 8
+:concurrency: 4
 :pidfile: ./tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
 :queues:

@@ -7,6 +7,7 @@ module Github
       login
       avatar_url
       type
+      site_admin
     ]
 
     def import

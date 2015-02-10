@@ -4,11 +4,12 @@
     %title= content_for(:title) || page_title
     %link{ rel: 'shortcut icon', href: '/favicon.ico' }
     %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
+    %meta{ name: 'description', content: 'GitHub Ranking is a ranking for all GitHub users. You can see top 1000 users, organizations and repositories. Find your favorite user. See what is your rank.' }
+    %meta{ name: 'keywords', content: 'GitHub, Star, Ranking' }
     = stylesheet_link_tag 'application', media: 'all'
     = javascript_include_tag 'application'
     = csrf_meta_tags
     = analytics_init if Rails.env.production?
-    %meta{ name: 'google-site-verification', content: 't2PAAJLaFKIndF2hn_NwA6WDY9w5UT2LUXtCzROIwL8' }
 
   %body{ class: "#{controller_path.gsub(/\//, '_')}_controller #{action_name}_action" }
     = render 'layouts/header'

@@ -39,6 +39,10 @@ module ApplicationHelper
     content_for :title, "#{content} - #{page_title}"
   end
 
+  def append_page_title(content)
+    content_for :title, "#{page_title} - #{content}"
+  end
+
   def page_title
     PAGE_TITLE
   end

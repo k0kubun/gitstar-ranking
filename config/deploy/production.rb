@@ -9,4 +9,4 @@ role :app, 'conoha'
 role :web, 'conoha'
 role :db,  'excloud'
 
-set :deploy_to, '/home/k0kubun/githubranks'
+set :deploy_to, '/home/k0kubun/githubranking'

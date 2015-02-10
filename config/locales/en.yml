@@ -2,3 +2,4 @@ en:
   time:
     formats:
       middle: '%Y/%m/%d %H:%M'
+      lastmod: '%Y-%m-%d'

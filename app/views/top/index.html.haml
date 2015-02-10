@@ -19,9 +19,10 @@
     %h2= link_to 'Users', users_path
     %table.table.table-striped.table-hover
       %thead
-        %th Rank
-        %th User
-        %th Star
+        %tr
+          %th Rank
+          %th User
+          %th Star
 
       %tbody
         - @users.each do |user|
@@ -40,9 +41,10 @@
     %h2= link_to 'Organizations', organizations_path
     %table.table.table-striped.table-hover
       %thead
-        %th Rank
-        %th Organization
-        %th Star
+        %tr
+          %th Rank
+          %th Organization
+          %th Star
 
       %tbody
         - @orgs.each do |org|
@@ -61,9 +63,10 @@
     %h2= link_to 'Repositories', repositories_path
     %table.table.table-striped.table-hover
       %thead
-        %th Rank
-        %th Repository
-        %th Star
+        %tr
+          %th Rank
+          %th Repository
+          %th Star
 
       %tbody
         - @repos.each do |repo|

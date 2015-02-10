@@ -5,7 +5,7 @@ Dotenv.load
 
 namespace :db do
   def dump_database(password, filename)
-    cmd = command("mysqldump -u#{ENV['GITHUB_RANKS_DATABASE_USER']} #{'-p' if password.length > 0} -P 3306 github_ranks_production > '#{filename}'")
+    cmd = command("mysqldump -u#{ENV['GITHUBRANKING_DATABASE_USER']} #{'-p' if password.length > 0} -P 3306 githubranking > '#{filename}'")
     output << cmd
     cmd.started = true
 
@@ -61,7 +61,7 @@ namespace :db do
   task :pull do
     on roles(:db) do
       logger.info("Exporting data from #{fetch(:stage)}")
-      set :mysql_pass, ENV['GITHUB_RANKS_DATABASE_PASSWORD'] || ask('password for db user', 'root')
+      set :mysql_pass, ENV['GITHUBRANKING_DATABASE_PASSWORD'] || ask('password for db user', 'root')
 
       logger.info('Dumping mysql data...')
       dump_database(fetch(:mysql_pass), remote_file)
@@ -84,10 +84,10 @@ namespace :db do
     dump = Dir.glob('/tmp/dump*.sql').last
 
     logger.info('Executing dumped queries in temporary database...')
-    import_database(dump, 'github_ranks_temp')
+    import_database(dump, 'githubranking_temp')
 
     logger.info('Replacing databases...')
-    copy_database('github_ranks_temp', 'github_ranks_development')
+    copy_database('githubranking_temp', 'githubranking')
 
     logger.info('Done!')
   end

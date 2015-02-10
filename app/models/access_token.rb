@@ -12,12 +12,7 @@ class AccessToken < ActiveRecord::Base
   end
 
   def self.fetch_client
-    tokens = self.limit(TOKEN_LIMIT).pluck(:token)
-    keys   = tokens.map { |token| "#{CACHE_KEY}-#{token}" }
-    hits   = Rails.cache.read_multi(*keys)
-
-    key   = hits.max_by { |k, v| v[:remaining] }.first
-    token = key.gsub("#{CACHE_KEY}-", '')
+    token = self.limit(TOKEN_LIMIT).pluck(:token).sample
     Octokit::Client.new(access_token: token)
   end
 

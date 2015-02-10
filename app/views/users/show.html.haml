@@ -5,13 +5,8 @@
     = render 'shared/user_profile', user: @user
 
   .col-md-8
-    - if flash[:notice]
-      .alert.alert-dismissible.alert-success
-        = flash[:notice]
-
-    - if flash[:alert]
-      .alert.alert-dismissible.alert-danger
-        = flash[:alert]
+    = render_flash :notice
+    = render_flash :alert
 
     .page-header
       %h3

@@ -1,6 +1,10 @@
 module ApplicationHelper
   PAGE_TITLE  = 'GitHub Ranking'
   GITHUB_HOST = 'https://github.com'
+  COLOR_CLASS = {
+    notice: :success,
+    alert: :danger,
+  }
 
   # Large offset causes slow query.
   # FIXME: maybe kaminari has this kind of option
@@ -37,5 +41,13 @@ module ApplicationHelper
 
   def page_title
     PAGE_TITLE
+  end
+
+  def render_flash(type)
+    if flash[type]
+      content_tag(:div, class: "alert alert-dismissible alert-#{COLOR_CLASS[type]}") do
+        flash[type]
+      end
+    end
   end
 end

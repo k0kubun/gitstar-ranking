@@ -2,6 +2,6 @@ rvm: 2.2.0
 sudo: false
 before_script:
   - 'bundle exec rake db:create db:migrate'
-  - 'mkdir -p /home/travis/build/k0kubun/githubranks/tmp/cache'
+  - 'mkdir -p /home/travis/build/k0kubun/githubranking/tmp/cache'
 script:
   - 'bundle exec rake spec'

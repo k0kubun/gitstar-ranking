@@ -26,7 +26,7 @@ module Github
 
         log_index -= 1
         if log_index <= 0
-          log_index = 100
+          log_index = 30
           logger.info("#{count}")
         end
 
@@ -49,16 +49,13 @@ module Github
       client  = AccessToken.fetch_client
       threads = []
 
-      user_ids.each do |user_id|
-        threads << Thread.new(user_id) do |id|
-          begin
-            client.user(id)
-          rescue Octokit::NotFound
-            id
-          end
+      results = Parallel.map(user_ids) do |user_id|
+        begin
+          client.user(user_id)
+        rescue Octokit::NotFound
+          user_id
         end
       end
-      results = threads.map(&:value)
 
       users      = []
       absent_ids = []

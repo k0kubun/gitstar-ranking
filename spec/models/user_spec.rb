@@ -123,7 +123,7 @@ describe User do
 
       it 'creates absent user' do
         expect {
-          User.import_updates(mojombo, defunkt)
+          User.import_updates([mojombo, defunkt])
         }.to change {
           User.count
         }.from(1).to(2)

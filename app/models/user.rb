@@ -22,7 +22,8 @@ class User < ActiveRecord::Base
 
   scope :organization, -> { where(type: 'Organization') }
   scope :not_organization, -> { where(type: 'User') }
-  scope :queued_first, -> { order(queued_at: :asc) }
+  scope :queued_last, -> { order(queued_at: :asc) }
+  scope :queued_last, -> { order(queued_at: :asc) }
 
   searchable(auto_index: false) do
     text :login
@@ -32,11 +33,11 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.import_updates(*updates)
+  def self.import_updates(updates)
     users = []
 
     queued_at = Time.now
-    updates.each do |update|
+    Array.wrap(updates).each do |update|
       users << IMPORT_ATTRIBUTES.map { |attr| update[attr] } + [queued_at]
     end
 

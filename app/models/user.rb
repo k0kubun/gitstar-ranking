@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
   include Concerns::Rankable
   include Concerns::Starrable
 
+  IMPORT_ATTRIBUTES = %i[id login avatar_url public_repos type]
   ADMIN_IDS = [
     3138447, # k0kubun
   ].freeze
@@ -21,6 +22,7 @@ class User < ActiveRecord::Base
 
   scope :organization, -> { where(type: 'Organization') }
   scope :not_organization, -> { where(type: 'User') }
+  scope :queued_first, -> { order(queued_at: :asc) }
 
   searchable(auto_index: false) do
     text :login
@@ -28,6 +30,22 @@ class User < ActiveRecord::Base
     boolean :user_flag do
       self.type == 'User'
     end
+  end
+
+  def self.import_updates(*updates)
+    users = []
+
+    queued_at = Time.now
+    updates.each do |update|
+      users << IMPORT_ATTRIBUTES.map { |attr| update[attr] } + [queued_at]
+    end
+
+    self.import(
+      IMPORT_ATTRIBUTES + [:queued_at],
+      users,
+      on_duplicate_key_update: IMPORT_ATTRIBUTES[1..-1] + [:queued_at],
+      validate: false,
+    )
   end
 
   def to_param

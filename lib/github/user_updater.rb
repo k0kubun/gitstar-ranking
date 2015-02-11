@@ -5,7 +5,7 @@ module Github
     include Loggable
     include Interruptable
 
-    API_REQUEST_CONCURRENCY = 30
+    API_REQUEST_CONCURRENCY = 80
 
     def initialize
       @max_queued_at = User.queued_last.last.updated_at

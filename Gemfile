@@ -46,5 +46,6 @@ group :development, :test do
   gem 'rspec-rails', '3.2.0'
   gem 'silencer'
   gem 'spring'
+  gem 'spring-commands-rspec'
   gem 'timecop'
 end

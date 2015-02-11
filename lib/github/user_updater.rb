@@ -56,6 +56,7 @@ module Github
           user_id
         end
       end
+      User.connection.reconnect!
 
       users      = []
       absent_ids = []

@@ -33,8 +33,10 @@ module Github
     private
 
     def update_users(user_ids)
-      results = parallel_api_request(user_ids)
+      results, absent_ids = parallel_api_request(user_ids)
+
       User.import_updates(results)
+      User.where(id: absent_ids).delete_all
     end
 
     def parallel_api_request(user_ids)
@@ -43,10 +45,26 @@ module Github
 
       user_ids.each do |user_id|
         threads << Thread.new(user_id) do |id|
-          client.user(id)
+          begin
+            client.user(id)
+          rescue Octokit::NotFound
+            id
+          end
         end
       end
-      threads.map(&:value)
+      results = threads.map(&:value)
+
+      users      = []
+      absent_ids = []
+      results.each do |result|
+        if result.is_a?(Sawyer::Resource)
+          users << result
+        else
+          absent_ids << result
+        end
+      end
+
+      [users, absent_ids]
     end
 
     def target_user_ids

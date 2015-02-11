@@ -13,6 +13,7 @@ module Github
     end
 
     def run
+      log_index = 0
       count = 0
       puts Time.now
 
@@ -22,12 +23,17 @@ module Github
 
         update_users(ids)
         count += ids.size
-        print "#{count}\r"
+
+        log_index -= 1
+        if log_index <= 0
+          log_index = 100
+          logger.info("#{count}")
+        end
 
         accept_interrupt
       end
 
-      print "\nfinish\n"
+      logger.info('[finish]')
     end
 
     private

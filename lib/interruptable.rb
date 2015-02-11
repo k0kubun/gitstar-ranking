@@ -1,3 +1,5 @@
+require 'fileutils'
+
 # To interrupt batch excecution safely, execute `touch /tmp/***`.
 module Interruptable
   private
@@ -11,7 +13,7 @@ module Interruptable
   end
 
   def remove_interrupter
-    File.rm_f(interrupter_filename)
+    FileUtils.rm_f(interrupter_filename)
   end
 
   def interrupter_filename

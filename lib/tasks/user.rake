@@ -1,6 +1,6 @@
 namespace :user do
   desc 'Update user'
-  task :update do
+  task update: :environment do
     Github::UserUpdater.new.run
   end
 end

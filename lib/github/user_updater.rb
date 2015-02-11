@@ -21,16 +21,7 @@ module Github
         ids = target_user_ids
         break if ids.blank?
 
-        retry_count = 0
-        begin
-          update_users(ids)
-        rescue ActiveRecord::StatementInvalid
-          logger.info("Reconnect")
-          retry_count += 1
-          if retry_count < 3
-            retry
-          end
-        end
+        update_users(ids)
         count += ids.size
 
         log_index -= 1

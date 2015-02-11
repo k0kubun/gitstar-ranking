@@ -69,10 +69,7 @@ class UserFetchJob < ActiveJob::Base
   def all_repos(user_id)
     client = AccessToken.fetch_client
     client.auto_paginate = true
-    result = client.repos(user_id)
-
-    AccessToken.fetch_rate_limit(client.access_token)
-    result
+    client.repos(user_id)
   end
 
   def destroy_deleted_repos(user_id, repo_ids)

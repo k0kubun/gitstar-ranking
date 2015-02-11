@@ -13,7 +13,9 @@ func requestWorker(reqq chan int, impq chan *octokit.User, dstq chan int) {
 		user, err := getUser(userId)
 
 		destroyIf404(dstq, userId, err)
-		impq <- user
+		if user != nil {
+			impq <- user
+		}
 	}
 }
 

@@ -1,13 +1,9 @@
 package main
 
-import (
-	"log"
-)
-
 func destroyWorker(dstq chan int) {
 	for {
 		userId := <-dstq
-		log.Fatal(userId)
+		destroyUser(userId)
 	}
 }
 

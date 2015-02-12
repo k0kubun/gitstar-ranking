@@ -1,5 +1,6 @@
 - prepend_page_title 'Users Ranking'
 - provide :description, "See the top 1000 GitHub users on GitHub Ranking."
+= render 'shared/pagination_link', max_page: pagination_limit
 
 .page-header
   %h1

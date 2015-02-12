@@ -1,0 +1,7 @@
+- page = (params[:page] || 1).to_i
+
+- content_for :head do
+  - if page != 1
+    %link{ rel: 'prev', href: url_for(page: page - 1) }
+  - if page != max_page
+    %link{ rel: 'next', href: url_for(page: page + 1) }

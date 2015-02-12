@@ -1,5 +1,6 @@
 - prepend_page_title 'Repositories Ranking'
 - provide :description, "See the top 1000 GitHub repositories on GitHub Ranking."
+= render 'shared/pagination_link', max_page: pagination_limit
 
 .page-header
   %h1

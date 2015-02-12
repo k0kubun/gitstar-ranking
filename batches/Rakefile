@@ -1,0 +1,17 @@
+DEPLOY_HOST   = 'conoha'
+DEPLOY_TO     = '/home/k0kubun/batches'
+DEPLOY_TARGES = %i[
+  import_users
+  update_users
+  count_stars
+].freeze
+
+DEPLOY_TARGES.each do |target|
+  desc "Deploy #{target} batch to #{DEPLOY_HOST}"
+  task target do
+    system("cd #{target} && GOOS=linux GOARCH=amd64 go build")
+    system("ssh #{DEPLOY_HOST} 'mkdir -p #{DEPLOY_TO}/shared'")
+    system("scp #{target}/#{target} #{DEPLOY_HOST}:#{DEPLOY_TO}")
+    system("scp shared/tokens.txt #{DEPLOY_HOST}:#{DEPLOY_TO}/shared")
+  end
+end

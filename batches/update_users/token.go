@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	fp, err := os.Open("tokens.txt")
+	fp, err := os.Open("shared/tokens.txt")
 	if err != nil {
 		panic(err)
 	}

@@ -15,7 +15,7 @@ var (
 
 func init() {
 	logF, err := os.OpenFile(
-		getEnv("GR_BATCH_LOG", "run.log"),
+		getEnv("GR_BATCH_LOG", "shared/run.log"),
 		os.O_RDWR|os.O_CREATE|os.O_APPEND,
 		0644,
 	)

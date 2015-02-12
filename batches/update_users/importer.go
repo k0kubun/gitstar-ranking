@@ -37,19 +37,37 @@ func importUsers(users []*octokit.User) {
 		return
 	}
 
-	sql := "INSERT INTO users (id, login, avatar_url, public_repos) VALUES "
+	sql := `
+		INSERT INTO users (
+			id,
+			login,
+			avatar_url,
+			public_repos,
+			created_at,
+			updated_at
+		) VALUES
+	`
 	values := []interface{}{}
 	for _, user := range users {
-		sql += "(?,?,?,?),"
-		values = append(values, user.ID, user.Login, user.AvatarURL, user.PublicRepos)
+		sql += "(?,?,?,?,?,?),"
+		values = append(
+			values,
+			user.ID,
+			user.Login,
+			user.AvatarURL,
+			user.PublicRepos,
+			user.CreatedAt,
+			user.UpdatedAt,
+		)
 	}
 	sql = sql[0 : len(sql)-1] // trim last ,
 	sql += `
 		ON DUPLICATE KEY UPDATE
-		id=VALUES(id),
 		login=VALUES(login),
 		avatar_url=VALUES(avatar_url),
-		public_repos=VALUES(public_repos);
+		public_repos=VALUES(public_repos),
+		created_at=VALUES(created_at),
+		updated_at=VALUES(updated_at);
 	`
 
 	_, err := db.Exec(sql, values...)

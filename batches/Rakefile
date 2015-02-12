@@ -1,4 +1,4 @@
-DEPLOY_HOST   = 'conoha'
+DEPLOY_HOST   = 'excloud'
 DEPLOY_TO     = '/home/k0kubun/batches'
 DEPLOY_TARGES = %i[
   import_users

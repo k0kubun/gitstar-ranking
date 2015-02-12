@@ -6,7 +6,11 @@
     %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
     %meta{ name: 'description', content: content_for?(:description) ? yield(:description) : 'GitHub Ranking is a ranking for all GitHub users. You can see top 1000 users, organizations and repositories. Find your favorite user. See what is your rank.' }
     %meta{ name: 'keywords', content: 'GitHub, Star, Ranking' }
-    = content_for(:head) if content_for?(:head)
+    - if content_for?(:canonical)
+      %link{ rel: 'canonical', href: yield(:canonical) }
+    - if content_for?(:head)
+      = content_for(:head)
+
     = stylesheet_link_tag 'application', media: 'all'
     = javascript_include_tag 'application'
     = csrf_meta_tags

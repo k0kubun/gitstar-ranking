@@ -1,5 +1,6 @@
 - prepend_page_title @repo.full_name
 - provide :description, "See the rank of #{@repo.full_name} on GitHub Ranking."
+- provide :canonical, user_repository_url(@user, @repo)
 
 .row
   .col-md-3.hidden-xs.hidden-sm

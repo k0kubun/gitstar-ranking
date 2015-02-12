@@ -1,6 +1,6 @@
 - prepend_page_title 'Organizations Ranking'
 - provide :description, "See the top 1000 GitHub organizations on GitHub Ranking."
-= render 'shared/pagination_link', max_page: pagination_limit
+= render 'shared/pagination_link', max_page: pagination_limit, url: organizations_url
 
 .page-header
   %h1

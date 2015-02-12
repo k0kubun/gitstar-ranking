@@ -1,5 +1,6 @@
 - prepend_page_title @user.login
 - provide :description, "See the rank of #{@user.login} on GitHub Ranking."
+- provide :canonical, user_url(@user)
 
 .row
   .col-md-3

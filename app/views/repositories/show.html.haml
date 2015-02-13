@@ -23,8 +23,7 @@
           = fa_icon 'external-link'
       - if @repo.homepage.present?
         .homepage
-          = link_to @repo.homepage do
-            = @repo.homepage
+          = link_to @repo.homepage, normalize_url(@repo.homepage)
 
     .row.repository_info
       .col-xs-6

@@ -29,16 +29,20 @@ func requestWorker(reqq chan int, impq chan *ImportJob, dstq chan int) {
 func getRepos(userId int) ([]octokit.Repository, error) {
 	allRepos := []octokit.Repository{}
 
-	for page := 0; ; page++ {
+	for page := 1; ; page++ {
 		repos, err := getPaginatedRepos(userId, page)
 		if err != nil {
-			return []octokit.Repository{}, err
+			return allRepos, err
 		}
 
 		if len(repos) == 0 {
 			break
 		}
 		allRepos = append(allRepos, repos...)
+
+		if len(repos) < maxPerPage {
+			break
+		}
 	}
 
 	return allRepos, nil

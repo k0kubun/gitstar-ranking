@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	requestConcurrency = 80
+	requestConcurrency = 48
 	bufferedImports    = 1000
 	bufferedRequests   = 1000
 	bufferedDestroys   = 1000

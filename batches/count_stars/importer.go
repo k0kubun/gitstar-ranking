@@ -1,75 +1,108 @@
 package main
 
 import (
+	"fmt"
 	"github.com/octokit/go-octokit/octokit"
 )
 
-const (
-	importBatchSize = 200
-)
-
-func importWorker(impq chan *octokit.User) {
+func importWorker(impq chan *ImportJob) {
 	for {
-		users := []*octokit.User{}
-		for i := 0; i < importBatchSize; i++ {
-			users = append(users, <-impq)
-		}
-		importUsers(users)
+		job := <-impq
+
+		star := countStars(job.Repos)
+		setStargazersCount(job.UserID, star)
+
+		dropDeletedRepos(job.UserID, job.Repos)
+		importRepos(job.Repos)
 	}
 }
 
-func importUser(user *octokit.User) {
-	_, err := db.Exec(`
-		UPDATE users
-		SET users.login = ?, users.avatar_url = ?, users.public_repos = ?
-		WHERE id = ?;
-		`,
-		user.Login,
-		user.AvatarURL,
-		user.PublicRepos,
-		user.ID,
-	)
-	logError(err)
+func countStars(repos []octokit.Repository) int {
+	star := 0
+	for _, repo := range repos {
+		star += repo.StargazersCount
+	}
+	return star
 }
 
-func importUsers(users []*octokit.User) {
-	if len(users) == 0 {
+func setStargazersCount(userId, star int) {
+	_, err := db.Exec(
+		"UPDATE users SET users.stargazers_count = ? WHERE id = ?;",
+		star,
+		userId,
+	)
+	assert(err)
+}
+
+func dropDeletedRepos(userId int, repos []octokit.Repository) {
+	ids := []int{}
+	for _, repo := range repos {
+		ids = append(ids, repo.ID)
+	}
+
+	sql := fmt.Sprintf(
+		"DELETE FROM repositories WHERE owner_id = %d AND id NOT IN (%s);",
+		userId,
+		commaJoin(ids),
+	)
+	_, err := db.Exec(sql)
+	assert(err)
+}
+
+func importRepos(repos []octokit.Repository) {
+	if len(repos) == 0 {
 		return
 	}
 
 	sql := `
-		INSERT INTO users (
+	  INSERT INTO repositories (
 			id,
-			login,
-			avatar_url,
-			public_repos,
+			name,
+			full_name,
+			owner_id,
+			description,
+			fork,
 			created_at,
-			updated_at
+			updated_at,
+			homepage,
+			stargazers_count,
+			language
 		) VALUES
 	`
+
 	values := []interface{}{}
-	for _, user := range users {
-		sql += "(?,?,?,?,?,?),"
+	for _, repo := range repos {
+		sql += "(?,?,?,?,?,?,?,?,?,?,?),"
 		values = append(
 			values,
-			user.ID,
-			user.Login,
-			user.AvatarURL,
-			user.PublicRepos,
-			user.CreatedAt,
-			user.UpdatedAt,
+			repo.ID,
+			repo.Name,
+			repo.FullName,
+			repo.Owner.ID,
+			repo.Description,
+			repo.Fork,
+			repo.CreatedAt,
+			repo.UpdatedAt,
+			repo.Homepage,
+			repo.StargazersCount,
+			repo.Language,
 		)
 	}
 	sql = sql[0 : len(sql)-1] // trim last ,
+
 	sql += `
 		ON DUPLICATE KEY UPDATE
-		login=VALUES(login),
-		avatar_url=VALUES(avatar_url),
-		public_repos=VALUES(public_repos),
+		name=VALUES(name),
+		full_name=VALUES(full_name),
+		owner_id=VALUES(owner_id),
+		description=VALUES(description),
+		fork=VALUES(fork),
 		created_at=VALUES(created_at),
-		updated_at=VALUES(updated_at);
+		updated_at=VALUES(updated_at),
+		homepage=VALUES(homepage),
+		stargazers_count=VALUES(stargazers_count),
+		language=VALUES(language);
 	`
-
 	_, err := db.Exec(sql, values...)
-	logError(err)
+	assert(err)
 }

@@ -7,30 +7,51 @@ import (
 	"net/url"
 )
 
-func requestWorker(reqq chan int, impq chan *octokit.User, dstq chan int) {
+func requestWorker(reqq chan int, impq chan *ImportJob, dstq chan int) {
 	for {
 		userId := <-reqq
-		user, err := getUser(userId)
-
+		repos, err := getRepos(userId)
 		destroyIf404(dstq, userId, err)
-		if user != nil {
-			impq <- user
+
+		if err == nil {
+			impq <- &ImportJob{
+				UserID: userId,
+				Repos:  repos,
+			}
 		}
 	}
 }
 
-func getUser(userId int) (*octokit.User, error) {
-	uri := fmt.Sprintf("https://api.github.com/user/%d", userId)
+func getRepos(userId int) ([]octokit.Repository, error) {
+	allRepos := []octokit.Repository{}
+
+	for page := 0; ; page++ {
+		repos, err := getPaginatedRepos(userId, page)
+		if err != nil {
+			return []octokit.Repository{}, err
+		}
+
+		if len(repos) == 0 {
+			break
+		}
+		allRepos = append(allRepos, repos...)
+	}
+
+	return allRepos, nil
+}
+
+func getPaginatedRepos(userId int, page int) ([]octokit.Repository, error) {
+	uri := fmt.Sprintf("https://api.github.com/user/%d/repos?page=%d", userId, page)
 	api, err := url.Parse(uri)
 	assert(err)
 
 	client := octokit.NewClient(octokit.TokenAuth{selectToken()})
-	user, result := client.Users(api).One()
+	repos, result := client.Repositories(api).All()
 	if result.HasError() {
-		return nil, result.Err
+		return []octokit.Repository{}, result.Err
 	}
 
-	return user, nil
+	return repos, nil
 }
 
 func destroyIf404(dstq chan int, userId int, err error) {

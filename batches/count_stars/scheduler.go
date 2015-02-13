@@ -5,8 +5,12 @@ import (
 	"time"
 )
 
+const (
+	scheduleBatchSize = 2000
+)
+
 var (
-	maxQueuedAt = time.Date(2015, time.February, 11, 16, 35, 0, 0, time.UTC)
+	maxQueuedAt = time.Date(2015, time.February, 13, 13, 18, 0, 0, time.UTC)
 )
 
 func scheduleAll(reqq chan int) {
@@ -19,6 +23,7 @@ func scheduleAll(reqq chan int) {
 		}
 
 		markAsQueued(ids)
+		ids = filterNoPublicRepos(ids)
 		for _, id := range ids {
 			reqq <- id
 		}
@@ -31,7 +36,7 @@ func scheduleAll(reqq chan int) {
 func notQueuedIds() []int {
 	rows, err := db.Query(
 		"SELECT id, queued_at FROM users ORDER BY queued_at ASC LIMIT ?;",
-		1000,
+		scheduleBatchSize,
 	)
 	defer rows.Close()
 	assert(err)
@@ -46,6 +51,26 @@ func notQueuedIds() []int {
 			continue
 		}
 
+		ids = append(ids, id)
+	}
+
+	return ids
+}
+
+func filterNoPublicRepos(userIds []int) []int {
+	sql := fmt.Sprintf(
+		"SELECT id FROM users WHERE id IN (%s) AND public_repos > 0;",
+		commaJoin(userIds),
+	)
+	rows, err := db.Query(sql)
+	defer rows.Close()
+	assert(err)
+
+	ids := []int{}
+	var id int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		assert(err)
 		ids = append(ids, id)
 	}
 

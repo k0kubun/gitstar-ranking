@@ -58,13 +58,17 @@ func notQueuedIds() []int {
 }
 
 func filterNoPublicRepos(userIds []int) []int {
+	if len(userIds) == 0 {
+		return []int{}
+	}
+
 	sql := fmt.Sprintf(
 		"SELECT id FROM users WHERE id IN (%s) AND public_repos > 0;",
 		commaJoin(userIds),
 	)
 	rows, err := db.Query(sql)
 	defer rows.Close()
-	assert(err)
+	assertSql(sql, err)
 
 	ids := []int{}
 	var id int
@@ -87,5 +91,5 @@ func markAsQueued(ids []int) {
 		commaJoin(ids),
 	)
 	_, err := db.Exec(sql, timeNow())
-	assert(err)
+	assertSql(sql, err)
 }

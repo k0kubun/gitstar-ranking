@@ -35,6 +35,10 @@ func setStargazersCount(userId, star int) {
 }
 
 func dropDeletedRepos(userId int, repos []octokit.Repository) {
+	if len(repos) == 0 {
+		return
+	}
+
 	ids := []int{}
 	for _, repo := range repos {
 		ids = append(ids, repo.ID)
@@ -46,7 +50,7 @@ func dropDeletedRepos(userId int, repos []octokit.Repository) {
 		commaJoin(ids),
 	)
 	_, err := db.Exec(sql)
-	assert(err)
+	assertSql(sql, err)
 }
 
 func importRepos(repos []octokit.Repository) {
@@ -104,5 +108,5 @@ func importRepos(repos []octokit.Repository) {
 		language=VALUES(language);
 	`
 	_, err := db.Exec(sql, values...)
-	assert(err)
+	assertSql(sql, err)
 }

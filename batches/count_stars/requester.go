@@ -7,6 +7,10 @@ import (
 	"net/url"
 )
 
+const (
+	maxPerPage = 100
+)
+
 func requestWorker(reqq chan int, impq chan *ImportJob, dstq chan int) {
 	for {
 		userId := <-reqq
@@ -41,7 +45,7 @@ func getRepos(userId int) ([]octokit.Repository, error) {
 }
 
 func getPaginatedRepos(userId int, page int) ([]octokit.Repository, error) {
-	uri := fmt.Sprintf("https://api.github.com/user/%d/repos?page=%d", userId, page)
+	uri := fmt.Sprintf("https://api.github.com/user/%d/repos?page=%d&per_page=%d", userId, page, maxPerPage)
 	api, err := url.Parse(uri)
 	assert(err)
 

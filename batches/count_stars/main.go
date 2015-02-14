@@ -37,8 +37,18 @@ func countStarOfAllUsers() {
 		go requestWorker(requestQueue, importQueue, destroyQueue)
 	}
 
+	defer rescueFailure(requestQueue, importQueue, destroyQueue)
 	scheduleAll(requestQueue)
 	waitQueues(requestQueue, importQueue, destroyQueue)
+}
+
+func rescueFailure(reqq chan int, impq chan *ImportJob, dstq chan int) {
+	if r := recover(); r != nil {
+		puts("Recoverd:", r)
+		go importWorker(impq)
+		go destroyWorker(dstq)
+		waitQueues(reqq, impq, dstq)
+	}
 }
 
 func waitQueues(reqq chan int, impq chan *ImportJob, dstq chan int) {

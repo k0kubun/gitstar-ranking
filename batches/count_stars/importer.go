@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/octokit/go-octokit/octokit"
+	"log"
+	"time"
 )
 
 func importWorker(impq chan *ImportJob) {
@@ -13,7 +15,12 @@ func importWorker(impq chan *ImportJob) {
 		setStargazersCount(job.UserID, star)
 
 		dropDeletedRepos(job.UserID, job.Repos)
-		importRepos(job.Repos)
+		err := importRepos(job.Repos)
+		if err != nil {
+			logError(err)
+			log.Printf("Skip for %d. Repos count was %d. Sleeping 5 second...", job.UserID, len(job.Repos))
+			time.Sleep(5 * time.Second)
+		}
 	}
 }
 
@@ -53,9 +60,9 @@ func dropDeletedRepos(userId int, repos []octokit.Repository) {
 	assertSql(sql, err)
 }
 
-func importRepos(repos []octokit.Repository) {
+func importRepos(repos []octokit.Repository) error {
 	if len(repos) == 0 {
-		return
+		return nil
 	}
 
 	sql := `
@@ -108,5 +115,5 @@ func importRepos(repos []octokit.Repository) {
 		language=VALUES(language);
 	`
 	_, err := db.Exec(sql, values...)
-	assertSql(sql, err)
+	return err
 }

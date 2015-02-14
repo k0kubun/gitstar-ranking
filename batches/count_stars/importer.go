@@ -38,7 +38,11 @@ func setStargazersCount(userId, star int) {
 		star,
 		userId,
 	)
-	assert(err)
+	if err != nil {
+		logError(err)
+		puts(userId, ": Fail to update star:", star)
+		time.Sleep(5 * time.Second)
+	}
 }
 
 func dropDeletedRepos(userId int, repos []octokit.Repository) {

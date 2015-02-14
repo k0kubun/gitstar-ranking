@@ -34,12 +34,10 @@ func scheduleAll(reqq chan int) {
 }
 
 func notQueuedIds() []int {
-	rows, err := db.Query(
-		"SELECT id, queued_at FROM users ORDER BY queued_at ASC LIMIT ?;",
-		scheduleBatchSize,
-	)
+	sql := "SELECT id, queued_at FROM users ORDER BY queued_at ASC LIMIT ?;"
+	rows, err := db.Query(sql, scheduleBatchSize)
 	defer rows.Close()
-	assert(err)
+	assertSql(sql, err)
 
 	ids := []int{}
 	var id int

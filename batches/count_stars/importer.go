@@ -13,7 +13,21 @@ func importWorker(impq chan *ImportJob) {
 		setStargazersCount(job.UserID, star)
 
 		dropDeletedRepos(job.UserID, job.Repos)
-		importRepos(job.Repos)
+
+		for i := 0; i < 3; i++ {
+			err := importRepos(job.Repos)
+			if err == nil {
+				break
+			}
+
+			if i == 2 {
+				puts("Fail to import", job.UserID)
+				assert(err)
+			} else {
+				puts("Retry:", job.UserID)
+				logError(err)
+			}
+		}
 	}
 }
 
@@ -53,9 +67,9 @@ func dropDeletedRepos(userId int, repos []octokit.Repository) {
 	assertSql(sql, err)
 }
 
-func importRepos(repos []octokit.Repository) {
+func importRepos(repos []octokit.Repository) error {
 	if len(repos) == 0 {
-		return
+		return nil
 	}
 
 	sql := `
@@ -108,5 +122,5 @@ func importRepos(repos []octokit.Repository) {
 		language=VALUES(language);
 	`
 	_, err := db.Exec(sql, values...)
-	assertSql(sql, err)
+	return err
 }

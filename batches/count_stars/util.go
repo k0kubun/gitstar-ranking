@@ -20,7 +20,7 @@ func init() {
 		0644,
 	)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	log.SetOutput(logF)
@@ -35,13 +35,14 @@ func assert(err error) {
 func assertSql(sql string, err error) {
 	if err != nil {
 		log.Println(sql)
-		panic(err)
+		log.Println(err)
+		log.Println("Fatal")
 	}
 }
 
 func logError(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 

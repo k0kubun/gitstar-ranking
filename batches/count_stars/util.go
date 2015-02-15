@@ -35,13 +35,13 @@ func assert(err error) {
 func assertSql(sql string, err error) {
 	if err != nil {
 		log.Println(sql)
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
 func logError(err error) {
 	if err != nil {
-		log.Println(err)
+		panic(err)
 	}
 }
 

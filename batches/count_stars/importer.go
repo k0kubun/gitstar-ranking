@@ -61,7 +61,11 @@ func dropDeletedRepos(userId int, repos []octokit.Repository) {
 		commaJoin(ids),
 	)
 	_, err := db.Exec(sql)
-	assertSql(sql, err)
+	if err != nil {
+		logError(err)
+		puts("Fail to exec sql:", sql, " Sleeping 5 seconds...")
+		time.Sleep(5 * time.Second)
+	}
 }
 
 func importRepos(repos []octokit.Repository) error {

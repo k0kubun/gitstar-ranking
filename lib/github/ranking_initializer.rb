@@ -22,7 +22,7 @@ module Github
         break if users.blank?
 
         users.each do |id, stargazers_count|
-          redis.zadd(USER_RANKING_KEY, stargazers_count, id)
+          redis.zadd(USER_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
         end
         last_id = users.last.first
         print "#{last_id}\r"
@@ -39,7 +39,7 @@ module Github
         break if orgs.blank?
 
         orgs.each do |id, stargazers_count|
-          redis.zadd(ORGANIZATION_RANKING_KEY, stargazers_count, id)
+          redis.zadd(ORGANIZATION_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
         end
         last_id = orgs.last.first
         print "#{last_id}\r"
@@ -56,7 +56,7 @@ module Github
         break if repos.blank?
 
         repos.each do |id, stargazers_count|
-          redis.zadd(REPOSITORY_RANKING_KEY, stargazers_count, id)
+          redis.zadd(REPOSITORY_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
         end
         last_id = repos.last.first
         print "#{last_id}\r"

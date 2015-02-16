@@ -352,6 +352,7 @@ DEPENDENCIES
   dotenv-rails
   exception_notification
   factory_girl
+  faraday
   font-awesome-rails
   foreman
   google-analytics-rails

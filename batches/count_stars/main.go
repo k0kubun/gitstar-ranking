@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/octokit/go-octokit/octokit"
+	"os"
 	"runtime"
 	"time"
 )
@@ -23,7 +24,38 @@ func main() {
 	defer logF.Close()
 	runtime.GOMAXPROCS(requestConcurrency + 3)
 
-	countStarOfAllUsers()
+	if len(os.Args) > 1 {
+		countStarFor(os.Args[1])
+	} else {
+		countStarOfAllUsers()
+	}
+}
+
+func countStarFor(login string) {
+	userId := idByLogin(login)
+	repos, _ := getRepos(userId)
+	star := countStars(repos)
+
+	setStargazersCount(userId, star)
+	dropDeletedRepos(userId, repos)
+	importRepos(repos)
+}
+
+func idByLogin(login string) int {
+	rows, err := db.Query(
+		"SELECT id FROM users where login = ? LIMIT 1;",
+		login,
+	)
+	defer rows.Close()
+	assert(err)
+
+	var id int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		assert(err)
+	}
+
+	return id
 }
 
 func countStarOfAllUsers() {

@@ -25,14 +25,6 @@ class User < ActiveRecord::Base
   scope :queued_last, -> { order(queued_at: :asc) }
   scope :queued_last, -> { order(queued_at: :asc) }
 
-  searchable(auto_index: false) do
-    text :login
-    integer :stargazers_count
-    boolean :user_flag do
-      self.type == 'User'
-    end
-  end
-
   def self.import_updates(updates)
     users = []
 

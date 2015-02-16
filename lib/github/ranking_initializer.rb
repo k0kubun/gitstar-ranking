@@ -2,7 +2,7 @@ module Github
   class RankingInitializer
     BATCH_SIZE               = 5000
     USER_RANKING_KEY         = 'githubranking-user-ranking'
-    ORGANIZATION_RANKING_KEY = 'githubranking-orgzanization-ranking'
+    ORGANIZATION_RANKING_KEY = 'githubranking-organization-ranking'
     REPOSITORY_RANKING_KEY   = 'githubranking-repository-ranking'
 
     def run

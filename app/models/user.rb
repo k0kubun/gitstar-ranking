@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   include Concerns::Starrable
 
   IMPORT_ATTRIBUTES = %i[id login avatar_url public_repos type]
+  USER_RANKING_KEY  = 'githubranking-user-ranking'
   ADMIN_IDS = [
     3138447, # k0kubun
   ].freeze
@@ -55,6 +56,10 @@ class User < ActiveRecord::Base
 
   def in_queue?
     update_threshold <= queued_at && updated_at <= queued_at
+  end
+
+  def ranking_key
+    USER_RANKING_KEY
   end
 
   private

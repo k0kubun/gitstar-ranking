@@ -7,11 +7,13 @@ module Concerns
     end
 
     def rank
-      if stargazers_count >= minimum_rankable_star
-        super
-      else
-        0
-      end
+      Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
+    end
+
+    private
+
+    def ranking_key
+      raise NotImplementedError
     end
   end
 end

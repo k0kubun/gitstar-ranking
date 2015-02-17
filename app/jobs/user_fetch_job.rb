@@ -53,7 +53,7 @@ class UserFetchJob < ActiveJob::Base
         on_duplicate_key_update: %i[name full_name description homepage stargazers_count language],
       )
       user = User.find(user_id)
-      user.update(stargazers_count: star)
+      user.update(stargazers_count: star, updated_at: Time.now)
       user.update_ranking
     end
 

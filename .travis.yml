@@ -1,6 +1,8 @@
 rvm: 2.2.0
 sudo: false
 cache: bundler
+services:
+  - redis-server
 before_script:
   - 'bundle exec rake db:create db:migrate'
   - 'mkdir -p /home/travis/build/k0kubun/githubranking/tmp/cache'

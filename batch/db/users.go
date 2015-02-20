@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/octokit/go-octokit/octokit"
+	"time"
 )
 
 func LastUserId() (int, error) {
@@ -22,4 +23,37 @@ func CreateUsers(users []octokit.User) {
 	if len(users) == 0 {
 		return
 	}
+
+	BulkInsert(
+		wrapUsers(users),
+		"users",
+		[]string{
+			"id",
+			"login",
+			"avatar_url",
+			"type",
+			"created_at",
+			"updated_at",
+		},
+		func(record interface{}) []interface{} {
+			user := record.(octokit.User)
+			now := time.Now().UTC()
+			return []interface{}{
+				user.ID,
+				user.Login,
+				user.AvatarURL,
+				user.Type,
+				now,
+				now,
+			}
+		},
+	)
+}
+
+func wrapUsers(users []octokit.User) []interface{} {
+	values := []interface{}{}
+	for _, user := range users {
+		values = append(values, user)
+	}
+	return values
 }

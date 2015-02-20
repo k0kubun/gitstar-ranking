@@ -15,7 +15,8 @@ const (
 )
 
 var (
-	reNotFound = regexp.MustCompile(`404 - Not Found`)
+	reBadCredentials = regexp.MustCompile(`401 - Bad credentials`)
+	reNotFound       = regexp.MustCompile(`404 - Not Found`)
 )
 
 func init() {
@@ -46,7 +47,8 @@ func requestUsers(path string, a ...interface{}) ([]octokit.User, error) {
 	}
 
 	for i := 0; i < maxRetrial; i++ {
-		client := octokit.NewClient(octokit.TokenAuth{selectToken()})
+		token := selectToken()
+		client := octokit.NewClient(octokit.TokenAuth{token})
 		users, result = client.Users(api).All()
 		if !result.HasError() {
 			return users, nil
@@ -54,6 +56,10 @@ func requestUsers(path string, a ...interface{}) ([]octokit.User, error) {
 
 		if isNotFound(result.Err) {
 			return []octokit.User{}, result.Err
+		}
+		if isBadCredentials(result.Err) {
+			log.Println(result.Err)
+			removeToken(token)
 		}
 		time.Sleep(5 * time.Second)
 	}
@@ -69,6 +75,6 @@ func isNotFound(err error) bool {
 	return reNotFound.MatchString(err.Error())
 }
 
-func selectToken() string {
-	return ""
+func isBadCredentials(err error) bool {
+	return reBadCredentials.MatchString(err.Error())
 }

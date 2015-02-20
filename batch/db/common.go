@@ -15,8 +15,7 @@ const (
 )
 
 var (
-	db   *sql.DB
-	logF *os.File
+	db *sql.DB
 )
 
 func init() {
@@ -36,7 +35,7 @@ func init() {
 	db.SetMaxOpenConns(mysqlMaxConn)
 
 	logF, err := os.OpenFile(
-		getEnv("GR_BATCH_LOG", "shared/run.log"),
+		getEnv("GR_BATCH_LOG", "db.log"),
 		os.O_RDWR|os.O_CREATE|os.O_APPEND,
 		0644,
 	)

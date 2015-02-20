@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/k0kubun/githubranking/batch/db"
+	"github.com/k0kubun/githubranking/batch/github"
+	"log"
 )
 
 type Scheduler struct {
@@ -16,9 +18,6 @@ const (
 var (
 	scFuncs = []func() []int{
 		scNewUsers,
-		scStarredUsers,
-		scPublicReposUsers,
-		scEmptyUsers,
 	}
 )
 
@@ -33,6 +32,11 @@ func (s *Scheduler) Schedule() {
 	for {
 		for _, f := range s.funcs {
 			userIds := f()
+			if len(userIds) == 0 {
+				return
+			}
+			log.Printf("scNewUsers: %d\n", len(userIds))
+
 			for _, userId := range userIds {
 				s.queue <- userId
 			}
@@ -41,9 +45,12 @@ func (s *Scheduler) Schedule() {
 }
 
 func scNewUsers() []int {
-	lastId := db.LastUserId()
+	lastId, err := db.LastUserId()
+	if err != nil {
+		return []int{}
+	}
 
-	return []int{lastId}
+	return createNewUsers(lastId)
 }
 
 func scStarredUsers() []int {
@@ -56,4 +63,15 @@ func scPublicReposUsers() []int {
 
 func scEmptyUsers() []int {
 	return []int{}
+}
+
+func createNewUsers(lastId int) []int {
+	users := github.AllUsers(lastId)
+	db.CreateUsers(users)
+
+	ids := []int{}
+	for _, user := range users {
+		ids = append(ids, user.ID)
+	}
+	return ids
 }

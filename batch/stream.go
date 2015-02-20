@@ -6,6 +6,7 @@ import (
 
 type Stream struct {
 	queue chan int
+	done  chan bool
 	funcs []func(*octokit.User, []octokit.Repository, error)
 }
 
@@ -18,9 +19,10 @@ var (
 	}
 )
 
-func NewStream(queue chan int) *Stream {
+func NewStream(queue chan int, done chan bool) *Stream {
 	return &Stream{
 		queue: queue,
+		done:  done,
 		funcs: stFuncs,
 	}
 }
@@ -33,6 +35,8 @@ func (s *Stream) Process() {
 			for _, f := range s.funcs {
 				f(user, repos, err)
 			}
+		case <-s.done:
+			return
 		}
 	}
 }

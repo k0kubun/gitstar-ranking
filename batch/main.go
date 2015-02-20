@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"time"
 )
 
 const (
@@ -28,19 +29,35 @@ func init() {
 }
 
 func main() {
-	importNewUsers()
+	scheduleAll()
 }
 
 func scheduleAll() {
 	runtime.GOMAXPROCS(concurrency)
 	queue := make(chan int, queueLength)
+	done := make(chan bool)
 
 	for i := 0; i < concurrency-1; i++ {
-		s := NewStream(queue)
+		s := NewStream(queue, done)
 		go s.Process()
 	}
 
 	NewScheduler(queue).Schedule()
+	waitQueue(queue)
+	joinStreams(done)
+}
+
+func waitQueue(queue chan int) {
+	for len(queue) > 0 {
+		log.Printf("Len: %d, Sleep 5s...\n", len(queue))
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func joinStreams(done chan bool) {
+	for i := 0; i < concurrency-1; i++ {
+		done <- true
+	}
 }
 
 func importNewUsers() {

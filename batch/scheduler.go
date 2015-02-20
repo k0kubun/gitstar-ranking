@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/k0kubun/githubranking/batch/db"
+)
+
 type Scheduler struct {
 	queue chan int
 	funcs []func() []int
@@ -37,7 +41,9 @@ func (s *Scheduler) Schedule() {
 }
 
 func scNewUsers() []int {
-	return []int{}
+	lastId := db.LastUserId()
+
+	return []int{lastId}
 }
 
 func scStarredUsers() []int {

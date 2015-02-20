@@ -6,19 +6,22 @@ import (
 
 type Stream struct {
 	queue chan int
-	funcs []func(*octokit.User, []octokit.Repository, error) error
+	funcs []func(*octokit.User, []octokit.Repository, error)
 }
 
 var (
-	stFuncs = []func(*octokit.User, []octokit.Repository, error) error{
+	stFuncs = []func(*octokit.User, []octokit.Repository, error){
 		stUpdateUsers,
+		stDestroyUsers,
+		stUpdateRepos,
+		stDestroyRepos,
 	}
 )
 
 func NewStream(queue chan int) *Stream {
 	return &Stream{
 		queue: queue,
-		funcs: []func(*octokit.User, []octokit.Repository, error) error{},
+		funcs: stFuncs,
 	}
 }
 
@@ -38,6 +41,14 @@ func (s *Stream) requestData(userId int) (*octokit.User, []octokit.Repository, e
 	return nil, []octokit.Repository{}, nil
 }
 
-func stUpdateUsers(user *octokit.User, repos []octokit.Repository, err error) error {
-	return nil
+func stUpdateUsers(user *octokit.User, repos []octokit.Repository, err error) {
+}
+
+func stDestroyUsers(user *octokit.User, repos []octokit.Repository, err error) {
+}
+
+func stUpdateRepos(user *octokit.User, repos []octokit.Repository, err error) {
+}
+
+func stDestroyRepos(user *octokit.User, repos []octokit.Repository, err error) {
 }

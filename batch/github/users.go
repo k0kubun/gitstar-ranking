@@ -11,3 +11,11 @@ func AllUsers(userId int) []octokit.User {
 	}
 	return users
 }
+
+func FindUser(userId int) *octokit.User {
+	user, err := requestUser("/user/%d", userId)
+	if err != nil {
+		return nil
+	}
+	return user
+}

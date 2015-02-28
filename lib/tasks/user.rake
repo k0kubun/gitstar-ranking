@@ -8,9 +8,4 @@ namespace :user do
   task fetch: :environment do
     Github::UserFetcher.new.run
   end
-
-  desc 'Initialize redis ranking'
-  task redis: :environment do
-    Github::RankingInitializer.new.run
-  end
 end

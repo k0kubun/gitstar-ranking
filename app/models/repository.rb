@@ -2,8 +2,7 @@ class Repository < ActiveRecord::Base
   include Concerns::Rankable
   include Concerns::Starrable
 
-  REPOSITORY_RANKING_KEY = 'githubranking-repository-ranking'
-
+  self.ranking_key = 'githubranking:repository:world:all'
   self.minimum_rankable_star = 15
 
   paginates_per 100
@@ -12,9 +11,5 @@ class Repository < ActiveRecord::Base
 
   def to_param
     name
-  end
-
-  def ranking_key
-    REPOSITORY_RANKING_KEY
   end
 end

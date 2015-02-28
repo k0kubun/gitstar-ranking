@@ -1,9 +1,5 @@
 class Organization < User
-  ORGANIZATION_RANKING_KEY = 'githubranking-organization-ranking'
+  self.ranking_key = 'githubranking:organization:world:all'
 
   paginates_per 100
-
-  def ranking_key
-    ORGANIZATION_RANKING_KEY
-  end
 end

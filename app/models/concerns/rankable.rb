@@ -3,11 +3,13 @@ module Concerns
     extend ActiveSupport::Concern
 
     included do |base|
+      class_attribute :ranking_key
       class_attribute :minimum_rankable_star
     end
 
     def rank
-      Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
+      super
+      # Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
     rescue Redis::CannotConnectError
       super
     end
@@ -18,12 +20,6 @@ module Concerns
       else
         Redis.current.zrem(ranking_key, id)
       end
-    end
-
-    private
-
-    def ranking_key
-      raise NotImplementedError
     end
   end
 end

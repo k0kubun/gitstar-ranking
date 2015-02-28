@@ -1,9 +1,9 @@
 module Github
   class RankingInitializer
     BATCH_SIZE               = 5000
-    USER_RANKING_KEY         = 'githubranking-user-ranking'
-    ORGANIZATION_RANKING_KEY = 'githubranking-organization-ranking'
-    REPOSITORY_RANKING_KEY   = 'githubranking-repository-ranking'
+    USER_RANKING_KEY         = 'githubranking:user:world'
+    ORGANIZATION_RANKING_KEY = 'githubranking:organization:world'
+    REPOSITORY_RANKING_KEY   = 'githubranking:repository:world'
 
     def run
       initialize_users

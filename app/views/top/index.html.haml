@@ -10,10 +10,14 @@
         %h1= page_title
         %p
           GitHub star ranking for users, organizations and repositories.
-        - unless user_signed_in?
-          %p
-            = link_to user_omniauth_authorize_path(:github), class: 'btn btn-primary btn-lg' do
-              Sign in with GitHub
+
+        = form_tag search_path, method: :get do
+          .row
+            .form-group.col-lg-3
+              = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
+                placeholder: 'GitHub username'
+            .col-lg-1
+              = submit_tag 'Search', class: 'btn btn-default'
 
 .row
   .col-md-4

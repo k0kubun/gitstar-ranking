@@ -25,6 +25,8 @@ Rails.application.routes.draw do
   resources :organizations, only: :index
   resources :repositories, only: :index
 
+  resource :search, only: :show
+
   resource :site_map, only: :show
 
   resources :users, only: :show, param: :login, constraints: { login: /[a-zA-Z0-9-]+/ }, path: '/' do

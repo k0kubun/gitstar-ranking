@@ -6,6 +6,7 @@ module ApplicationHelper
   COLOR_CLASS = {
     notice: :success,
     alert: :danger,
+    warning: :warning,
   }
 
   def link_to_github(path, options = {}, &block)

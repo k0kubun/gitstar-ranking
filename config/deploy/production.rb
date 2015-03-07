@@ -5,8 +5,8 @@ set :migration_role, 'db'
 set :sidekiq_role, 'app'
 
 set :user, 'k0kubun'
-role :app, 'conoha'
-role :web, 'conoha'
-role :db,  'excloud'
+role :app, 'gmo'
+role :web, 'gmo'
+# role :db,  'excloud'
 
 set :deploy_to, '/home/k0kubun/githubranking'

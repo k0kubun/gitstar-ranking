@@ -6,7 +6,6 @@ set :linked_files, %w[
   .env
   config/database.yml
   config/secrets.yml
-  config/sunspot.yml
   config/initializers/redis.rb
 ]
 

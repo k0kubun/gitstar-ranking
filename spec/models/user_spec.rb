@@ -81,7 +81,7 @@ describe User do
         }.from(0).to(1)
 
         user = User.last
-        %i[id login avatar_url public_repos type].each do |attr|
+        %i[id login avatar_url type].each do |attr|
           expect(user[attr]).to eq(mojombo[attr])
         end
       end
@@ -94,11 +94,10 @@ describe User do
           id: mojombo[:id],
           login: 'k0kubun',
           avatar_url: 'google.com',
-          public_repos: 0,
           type: 'Organization',
         }
       end
-      let(:attributes) { %i[login avatar_url public_repos type] }
+      let(:attributes) { %i[login avatar_url type] }
 
       it 'does not create an additional user' do
         expect {

@@ -1,5 +1,5 @@
 set :application, 'githubranking'
-set :repo_url, 'git@github.com:k0kubun/githubranking.com.git'
+set :repo_url, 'git@github.com:k0kubun/githubranking.git'
 set :log_level, :info
 
 set :linked_files, %w[

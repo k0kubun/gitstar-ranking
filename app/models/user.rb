@@ -2,7 +2,7 @@ class User < ActiveRecord::Base
   include Concerns::Rankable
   include Concerns::Starrable
 
-  IMPORT_ATTRIBUTES = %i[id login avatar_url public_repos type]
+  IMPORT_ATTRIBUTES = %i[id login avatar_url type]
   ADMIN_IDS = [
     3138447, # k0kubun
   ].freeze

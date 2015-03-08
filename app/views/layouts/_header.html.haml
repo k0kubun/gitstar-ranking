@@ -34,7 +34,7 @@
         .form-group
           = search_field_tag :q, params[:q], class: 'form-control cl-lg-8',
             placeholder: 'GitHub username'
-        = submit_tag 'Search', class: 'btn btn-default'
+        = submit_tag 'Search', class: 'btn btn-default', id: 'header_search'
 
       %ul.nav.navbar-nav.navbar-right
         - if user_signed_in?

@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const (
+	allUsersBatchSize = 5000
+)
+
 func LastUserId() (int, error) {
 	var id int
 	rows, err := Query("SELECT id FROM users ORDER BY id DESC LIMIT 1")
@@ -17,6 +21,38 @@ func LastUserId() (int, error) {
 		rows.Scan(&id)
 	}
 	return id, nil
+}
+
+func AllUserIds(since int) []int {
+	ids := []int{}
+	rows, err := Query(
+		"SELECT id FROM users WHERE id > ? ORDER BY id ASC LIMIT ?",
+		since,
+		allUsersBatchSize,
+	)
+	if err != nil {
+		return []int{}
+	}
+	defer rows.Close()
+
+	var id int
+	for rows.Next() {
+		rows.Scan(&id)
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+func UpdateUserLocation(user *octokit.User) {
+	if user == nil {
+		return
+	}
+
+	Exec(
+		"UPDATE users SET users.location = ? WHERE id = ?",
+		user.Location,
+		user.ID,
+	)
 }
 
 func CreateUsers(users []octokit.User) {

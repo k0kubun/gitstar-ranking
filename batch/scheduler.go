@@ -17,8 +17,9 @@ const (
 
 var (
 	scFuncs = []func() []int{
-		scNewUsers,
+		scAllUsers,
 	}
+	allUsersLastId = 0
 )
 
 func NewScheduler(queue chan int) *Scheduler {
@@ -53,16 +54,11 @@ func scNewUsers() []int {
 	return createNewUsers(lastId)
 }
 
-func scStarredUsers() []int {
-	return []int{}
-}
-
-func scPublicReposUsers() []int {
-	return []int{}
-}
-
-func scEmptyUsers() []int {
-	return []int{}
+func scAllUsers() []int {
+	ids := db.AllUserIds(allUsersLastId)
+	allUsersLastId = ids[len(ids)-1]
+	log.Println(allUsersLastId)
+	return ids
 }
 
 func createNewUsers(lastId int) []int {

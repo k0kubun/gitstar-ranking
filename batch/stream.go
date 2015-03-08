@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/k0kubun/githubranking/batch/db"
 	"github.com/k0kubun/githubranking/batch/github"
 	"github.com/octokit/go-octokit/octokit"
 )
@@ -14,9 +15,6 @@ type Stream struct {
 var (
 	stFuncs = []func(*octokit.User, []octokit.Repository, error){
 		stUpdateUsers,
-		stDestroyUsers,
-		stUpdateRepos,
-		stDestroyRepos,
 	}
 )
 
@@ -51,13 +49,5 @@ func stUpdateUsers(user *octokit.User, repos []octokit.Repository, err error) {
 	if github.IsNotFound(err) {
 		return
 	}
-}
-
-func stDestroyUsers(user *octokit.User, repos []octokit.Repository, err error) {
-}
-
-func stUpdateRepos(user *octokit.User, repos []octokit.Repository, err error) {
-}
-
-func stDestroyRepos(user *octokit.User, repos []octokit.Repository, err error) {
+	db.UpdateUserLocation(user)
 }

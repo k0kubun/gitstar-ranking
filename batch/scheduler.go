@@ -36,7 +36,6 @@ func (s *Scheduler) Schedule() {
 			if len(userIds) == 0 {
 				return
 			}
-			log.Printf("scNewUsers: %d\n", len(userIds))
 
 			for _, userId := range userIds {
 				s.queue <- userId

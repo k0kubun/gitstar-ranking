@@ -12,7 +12,12 @@ module Iteratable
       records.each do |*args|
         block.call(*args)
       end
-      last_id = records.last.first
+      last_id =
+        if columns.size > 1
+          records.last.first
+        else
+          records.last
+        end
       print "#{last_id}\r" if debug
     end
   end

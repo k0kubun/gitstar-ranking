@@ -1,9 +1,6 @@
 module Github
   class RankingInitializer
     BATCH_SIZE               = 5000
-    USER_RANKING_KEY         = 'githubranking:user:world'
-    ORGANIZATION_RANKING_KEY = 'githubranking:organization:world'
-    REPOSITORY_RANKING_KEY   = 'githubranking:repository:world'
 
     def run
       initialize_users
@@ -22,7 +19,7 @@ module Github
         break if users.blank?
 
         users.each do |id, stargazers_count|
-          redis.zadd(USER_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
+          redis.zadd(User.ranking_key, stargazers_count, id) if stargazers_count > 0
         end
         last_id = users.last.first
         print "#{last_id}\r"
@@ -39,7 +36,7 @@ module Github
         break if orgs.blank?
 
         orgs.each do |id, stargazers_count|
-          redis.zadd(ORGANIZATION_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
+          redis.zadd(Organization.ranking_key, stargazers_count, id) if stargazers_count > 0
         end
         last_id = orgs.last.first
         print "#{last_id}\r"
@@ -56,7 +53,7 @@ module Github
         break if repos.blank?
 
         repos.each do |id, stargazers_count|
-          redis.zadd(REPOSITORY_RANKING_KEY, stargazers_count, id) if stargazers_count > 0
+          redis.zadd(Repository.ranking_key, stargazers_count, id) if stargazers_count > 0
         end
         last_id = repos.last.first
         print "#{last_id}\r"

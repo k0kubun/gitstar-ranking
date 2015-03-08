@@ -8,8 +8,7 @@ module Concerns
     end
 
     def rank
-      super
-      # Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
+      Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
     rescue Redis::CannotConnectError
       super
     end

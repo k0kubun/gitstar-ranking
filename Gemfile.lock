@@ -110,8 +110,8 @@ GEM
     globalid (0.3.0)
       activesupport (>= 4.1.0)
     google-analytics-rails (0.0.6)
-    hamlit (0.1.0)
-      temple
+    hamlit (0.3.1)
+      temple (~> 0.7.3)
       thor
       tilt
     hashie (3.3.2)

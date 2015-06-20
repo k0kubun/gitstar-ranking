@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.0'
+gem 'rails', '4.2.2'
 
 gem 'activerecord-import'
 gem 'bootstrap-sass'
@@ -42,7 +42,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'
-  gem 'rspec-rails', '3.2.0'
+  gem 'rspec-rails'
   gem 'silencer'
   gem 'spring'
   gem 'spring-commands-rspec'

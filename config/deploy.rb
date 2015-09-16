@@ -34,4 +34,3 @@ namespace :deploy do
   end
 end
 after 'deploy:publishing', 'deploy:restart'
-after 'deploy:updated', 'newrelic:notice_deployment'

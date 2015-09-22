@@ -69,7 +69,7 @@ namespace :db do
       download! remote_file, local_file
       execute "rm #{remote_file}"
 
-      old_dumps = Dir.glob('/tmp/dump*.sql')[0..-2]
+      old_dumps = Dir.glob('/tmp/dump*.sql').sort[0..-2]
       logger.info("Remove old dump files #{old_dumps.join(', ')}...")
       old_dumps.each do |file|
         `rm #{file}`

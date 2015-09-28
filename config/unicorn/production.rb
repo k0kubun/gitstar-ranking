@@ -18,6 +18,9 @@ worker_processes 4
 
 # use correct Gemfile on restarts
 before_exec do |server|
+  # http://eagletmt.hateblo.jp/entry/2015/02/21/015956
+  Dotenv.overload
+
   ENV['BUNDLE_GEMFILE'] = "#{app_path}/current/Gemfile"
 end
 

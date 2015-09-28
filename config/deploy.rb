@@ -34,3 +34,6 @@ namespace :deploy do
   end
 end
 after 'deploy:publishing', 'deploy:restart'
+
+require 'new_relic/recipes'
+after 'deploy:updated', 'newrelic:notice_deployment'

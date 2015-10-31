@@ -232,7 +232,11 @@ Devise.setup do |config|
   # ==> OmniAuth
   # Add a new OmniAuth provider. Check the wiki for more information on setting
   # up on your models and hooks.
-  config.omniauth :github, ENV['OMNIAUTH_CONSUMER_KEY'], ENV['OMNIAUTH_CONSUMER_SECRET'], scope: 'read:org'
+  if Rails.env == 'development'
+    config.omniauth :github, '4c2d6f040d55517738ed', 'edf1307cf3f6120a2af69010ff5a7faa2b02d977', scope: 'read:org', redirect_url: 'http://localhost:3000/'
+  else
+    config.omniauth :github, ENV['OMNIAUTH_CONSUMER_KEY'], ENV['OMNIAUTH_CONSUMER_SECRET'], scope: 'read:org'
+  end
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

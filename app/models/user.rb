@@ -51,10 +51,12 @@ class User < ActiveRecord::Base
   end
 
   def queued_recently?
+    return false if queued_at.nil?
     update_threshold < queued_at
   end
 
   def in_queue?
+    return false if queued_at.nil?
     update_threshold <= queued_at && updated_at <= queued_at
   end
 

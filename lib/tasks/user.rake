@@ -13,4 +13,9 @@ namespace :user do
   task location: :environment do
     Github::LocationInitializer.new.run
   end
+
+  desc 'Initialize user'
+  task create: :environment do
+    Github::UserGenerator.new.run(ENV['LOGIN'])
+  end
 end

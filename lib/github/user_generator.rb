@@ -14,7 +14,7 @@ module Github
       user = Octokit.user(login)
 
       user.each_with_object({}) do |(key, value), user_attributes|
-        user_attributes[key] = v if FETCH_ATTRIBUTES.include?(key)
+        user_attributes[key] = value if FETCH_ATTRIBUTES.include?(key)
       end
     end
   end

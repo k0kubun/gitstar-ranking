@@ -26,7 +26,7 @@
       = link_to_github user.login do
         Go to GitHub
         = fa_icon 'external-link'
-    - if @user.type == 'Organization' && organization_member?(@user.login, current_user.login)
+    - if user_signed_in? && @user.type == 'Organization' && organization_member?(@user.login, current_user.login)
       .row
         .col-xs-12
           - if @user.in_queue?

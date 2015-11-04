@@ -19,6 +19,10 @@ Rails.application.routes.draw do
     resource :user, only: [], path: '/' do
       post :update_myself, on: :member
     end
+
+    resource :user, only: [], path: '/' do
+      post :update_org, on: :member
+    end
   end
 
   resources :users, only: :index

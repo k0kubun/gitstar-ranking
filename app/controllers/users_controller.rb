@@ -14,6 +14,20 @@ class UsersController < ApplicationController
     @repositories = @user.repositories.page(params[:page]).per(PER_PAGE)
   end
 
+  def update_org
+    @organization = User.find_by!(login: params[:organization_name][:login])
+    binding.pry
+    if @organization.queued_recently?
+      redirect_to user_path(@organization), alert: 'Your organization has been already updated recently. Please retry later.'
+      return
+    end
+
+    UserFetchJob.perform_later(@organization.id)
+    @organization.update(queued_at: Time.now)
+
+    redirect_to user_path(@organization), notice: 'Update request is successfully queued. Please wait a moment.'
+  end
+
   def update_myself
     if current_user.queued_recently?
       redirect_to current_user, alert: 'You have already updated your stars recently. Please retry later.'

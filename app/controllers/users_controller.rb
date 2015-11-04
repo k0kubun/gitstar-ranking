@@ -15,8 +15,7 @@ class UsersController < ApplicationController
   end
 
   def update_org
-    @organization = User.find_by!(login: params[:organization_name][:login])
-    binding.pry
+    @organization = User.find_by!(login: params[:organization][:login])
     if @organization.queued_recently?
       redirect_to user_path(@organization), alert: 'Your organization has been already updated recently. Please retry later.'
       return

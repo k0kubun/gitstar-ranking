@@ -30,13 +30,13 @@
       .row
         .col-xs-12
           - if @user.in_queue?
-            = link_to update_org_user_path(organization_name: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
+            = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
               Updating stars...
           - elsif @user.queued_recently?
-            = link_to update_org_user_path(organization_name: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
+            = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
               Up to date
           - else
-            = link_to update_org_user_path(organization_name: { login: @user.login }), class: 'btn btn-info col-xs-12', method: :post do
+            = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-info col-xs-12', method: :post do
               Update stars
   - if user_signed_in? && @user == current_user
     .row

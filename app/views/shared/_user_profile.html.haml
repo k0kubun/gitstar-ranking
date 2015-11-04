@@ -30,11 +30,9 @@
       .row
         .col-xs-12
           - if @user.in_queue?
-            = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
-              Updating stars...
+            %span.btn.btn-default.disabled.col-xs-12 Updating stars...
           - elsif @user.queued_recently?
-            = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-default disabled col-xs-12', method: :post do
-              Up to date
+            %span.btn.btn-default.disabled.col-xs-12 Up to date
           - else
             = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-info col-xs-12', method: :post do
               Update stars
@@ -42,11 +40,9 @@
     .row
       .col-xs-12
         - if @user.in_queue?
-          = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
-            Updating your stars...
+          %span.btn.btn-default.disabled.col-xs-12 Updating your stars...
         - elsif @user.queued_recently?
-          = link_to update_myself_user_path, class: 'btn btn-default disabled col-xs-12', method: :post do
-            Up to date
+          %span.btn.btn-default.disabled.col-xs-12 Up to date
         - else
           = link_to update_myself_user_path, class: 'btn btn-info col-xs-12', method: :post do
             Update your stars

@@ -33,8 +33,4 @@ module ApplicationHelper
       end
     end
   end
-
-  def organization_member?(org, user)
-    Octokit.organization_member?(org, user)
-  end
 end

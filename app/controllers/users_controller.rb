@@ -16,6 +16,8 @@ class UsersController < ApplicationController
 
   def update_org
     @organization = User.find_by!(login: params[:organization][:login])
+    raise ActionController::BadRequest unless organization_member?(@organization.login, current_user.login)
+
     if @organization.queued_recently?
       redirect_to user_path(@organization), alert: 'Your organization has been already updated recently. Please retry later.'
       return

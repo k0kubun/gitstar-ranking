@@ -1,4 +1,4 @@
-rvm: 2.2.0
+rvm: 2.3.0
 sudo: false
 cache: bundler
 services:

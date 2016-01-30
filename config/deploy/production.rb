@@ -11,4 +11,4 @@ role :app, 'gmo'
 role :web, 'gmo'
 role :db,  'excloud'
 
-set :deploy_to, '/home/k0kubun/githubranking'
+set :deploy_to, '/home/k0kubun/github-ranking'

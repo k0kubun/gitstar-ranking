@@ -21,12 +21,6 @@ set :linked_dirs, %w[
   public/assets
 ]
 
-set :ssh_options, {
-  keys: [File.expand_path('~/.ssh/id_rsa')],
-  forward_agent: true,
-  auth_methods: %w(publickey)
-}
-
 namespace :deploy do
   desc 'Restart application'
   task :restart do

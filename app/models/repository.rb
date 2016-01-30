@@ -2,7 +2,7 @@ class Repository < ActiveRecord::Base
   include Concerns::Rankable
   include Concerns::Starrable
 
-  self.ranking_key = 'githubranking:repository:world:all'
+  self.ranking_key = 'github-ranking:repository:world:all'
   self.minimum_rankable_star = 15
 
   paginates_per 100

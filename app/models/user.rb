@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
     3138447, # k0kubun
   ].freeze
 
-  self.ranking_key = 'githubranking:user:world:all'
+  self.ranking_key = 'github-ranking:user:world:all'
   self.minimum_rankable_star = 1
 
   paginates_per 100

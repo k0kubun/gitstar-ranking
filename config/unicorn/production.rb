@@ -14,7 +14,7 @@ stderr_path "log/unicorn.stderr.log"
 stdout_path "log/unicorn.stdout.log"
 
 # workers
-worker_processes 4
+worker_processes 3
 
 # use correct Gemfile on restarts
 before_exec do |server|

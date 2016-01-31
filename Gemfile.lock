@@ -218,6 +218,8 @@ GEM
     redis-activesupport (4.1.5)
       activesupport (>= 3, < 5)
       redis-store (~> 1.1.0)
+    redis-namespace (1.5.2)
+      redis (~> 3.0, >= 3.0.4)
     redis-rack (1.5.0)
       rack (~> 1.5)
       redis-store (~> 1.1.0)
@@ -341,6 +343,7 @@ DEPENDENCIES
   pry-rails
   rack-user_agent
   rails (= 4.2.5.1)
+  redis-namespace
   redis-rails
   rspec-rails
   sassc-rails

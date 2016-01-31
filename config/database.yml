@@ -7,11 +7,11 @@ default: &default
 
 development:
   <<: *default
-  database: githubranking
+  database: github_ranking
 
 test:
   <<: *default
-  database: githubranking_test
+  database: github_ranking_test
 
 production:
   adapter: mysql2
@@ -20,4 +20,4 @@ production:
   password: <%= ENV['GITHUBRANKING_DATABASE_PASSWORD'] %>
   socket: <%= ENV['GITHUBRANKING_DATABASE_SOCKET'] %>
   pool: 8
-  database: githubranking
+  database: github_ranking

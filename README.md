@@ -2,6 +2,6 @@
 
 GitHub star ranking for users, organizations and repositories.
 
-http://githubranking.com
+https://github-ranking.com
 
 [![](http://i.gyazo.com/c737a76774886f59ba73215c01e5d053.png)](http://githubranking.com)

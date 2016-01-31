@@ -28,9 +28,8 @@ gem 'sinatra'
 gem 'unicorn'
 
 gem 'coffee-rails'
-gem 'sass-rails'
-gem 'sprockets'
-gem 'therubyracer'
+gem 'sassc-rails'
+gem 'sprockets', '< 3.0'
 gem 'uglifier'
 
 group :development do

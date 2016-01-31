@@ -7,4 +7,5 @@ before_script:
   - 'bundle exec rake db:create db:migrate'
   - 'mkdir -p /home/travis/build/k0kubun/github-ranking/tmp/cache'
 script:
+  - 'bundle exec rake assets:precompile RAILS_ENV=production'
   - 'bundle exec rake spec'

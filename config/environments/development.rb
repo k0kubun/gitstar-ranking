@@ -38,4 +38,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Custom configs
+  config.middleware.swap Rails::Rack::Logger, Silencer::Logger, silence: [%r{\A/assets/}]
 end

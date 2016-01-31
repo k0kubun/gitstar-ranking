@@ -1,4 +1,4 @@
-# GitHub Ranking [![Build Status](https://travis-ci.org/k0kubun/githubranking.svg?branch=master)](https://travis-ci.org/k0kubun/githubranking)
+# GitHub Ranking [![Build Status](https://travis-ci.org/k0kubun/github-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/github-ranking)
 
 GitHub star ranking for users, organizations and repositories.
 

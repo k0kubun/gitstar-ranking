@@ -14,7 +14,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       avatar_url: image,
       rank:       0,
     )
-    TokenRegisterJob.perform_later(id, token)
+    # TokenRegisterJob.perform_later(id, token)
 
     sign_in @user
     redirect_to @user

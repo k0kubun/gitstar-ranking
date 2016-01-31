@@ -25,12 +25,12 @@ gem 'rack-user_agent'
 gem 'redis-rails'
 gem 'sidekiq'
 gem 'sinatra'
-gem 'therubyracer'
 gem 'unicorn'
 
 gem 'coffee-rails'
 gem 'sass-rails'
 gem 'sprockets'
+gem 'therubyracer'
 gem 'uglifier'
 
 group :development do

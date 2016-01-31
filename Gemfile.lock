@@ -360,6 +360,7 @@ DEPENDENCIES
   sinatra
   spring
   spring-commands-rspec
+  sprockets
   therubyracer
   timecop
   uglifier

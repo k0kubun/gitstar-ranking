@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'pry'
+require_relative './disc_init'
+
+# UpdateUser.enqueue(100)
+binding.pry

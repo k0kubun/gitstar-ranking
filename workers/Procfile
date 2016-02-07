@@ -1,0 +1,2 @@
+disc: sleep 1 && QUEUES=default disc -r./jobs.rb
+disque: docker run -p 7711:7711 k0kubun/disque

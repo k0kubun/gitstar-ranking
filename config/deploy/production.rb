@@ -2,7 +2,7 @@ set :stage, :production
 set :branch, 'master'
 set :rails_env, 'production'
 set :migration_role, 'db'
-set :sidekiq_role, 'sidekiq'
+set :sidekiq_role, :sidekiq
 
 set :rbenv_ruby, File.read(File.expand_path('../../.ruby-version', __dir__)).strip
 

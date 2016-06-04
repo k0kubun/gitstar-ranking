@@ -1,0 +1,20 @@
+PATH
+  remote: .
+  specs:
+    github_importer (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (10.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.12)
+  github_importer!
+  rake (~> 10.0)
+
+BUNDLED WITH
+   1.12.5

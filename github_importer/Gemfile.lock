@@ -6,7 +6,18 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (8.2.2)
+    coderay (1.1.1)
+    method_source (0.8.2)
+    pry (0.10.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.3.0)
+      byebug (~> 8.0)
+      pry (~> 0.10)
     rake (10.5.0)
+    slop (3.6.0)
 
 PLATFORMS
   ruby
@@ -14,6 +25,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.12)
   github_importer!
+  pry-byebug
   rake (~> 10.0)
 
 BUNDLED WITH

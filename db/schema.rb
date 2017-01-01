@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 20150308104129) do
     t.string   "full_name",        limit: 255
     t.integer  "owner_id",         limit: 4
     t.text     "description",      limit: 65535
-    t.boolean  "fork",             limit: 1
+    t.boolean  "fork"
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
     t.string   "homepage",         limit: 255

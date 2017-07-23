@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :user do
-    login 'k0kubun'
+    sequence(:login) { |n| "user_#{n}" }
     avatar_url 'https://avatars.githubusercontent.com/u/3138447?v=3'
     type 'User'
     queued_at Time.now

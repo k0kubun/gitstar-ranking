@@ -1,6 +1,6 @@
 # This can be only executed once without any other job execution
 module GithubRanking::UserRankInitializer
-  BATCH_SIZE = 50000
+  BATCH_SIZE = 5000
 
   class << self
     def run
@@ -16,7 +16,8 @@ module GithubRanking::UserRankInitializer
     private
 
     def init_records
-      User.find_in_batches(batch_size: BATCH_SIZE) do |users|
+      last_id = 0
+      while (users = User.where('id > ?', last_id).limit(BATCH_SIZE)).present?
         records_by_stars = Hash.new { |h, k| h[k] = 0 }
         users.each do |user|
           if user.stargazers_count > 0 # skip stargazers_count = 0 for performance
@@ -25,7 +26,8 @@ module GithubRanking::UserRankInitializer
         end
         add_records_by_stars(records_by_stars)
 
-        log "#{users.last.id}\r"
+        last_id = users.last.id
+        log "#{last_id}\r"
       end
     end
 

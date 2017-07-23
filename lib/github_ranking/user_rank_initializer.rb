@@ -19,7 +19,9 @@ module GithubRanking::UserRankInitializer
       User.find_in_batches(batch_size: BATCH_SIZE) do |users|
         records_by_stars = Hash.new { |h, k| h[k] = 0 }
         users.each do |user|
-          records_by_stars[user.stargazers_count] += 1
+          if user.stargazers_count > 0 # skip stargazers_count = 0 for performance
+            records_by_stars[user.stargazers_count] += 1
+          end
         end
         add_records_by_stars(records_by_stars)
 

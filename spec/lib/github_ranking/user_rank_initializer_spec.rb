@@ -8,6 +8,7 @@ describe GithubRanking::UserRankInitializer do
       FactoryGirl.create(:user, stargazers_count: 2)
       FactoryGirl.create(:user, stargazers_count: 1)
       FactoryGirl.create(:user, stargazers_count: 2)
+      FactoryGirl.create(:user, stargazers_count: 0)
 
       GithubRanking::UserRankInitializer.run
 
@@ -17,6 +18,8 @@ describe GithubRanking::UserRankInitializer do
       rank2 = UserRank.find_by(stargazers_count: 2)
       expect(rank2.records_count).to eq(2)
       expect(rank2.rank).to eq(1)
+      rank3 = UserRank.find_by(stargazers_count: 0)
+      expect(rank3).to eq(nil)
     end
   end
 end

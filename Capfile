@@ -9,7 +9,7 @@ require 'dotenv'
 Dotenv.load
 
 set :rbenv_type, :system
-set :rbenv_ruby, ENV['RUBY_VERSION']
+set :rbenv_ruby, File.read(File.expand_path('./.ruby-version', __dir__)).strip
 
 require 'capistrano/bundler'
 require 'capistrano/rails/assets'

@@ -14,9 +14,16 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       avatar_url: image,
       rank:       0,
     )
-    TokenRegisterJob.perform_later(id, token)
+    register_token(id, token)
 
     sign_in @user
     redirect_to @user
+  end
+
+  private
+
+  def register_token(user_id, token)
+    access_token = AccessToken.where(user_id: user_id).first_or_create(token: token)
+    access_token.update(token: token) if access_token.token != token
   end
 end

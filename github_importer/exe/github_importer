@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-
-require 'bundler/setup'
-
-$:.unshift File.expand_path('../lib', __dir__)
-require 'github_importer'
-
-GithubImporter::CLI.start(ARGV)

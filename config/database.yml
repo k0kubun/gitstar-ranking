@@ -1,6 +1,6 @@
 default: &default
   adapter: mysql2
-  encoding: utf8
+  encoding: utf8mb4
   pool: 8
   username: root
   password:
@@ -15,7 +15,6 @@ test:
 
 production:
   adapter: mysql2
-  encoding: utf8
   username: <%= ENV['GITHUBRANKING_DATABASE_USER'] %>
   password: <%= ENV['GITHUBRANKING_DATABASE_PASSWORD'] %>
   socket: <%= ENV['GITHUBRANKING_DATABASE_SOCKET'] %>

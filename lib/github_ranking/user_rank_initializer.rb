@@ -1,6 +1,6 @@
 # This can be only executed once without any other job execution
 module GithubRanking::UserRankInitializer
-  BATCH_SIZE = 5000
+  BATCH_SIZE = 50000
 
   class << self
     def run

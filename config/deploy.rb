@@ -28,7 +28,3 @@ namespace :deploy do
   end
 end
 after 'deploy:publishing', 'deploy:restart'
-
-# NOTE: pending due to deployment failure
-# require 'new_relic/recipes'
-# after 'deploy:updated', 'newrelic:notice_deployment'

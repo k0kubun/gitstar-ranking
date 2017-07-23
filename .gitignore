@@ -10,3 +10,4 @@
 /.env
 *.rdb
 *.sql
+.capistrano

@@ -23,8 +23,6 @@ class User < ActiveRecord::Base
 
   scope :organization, -> { where(type: 'Organization') }
   scope :not_organization, -> { where(type: 'User') }
-  scope :queued_last, -> { order(queued_at: :asc) }
-  scope :queued_last, -> { order(queued_at: :asc) }
 
   def self.import_updates(updates)
     users = []

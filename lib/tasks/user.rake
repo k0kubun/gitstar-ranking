@@ -8,11 +8,4 @@ namespace :user do
   task create: :environment do
     Github::UserGenerator.new.run(ENV['LOGIN'])
   end
-
-  namespace :rank do
-    desc 'Initialize UserRank records'
-    task init: :environment do
-      GithubRanking::UserRankInitializer.run
-    end
-  end
 end

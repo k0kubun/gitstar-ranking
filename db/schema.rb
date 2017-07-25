@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170723132644) do
+ActiveRecord::Schema.define(version: 20170725154236) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -41,16 +41,6 @@ ActiveRecord::Schema.define(version: 20170723132644) do
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
   add_index "repositories", ["rank"], name: "index_repositories_on_rank", using: :btree
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
-
-  create_table "user_ranks", force: :cascade do |t|
-    t.integer  "stargazers_count", limit: 4, null: false
-    t.integer  "records_count",    limit: 4, null: false
-    t.integer  "rank",             limit: 4
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-  end
-
-  add_index "user_ranks", ["stargazers_count"], name: "index_user_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "login",            limit: 255

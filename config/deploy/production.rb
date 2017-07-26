@@ -5,9 +5,9 @@ set :migration_role, 'db'
 set :sidekiq_role, :sidekiq
 
 set :user, 'k0kubun'
-role :app, %w[cloudcore]
-role :web, %w[cloudcore]
+role :app, %w[gmocloud]
+role :web, %w[gmocloud]
 role :db,  []
-role :sidekiq, %w[cloudcore]
+role :sidekiq, %w[gmocloud]
 
 set :deploy_to, '/home/k0kubun/github-ranking'

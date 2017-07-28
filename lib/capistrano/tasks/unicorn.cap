@@ -1,25 +1,18 @@
 namespace :unicorn do
   task :environment do
     set :unicorn_pid, "#{shared_path}/tmp/pids/unicorn.pid"
-    set :unicorn_config, "#{current_path}/config/unicorn/#{fetch(:rails_env)}.rb"
   end
 
   def start_unicorn
-    within current_path do
-      execute :bundle, :exec, :unicorn, "-c #{fetch(:unicorn_config)} -E #{fetch(:rails_env)} -D"
-    end
+    execute :systemctl, '--user', 'start', 'unicorn'
   end
 
   def stop_unicorn
-    execute :kill, "-s QUIT $(< #{fetch(:unicorn_pid)})"
+    execute :systemctl, '--user', 'stop', 'unicorn'
   end
 
   def reload_unicorn
-    execute :kill, "-s USR2 $(< #{fetch(:unicorn_pid)})"
-  end
-
-  def force_stop_unicorn
-    execute :kill, "$(< #{fetch(:unicorn_pid)})"
+    execute :systemctl, '--user', 'reload', 'unicorn'
   end
 
   desc "Start unicorn server"
@@ -44,13 +37,6 @@ namespace :unicorn do
       else
         start_unicorn
       end
-    end
-  end
-
-  desc "Stop unicorn server immediately"
-  task :force_stop => :environment do
-    on roles(:app) do
-      force_stop_unicorn
     end
   end
 end

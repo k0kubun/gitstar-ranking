@@ -4,9 +4,9 @@ namespace :deploy do
     after 'deploy:published', 'sidekiq:start'
   end
 
-  after :publishing, :restart_sidekiq do
-    invoke 'sidekiq:restart'
-  end
+  # after :publishing, :restart_sidekiq do
+  #   invoke 'sidekiq:restart'
+  # end
 end
 
 namespace :sidekiq do

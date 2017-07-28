@@ -37,7 +37,6 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
-  gem 'capistrano-sidekiq'
   gem 'silencer'
   gem 'spring'
   gem 'spring-commands-rspec'

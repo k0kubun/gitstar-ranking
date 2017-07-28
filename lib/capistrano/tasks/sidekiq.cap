@@ -1,0 +1,33 @@
+namespace :deploy do
+  before :starting, :add_sidekiq_hooks do
+    after 'deploy:starting', 'sidekiq:stop'
+    after 'deploy:published', 'sidekiq:start'
+  end
+
+  after :publishing, :restart_sidekiq do
+    invoke 'sidekiq:restart'
+  end
+end
+
+namespace :sidekiq do
+  desc 'Stop sidekiq'
+  task :stop do
+    on roles :sidekiq do |role|
+      execute :systemctl, '--user', 'stop', 'sidekiq'
+    end
+  end
+
+  desc 'Start sidekiq'
+  task :start do
+    on roles :sidekiq do |role|
+      execute :systemctl, '--user', 'start', 'sidekiq'
+    end
+  end
+
+  desc 'Restart sidekiq'
+  task :restart do
+    on roles :sidekiq do |role|
+      execute :systemctl, '--user', 'restart', 'sidekiq'
+    end
+  end
+end

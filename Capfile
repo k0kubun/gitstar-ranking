@@ -14,7 +14,6 @@ set :rbenv_ruby, File.read(File.expand_path('./.ruby-version', __dir__)).strip
 require 'capistrano/bundler'
 require 'capistrano/rails/assets'
 require 'capistrano/rails/migrations'
-require 'capistrano/sidekiq'
 
 set :bundle_jobs, 4
 

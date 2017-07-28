@@ -1,6 +1,6 @@
 class CreateAccessTokens < ActiveRecord::Migration
   def change
-    create_table :access_tokens do |t|
+    create_table :access_tokens, options: 'ENGINE=InnoDB ROW_FORMAT=dynamic DEFAULT CHARSET=utf8mb4' do |t|
       t.integer :user_id
       t.string :token
 

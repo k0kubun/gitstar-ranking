@@ -1,0 +1,6 @@
+box: azul/zulu-openjdk:8u131
+build:
+  steps:
+    - script:
+        name: gradle build
+        code: cd worker && ./gradlew build

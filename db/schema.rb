@@ -26,18 +26,18 @@ ActiveRecord::Schema.define(version: 20170725155228) do
     t.string   "name",             limit: 255
     t.string   "full_name",        limit: 255
     t.integer  "owner_id",         limit: 4
-    t.text     "description",      limit: 65535
+    t.text     "description",      limit: 16777215
     t.boolean  "fork"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "homepage",         limit: 255
-    t.integer  "stargazers_count", limit: 4,     default: 0, null: false
+    t.integer  "stargazers_count", limit: 4,        default: 0, null: false
     t.string   "language",         limit: 255
     t.datetime "fetched_at"
     t.integer  "rank",             limit: 4
   end
 
-  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", using: :btree
+  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", length: {"full_name"=>191}, using: :btree
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
   add_index "repositories", ["rank"], name: "index_repositories_on_rank", using: :btree
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree

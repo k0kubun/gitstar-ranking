@@ -11,4 +11,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-mainClassName = 'com.github.k0kubun.github_ranking.worker.Main'
+mainClassName = 'com.github.k0kubun.github_ranking.Main'

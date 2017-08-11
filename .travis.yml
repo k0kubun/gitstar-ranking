@@ -1,5 +1,8 @@
 rvm: 2.3.0
 sudo: required
+branches:
+  only:
+    - master
 cache: bundler
 services:
   - redis-server

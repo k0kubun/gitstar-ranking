@@ -1,22 +1,21 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
+import java.util.concurrent.TimeUnit;
 
-public class UpdateUserWorker implements Worker
+public class UpdateUserWorker extends Worker
 {
+    private final Config config;
+
     public UpdateUserWorker(Config config)
     {
+        super();
+        this.config = config;
     }
 
-    public void start()
+    private void perform() throws Exception
     {
-    }
-
-    public void stop()
-    {
-    }
-
-    public void waitUntilStop()
-    {
+        // TODO: implement
+        TimeUnit.SECONDS.sleep(1);
     }
 }

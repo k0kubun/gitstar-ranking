@@ -9,9 +9,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 public class WorkerManager
 {
+    private static final Logger LOG = Worker.buildLogger("worker_manager.log", WorkerManager.class.getName());
     private final List<Worker> workers;
     private List<Future<Void>> futures;
 
@@ -32,7 +34,7 @@ public class WorkerManager
                 new ThreadFactoryBuilder()
                         .setNameFormat("github-ranking-worker-%d")
                         .setUncaughtExceptionHandler((t, e) -> {
-                            System.err.println("Uncaught exception: " + e.getMessage());
+                            LOG.severe("Uncaught exception: " + e.getMessage());
                         }).build());
         for (Worker worker : workers) {
             futures.add(executor.submit(worker));
@@ -48,11 +50,11 @@ public class WorkerManager
             try {
                 future.get(60, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
-                System.err.println("Timed out to stop worker!: " + e.getMessage());
+                LOG.severe("Timed out to stop worker!: " + e.getMessage());
             } catch (InterruptedException e) {
-                System.err.println("Interrupted on stopping worker!: " + e.getMessage());
+                LOG.severe("Interrupted on stopping worker!: " + e.getMessage());
             } catch (ExecutionException e) {
-                System.err.println("Execution failed on stopping worker!: " + e.getMessage());
+                LOG.severe("Execution failed on stopping worker!: " + e.getMessage());
             }
         }
         futures.clear();

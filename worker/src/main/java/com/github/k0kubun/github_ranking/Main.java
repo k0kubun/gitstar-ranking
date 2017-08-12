@@ -11,8 +11,8 @@ public class Main
         Config config = new Config(System.getenv());
         WorkerManager workers = buildWorkers(config);
 
-        workers.start();
         Runtime.getRuntime().addShutdownHook(new Thread(workers::stop));
+        workers.start();
     }
 
     private static WorkerManager buildWorkers(Config config)

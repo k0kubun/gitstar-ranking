@@ -11,3 +11,4 @@
 *.rdb
 *.sql
 .capistrano
+.gradle

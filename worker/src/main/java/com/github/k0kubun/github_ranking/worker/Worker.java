@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class Worker implements Callable<Void>
+public abstract class Worker implements Callable<Void>
 {
     private boolean isStopped;
 

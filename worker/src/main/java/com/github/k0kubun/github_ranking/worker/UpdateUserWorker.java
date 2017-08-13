@@ -2,19 +2,22 @@ package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.dao.AccessTokenDao;
+import com.github.k0kubun.github_ranking.dao.RepositoryDao;
 import com.github.k0kubun.github_ranking.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.dao.UserDao;
 import com.github.k0kubun.github_ranking.model.AccessToken;
+import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import com.github.k0kubun.github_ranking.model.User;
+import java.util.List;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.skife.jdbi.v2.DBI;
@@ -23,6 +26,7 @@ import org.skife.jdbi.v2.Handle;
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker extends Worker
 {
+    private static final Integer BATCH_SIZE = 1000;
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
     private static final Logger LOG = Worker.buildLogger(UpdateUserWorker.class.getName());
@@ -55,7 +59,7 @@ public class UpdateUserWorker extends Worker
 
             // TODO: Log elapsed time
             LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-            updateUser(job.getUserId());
+            updateUser(handle, job.getUserId());
             LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
 
             dao.delete(job.getId());
@@ -68,31 +72,38 @@ public class UpdateUserWorker extends Worker
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
-    private void updateUser(Integer userId) throws IOException
+    private void updateUser(Handle handle, Integer userId) throws IOException
     {
-        // TODO: handle login updates
-        User user = dbi.onDemand(UserDao.class).find(userId);
+        // TODO: handle updates of "login"
+        // TODO: handle user deletion
+        User user = handle.attach(UserDao.class).find(userId);
 
-        importRepositories(user.getLogin());
-        updateUserStars(user.getLogin());
+        // TODO: delete deleted repos
+        importRepositories(handle, user.getLogin());
+        updateUserRanking(handle, user.getLogin());
     }
 
-    // Just sync information of all repositories owned by specified user.
-    // TODO: handle user deletion
-    private void importRepositories(String login) throws IOException
+    // Sync information of all repositories owned by specified user and update repository ranks.
+    private void importRepositories(Handle handle, String login) throws IOException
     {
-        AccessToken token = dbi.onDemand(AccessTokenDao.class).find(1);
-        GitHubClient client = GitHubClient.createClient("https://api.github.com");
+        AccessToken token = handle.attach(AccessTokenDao.class).find(1);
+        GitHubClient client = new GitHubClient();
         client.setOAuth2Token(token.getToken());
 
         RepositoryService service = new RepositoryService(client);
-        for (Repository repo : service.getRepositories(login)) {
-            LOG.info("URL: " + repo.getGitUrl());
+        List<org.eclipse.egit.github.core.Repository> publicRepos = new ArrayList<>();
+        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(login)) {
+            if (!repo.isPrivate()) {
+                publicRepos.add(repo);
+            }
         }
+
+        handle.attach(RepositoryDao.class).bulkInsert(Repository.fromGitHubRepositories(publicRepos, login));
+        LOG.info("imported repos: " + publicRepos.size());
     }
 
     // From imported repositories, calculate the sum of stars and update user.
-    private void updateUserStars(String login)
+    private void updateUserRanking(Handle handle, String login)
     {
         // TODO: implement
     }

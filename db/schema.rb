@@ -43,11 +43,11 @@ ActiveRecord::Schema.define(version: 20170812072509) do
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
 
   create_table "update_user_jobs", force: :cascade do |t|
-    t.string   "payload",    limit: 255, null: false
-    t.datetime "timeout_at",             null: false
-    t.integer  "owner",      limit: 8
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "payload",    limit: 255,             null: false
+    t.datetime "timeout_at",                         null: false
+    t.integer  "owner",      limit: 8,   default: 0, null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
   end
 
   add_index "update_user_jobs", ["timeout_at"], name: "index_update_user_jobs_on_timeout_at", using: :btree

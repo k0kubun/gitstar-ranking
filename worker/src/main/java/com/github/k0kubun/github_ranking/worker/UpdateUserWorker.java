@@ -6,6 +6,7 @@ import com.github.k0kubun.github_ranking.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.dao.UserDao;
 import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
+import com.github.k0kubun.github_ranking.model.User;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -13,8 +14,9 @@ import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import org.kohsuke.github.GHUser;
-import org.kohsuke.github.GitHub;
+import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -68,23 +70,29 @@ public class UpdateUserWorker extends Worker
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
     private void updateUser(Integer userId) throws IOException
     {
-        importRepositories(userId);
-        updateUserStars(userId);
+        // TODO: handle login updates
+        User user = dbi.onDemand(UserDao.class).find(userId);
+
+        importRepositories(user.getLogin());
+        updateUserStars(user.getLogin());
     }
 
     // Just sync information of all repositories owned by specified user.
     // TODO: handle user deletion
-    private void importRepositories(Integer userId) throws IOException
+    private void importRepositories(String login) throws IOException
     {
         AccessToken token = dbi.onDemand(AccessTokenDao.class).find(1);
-        GitHub github = GitHub.connectUsingOAuth(token.getToken());
+        GitHubClient client = GitHubClient.createClient("https://api.github.com");
+        client.setOAuth2Token(token.getToken());
 
-        GHUser user = github.getUser("cookpad");
-        LOG.info("Log: " + user.getLogin());
+        RepositoryService service = new RepositoryService(client);
+        for (Repository repo : service.getRepositories(login)) {
+            LOG.info("URL: " + repo.getGitUrl());
+        }
     }
 
     // From imported repositories, calculate the sum of stars and update user.
-    private void updateUserStars(Integer userId)
+    private void updateUserStars(String login)
     {
         // TODO: implement
     }

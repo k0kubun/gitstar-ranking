@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170725155228) do
+ActiveRecord::Schema.define(version: 20170812072509) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -41,6 +41,16 @@ ActiveRecord::Schema.define(version: 20170725155228) do
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
   add_index "repositories", ["rank"], name: "index_repositories_on_rank", using: :btree
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
+
+  create_table "update_user_jobs", force: :cascade do |t|
+    t.string   "payload",    limit: 255,             null: false
+    t.datetime "timeout_at",                         null: false
+    t.integer  "owner",      limit: 8,   default: 0, null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+  end
+
+  add_index "update_user_jobs", ["timeout_at"], name: "index_update_user_jobs_on_timeout_at", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "login",            limit: 255

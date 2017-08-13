@@ -8,7 +8,10 @@ repositories {
 
 dependencies {
     compile 'com.google.guava:guava:21.0'
+    compile 'com.zaxxer:HikariCP:2.6.3'
+    compile 'mysql:mysql-connector-java:6.0.6'
+    compile 'org.jdbi:jdbi:2.78'
     testCompile 'junit:junit:4.12'
 }
 
-mainClassName = 'com.github.k0kubun.github_ranking.worker.Main'
+mainClassName = 'com.github.k0kubun.github_ranking.Main'

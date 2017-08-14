@@ -7,7 +7,6 @@ set :user, 'k0kubun'
 role :app, %w[gmocloud]
 role :web, %w[gmocloud]
 role :db,  []
-role :sidekiq, %w[gmocloud]
 role :worker, []
 
 set :deploy_to, '/home/k0kubun/github-ranking'

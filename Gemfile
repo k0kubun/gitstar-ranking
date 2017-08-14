@@ -23,7 +23,6 @@ gem 'progress_bar'
 gem 'rack-user_agent'
 gem 'redis-rails'
 gem 'redis-namespace'
-gem 'sidekiq'
 gem 'sinatra'
 gem 'unicorn'
 

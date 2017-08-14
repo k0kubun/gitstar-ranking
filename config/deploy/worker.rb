@@ -11,3 +11,7 @@ role :worker, %w[gmocloud]
 set :bundle_roles, :app
 
 set :deploy_to, '/home/k0kubun/github-ranking-worker'
+
+set :linked_dirs, %w[
+  log
+]

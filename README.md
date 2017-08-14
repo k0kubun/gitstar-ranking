@@ -13,3 +13,26 @@ https://github-ranking.com
 ## Screen Shot
 
 [![](http://i.gyazo.com/c737a76774886f59ba73215c01e5d053.png)](http://githubranking.com)
+
+## Development
+
+### Prerequisites
+
+Install following dependencies.
+
+- Ruby 2.3
+- Java 1.8
+- MySQL 5.7
+- Redis 3.0
+
+Then, execute following commands.
+
+```
+bin/setup
+```
+
+### Run servers
+
+```sh
+foreman start
+```

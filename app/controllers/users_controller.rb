@@ -23,8 +23,10 @@ class UsersController < ApplicationController
       return
     end
 
-    UserFetchJob.perform_later(@organization.id)
-    @organization.update(queued_at: Time.now)
+    ActiveRecord::Base.transaction do
+      @organization.update(queued_at: Time.now)
+      UpdateUserJob.perform_later(@organization.id)
+    end
 
     redirect_to user_path(@organization), notice: 'Update request is successfully queued. Please wait a moment.'
   end
@@ -35,8 +37,10 @@ class UsersController < ApplicationController
       return
     end
 
-    UserFetchJob.perform_later(current_user.id)
-    current_user.update(queued_at: Time.now)
+    ActiveRecord::Base.transaction do
+      current_user.update(queued_at: Time.now)
+      UpdateUserJob.perform_later(current_user.id)
+    end
 
     redirect_to current_user, notice: 'Update request is successfully queued. Please wait a moment.'
   end

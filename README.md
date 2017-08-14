@@ -36,3 +36,10 @@ bin/setup
 ```sh
 foreman start
 ```
+
+### Crash recovery
+
+```sh
+# Initialize ranking data on Redis
+rake ranking
+```

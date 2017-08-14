@@ -79,12 +79,13 @@ public class UpdateUserWorker extends Worker
         User user = handle.attach(UserDao.class).find(userId);
 
         // TODO: delete deleted repos
-        importRepositories(handle, user.getLogin());
-        updateUserRanking(handle, user.getLogin());
+        importRepositories(handle, user);
+        updateRankings(handle, user.getLogin());
     }
 
-    // Sync information of all repositories owned by specified user and update repository ranks.
-    private void importRepositories(Handle handle, String login) throws IOException
+    // Sync information of all repositories owned by specified user.
+    // Update fetched_at and updated_at, and set total stars to user.
+    private void importRepositories(Handle handle, User user) throws IOException
     {
         AccessToken token = handle.attach(AccessTokenDao.class).find(1);
         GitHubClient client = new GitHubClient();
@@ -92,18 +93,24 @@ public class UpdateUserWorker extends Worker
 
         RepositoryService service = new RepositoryService(client);
         List<org.eclipse.egit.github.core.Repository> publicRepos = new ArrayList<>();
-        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(login)) {
+        int totalStars = 0;
+        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(user.getLogin())) {
             if (!repo.isPrivate()) {
                 publicRepos.add(repo);
+                totalStars += repo.getWatchers();
             }
         }
 
-        handle.attach(RepositoryDao.class).bulkInsert(Repository.fromGitHubRepositories(publicRepos, login));
+        final int finalStars = totalStars; // for passing to closure
+        handle.useTransaction((conn, status) -> {
+            conn.attach(RepositoryDao.class).bulkInsert(Repository.fromGitHubRepositories(publicRepos, user.getLogin()));
+            conn.attach(UserDao.class).updateStars(user.getId(), finalStars);
+        });
         LOG.info("imported repos: " + publicRepos.size());
     }
 
-    // From imported repositories, calculate the sum of stars and update user.
-    private void updateUserRanking(Handle handle, String login)
+    // Update redis to have new stars, mark user to be updated.
+    private void updateRankings(Handle handle, String login)
     {
         // TODO: implement
     }

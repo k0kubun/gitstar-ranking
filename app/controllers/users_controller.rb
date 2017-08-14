@@ -36,6 +36,7 @@ class UsersController < ApplicationController
     end
 
     UserFetchJob.perform_later(current_user.id)
+    #UpdateUserJob.perform_later(current_user.id)
     current_user.update(queued_at: Time.now)
 
     redirect_to current_user, notice: 'Update request is successfully queued. Please wait a moment.'

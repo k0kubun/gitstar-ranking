@@ -4,7 +4,6 @@ module Concerns
 
     included do |base|
       class_attribute :ranking_key
-      class_attribute :minimum_rankable_star
     end
 
     def rank

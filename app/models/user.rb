@@ -8,7 +8,6 @@ class User < ActiveRecord::Base
   ].freeze
 
   self.ranking_key = 'github-ranking:user:world:all'
-  self.minimum_rankable_star = 1
 
   paginates_per 100
 

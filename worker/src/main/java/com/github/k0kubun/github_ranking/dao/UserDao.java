@@ -16,7 +16,7 @@ public interface UserDao
     @Mapper(UserMapper.class)
     User find(@Bind("id") Integer id);
 
-    @SqlUpdate("update users set stargazers_count = :stargazersCount where id = :id")
+    @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
     long updateStars(@Bind("id") Integer uuid, @Bind("stargazersCount") Integer stargazersCount);
 
     class UserMapper implements ResultSetMapper<User>

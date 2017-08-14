@@ -15,16 +15,16 @@ public class Repository
     private final Integer stargazersCount;
     private final String language;
 
-    public static List<Repository> fromGitHubRepositories(List<org.eclipse.egit.github.core.Repository> repos, String login)
+    public static List<Repository> fromGitHubRepos(List<org.eclipse.egit.github.core.Repository> repos, String login)
     {
         List<Repository> result = new ArrayList<Repository>();
         for (org.eclipse.egit.github.core.Repository repo : repos) {
-            result.add(fromGitHubRepository(repo, login));
+            result.add(fromGitHubRepo(repo, login));
         }
         return result;
     }
 
-    public static Repository fromGitHubRepository(org.eclipse.egit.github.core.Repository repo, String login)
+    public static Repository fromGitHubRepo(org.eclipse.egit.github.core.Repository repo, String login)
     {
         return new Repository(
                 repo.getId(),

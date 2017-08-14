@@ -10,8 +10,9 @@ dependencies {
     compile 'com.google.guava:guava:21.0'
     compile 'com.zaxxer:HikariCP:2.6.3'
     compile 'mysql:mysql-connector-java:6.0.6'
-    compile 'org.jdbi:jdbi:2.78'
     compile 'org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5'
+    compile 'org.jdbi:jdbi:2.78'
+    compile 'redis.clients:jedis:2.9.0'
     testCompile 'junit:junit:4.12'
 }
 

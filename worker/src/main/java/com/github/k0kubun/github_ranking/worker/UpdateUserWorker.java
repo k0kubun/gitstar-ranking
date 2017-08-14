@@ -9,12 +9,12 @@ import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import com.github.k0kubun.github_ranking.model.User;
-import java.util.List;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -22,6 +22,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import redis.clients.jedis.Jedis;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker extends Worker
@@ -29,7 +30,10 @@ public class UpdateUserWorker extends Worker
     private static final Integer BATCH_SIZE = 1000;
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
+    private static final String REDIS_USER_RANKING_KEY = "github-ranking:user:world:all";
+    private static final String REDIS_REPO_RANKING_KEY = "github-ranking:repository:world:all";
     private static final Logger LOG = Worker.buildLogger(UpdateUserWorker.class.getName());
+
     private final DBI dbi;
 
     public UpdateUserWorker(Config config)
@@ -72,46 +76,69 @@ public class UpdateUserWorker extends Worker
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
+    // * Sync information of all repositories owned by specified user.
+    // * Update fetched_at and updated_at, and set total stars to user.
+    // TODO: Delete user if it's deleted on GitHub (was implemented in Sidekiq version)
+    // TODO: Delete repos if they are deleted on GitHub (was implemented in Sidekiq version)
+    // TODO: handle updates of "login"
     private void updateUser(Handle handle, Integer userId) throws IOException
     {
-        // TODO: handle updates of "login"
-        // TODO: handle user deletion
         User user = handle.attach(UserDao.class).find(userId);
 
-        // TODO: delete deleted repos
-        importRepositories(handle, user);
-        updateRankings(handle, user.getLogin());
-    }
-
-    // Sync information of all repositories owned by specified user.
-    // Update fetched_at and updated_at, and set total stars to user.
-    private void importRepositories(Handle handle, User user) throws IOException
-    {
         AccessToken token = handle.attach(AccessTokenDao.class).find(1);
         GitHubClient client = new GitHubClient();
         client.setOAuth2Token(token.getToken());
 
-        RepositoryService service = new RepositoryService(client);
-        List<org.eclipse.egit.github.core.Repository> publicRepos = new ArrayList<>();
-        int totalStars = 0;
-        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(user.getLogin())) {
-            if (!repo.isPrivate()) {
-                publicRepos.add(repo);
-                totalStars += repo.getWatchers();
-            }
-        }
-
-        final int finalStars = totalStars; // for passing to closure
+        List<Repository> repos = fetchPublicRepos(client, user.getLogin());
         handle.useTransaction((conn, status) -> {
-            conn.attach(RepositoryDao.class).bulkInsert(Repository.fromGitHubRepositories(publicRepos, user.getLogin()));
-            conn.attach(UserDao.class).updateStars(user.getId(), finalStars);
+            conn.attach(RepositoryDao.class).bulkInsert(repos);
+            conn.attach(UserDao.class).updateStars(user.getId(), calcTotalStars(repos));
         });
-        LOG.info("imported repos: " + publicRepos.size());
+        LOG.info("imported repos: " + repos.size());
+
+        updateRankings(userId, repos);
     }
 
-    // Update redis to have new stars, mark user to be updated.
-    private void updateRankings(Handle handle, String login)
+    private List<Repository> fetchPublicRepos(GitHubClient client, String login) throws IOException
     {
-        // TODO: implement
+        RepositoryService service = new RepositoryService(client);
+        List<org.eclipse.egit.github.core.Repository> publicRepos = new ArrayList<>();
+
+        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(login)) {
+            if (!repo.isPrivate()) {
+                publicRepos.add(repo);
+            }
+        }
+        return Repository.fromGitHubRepos(publicRepos, login);
+    }
+
+    private int calcTotalStars(List<Repository> repos)
+    {
+        int totalStars = 0;
+        for (Repository repo : repos) {
+            totalStars += repo.getStargazersCount();
+        }
+        return totalStars;
+    }
+
+    // Update redis to have new stars.
+    private void updateRankings(Integer userId, List<Repository> repos)
+    {
+        Jedis jedis = new Jedis("localhost");
+
+        int totalStars = calcTotalStars(repos);
+        if (totalStars > 0) {
+            jedis.zadd(REDIS_USER_RANKING_KEY, totalStars, userId.toString());
+        } else {
+            jedis.zrem(REDIS_USER_RANKING_KEY, userId.toString());
+        }
+
+        for (Repository repo : repos) {
+            if (repo.getStargazersCount() > 0) {
+                jedis.zadd(REDIS_REPO_RANKING_KEY, repo.getStargazersCount(), repo.getId().toString());
+            } else {
+                jedis.zrem(REDIS_REPO_RANKING_KEY, repo.getId().toString());
+            }
+        }
     }
 }

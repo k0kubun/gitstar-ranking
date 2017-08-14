@@ -54,6 +54,9 @@ public class UpdateUserWorker extends Worker
             // Poll until it succeeds to acquire a job...
             Timestamp timeoutAt;
             while (dao.acquireUntil(timeoutAt = nextTimeout()) == 0) {
+                if (isStopped) {
+                    return;
+                }
                 TimeUnit.SECONDS.sleep(1);
             };
 

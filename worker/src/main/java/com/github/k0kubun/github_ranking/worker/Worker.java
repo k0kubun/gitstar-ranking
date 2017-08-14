@@ -10,7 +10,8 @@ import java.util.logging.SimpleFormatter;
 
 public abstract class Worker implements Callable<Void>
 {
-    private boolean isStopped;
+    // Subclass must prepare to shut down if this is true.
+    public boolean isStopped;
 
     public static Logger buildLogger(String name)
     {

@@ -36,6 +36,8 @@ public class WorkerManager
                         .setUncaughtExceptionHandler((t, e) -> {
                             LOG.severe("Uncaught exception: " + e.getMessage());
                         }).build());
+
+        LOG.info("Starting workers...");
         for (Worker worker : workers) {
             futures.add(executor.submit(worker));
         }
@@ -43,12 +45,18 @@ public class WorkerManager
 
     public void stop()
     {
+        LOG.info("Shutting down workers...");
         for (Worker worker : workers) {
             worker.stop();
         }
+
+        LOG.info("Stopping workers...");
+        int i = 0;
         for (Future<Void> future : futures) {
             try {
                 future.get(60, TimeUnit.SECONDS);
+                i++;
+                LOG.info("Stopped worker (" + i + "/" + futures.size() + ")");
             } catch (TimeoutException e) {
                 LOG.severe("Timed out to stop worker!: " + e.getMessage());
             } catch (InterruptedException e) {

@@ -5,6 +5,7 @@ import com.github.k0kubun.github_ranking.dao.AccessTokenDao;
 import com.github.k0kubun.github_ranking.dao.RepositoryDao;
 import com.github.k0kubun.github_ranking.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.dao.UserDao;
+import com.github.k0kubun.github_ranking.github.ClientBuilder;
 import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
@@ -35,11 +36,13 @@ public class UpdateUserWorker extends Worker
     private static final Logger LOG = Worker.buildLogger(UpdateUserWorker.class.getName());
 
     private final DBI dbi;
+    private final ClientBuilder clientBuilder;
 
-    public UpdateUserWorker(Config config)
+    public UpdateUserWorker(DataSource dataSource)
     {
         super();
-        dbi = new DBI(config.getDatabaseConfig().getDataSource());
+        clientBuilder = new ClientBuilder(dataSource);
+        dbi = new DBI(dataSource);
     }
 
     // Dequeue a record from update_user_jobs and call updateUser().
@@ -80,14 +83,13 @@ public class UpdateUserWorker extends Worker
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Delete user if it's deleted on GitHub (was implemented in Sidekiq version)
     // TODO: Delete repos if they are deleted on GitHub (was implemented in Sidekiq version)
-    // TODO: handle updates of "login"
+    // TODO: Update users.login if updated
+    // TODO: Requeue if GitHub API limit exceeded
+    // TODO: Don't call API using "login" for key
     private void updateUser(Handle handle, Integer userId) throws IOException
     {
+        GitHubClient client = clientBuilder.buildForUser(userId);
         User user = handle.attach(UserDao.class).find(userId);
-
-        AccessToken token = handle.attach(AccessTokenDao.class).find(1);
-        GitHubClient client = new GitHubClient();
-        client.setOAuth2Token(token.getToken());
 
         List<Repository> repos = fetchPublicRepos(client, user.getLogin());
         handle.useTransaction((conn, status) -> {

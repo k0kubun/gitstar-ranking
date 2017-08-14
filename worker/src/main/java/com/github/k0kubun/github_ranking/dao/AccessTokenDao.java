@@ -15,6 +15,10 @@ public interface AccessTokenDao
     @Mapper(AccessTokenMapper.class)
     AccessToken find(@Bind("id") Integer id);
 
+    @SqlQuery("select token from access_tokens where user_id = :userId")
+    @Mapper(AccessTokenMapper.class)
+    AccessToken findByUserId(@Bind("userId") Integer userId);
+
     class AccessTokenMapper implements ResultSetMapper<AccessToken>
     {
         @Override

@@ -28,7 +28,6 @@ import redis.clients.jedis.Jedis;
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker extends Worker
 {
-    private static final Integer BATCH_SIZE = 1000;
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
     private static final String REDIS_USER_RANKING_KEY = "github-ranking:user:world:all";

@@ -4,6 +4,7 @@ import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import org.json.JSONObject;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -32,9 +33,12 @@ public interface UpdateUserJobDao
         @Override
         public UpdateUserJob map(int index, ResultSet r, StatementContext ctx) throws SQLException
         {
+            // Payload is built in: app/models/update_user_job.rb
+            JSONObject payload = new JSONObject(r.getString("payload"));
             return new UpdateUserJob(
                     r.getInt("id"),
-                    Integer.parseInt(r.getString("payload"))
+                    payload.getInt("user_id"),
+                    payload.getInt("token_user_id")
             );
         }
     }

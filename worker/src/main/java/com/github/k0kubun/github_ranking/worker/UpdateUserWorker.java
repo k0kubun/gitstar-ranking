@@ -69,10 +69,11 @@ public class UpdateUserWorker extends Worker
             // TODO: Log elapsed time
             try {
                 LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-                updateUser(handle, job.getUserId());
+                updateUser(handle, job.getUserId(), job.getTokenUserId());
                 LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
             } catch (Exception e) {
-                LOG.severe("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.getMessage());
+                LOG.severe("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+                e.printStackTrace();
             } finally {
                 dao.delete(job.getId());
             }
@@ -92,9 +93,9 @@ public class UpdateUserWorker extends Worker
     // TODO: Update users.login if updated
     // TODO: Requeue if GitHub API limit exceeded
     // TODO: Don't call API using "login" for key
-    private void updateUser(Handle handle, Integer userId) throws IOException
+    private void updateUser(Handle handle, Integer userId, Integer tokenUserId) throws IOException
     {
-        GitHubClient client = clientBuilder.buildForUser(userId);
+        GitHubClient client = clientBuilder.buildForUser(tokenUserId);
         User user = handle.attach(UserDao.class).find(userId);
 
         List<Repository> repos = fetchPublicRepos(client, user.getLogin());

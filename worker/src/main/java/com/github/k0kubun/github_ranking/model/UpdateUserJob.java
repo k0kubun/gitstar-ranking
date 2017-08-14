@@ -4,11 +4,13 @@ public class UpdateUserJob
 {
     private final Integer id;
     private final Integer userId;
+    private final Integer tokenUserId;
 
-    public UpdateUserJob(Integer id, Integer userId)
+    public UpdateUserJob(Integer id, Integer userId, Integer tokenUserId)
     {
         this.id = id;
         this.userId = userId;
+        this.tokenUserId = tokenUserId;
     }
 
     public Integer getId()
@@ -19,5 +21,10 @@ public class UpdateUserJob
     public Integer getUserId()
     {
         return userId;
+    }
+
+    public Integer getTokenUserId()
+    {
+        return tokenUserId;
     }
 }

@@ -25,7 +25,7 @@ class UsersController < ApplicationController
 
     ActiveRecord::Base.transaction do
       @organization.update(queued_at: Time.now)
-      UpdateUserJob.perform_later(@organization.id)
+      UpdateUserJob.perform_later(user_id: @organization.id, token_user_id: current_user.id)
     end
 
     redirect_to user_path(@organization), notice: 'Update request is successfully queued. Please wait a moment.'
@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 
     ActiveRecord::Base.transaction do
       current_user.update(queued_at: Time.now)
-      UpdateUserJob.perform_later(current_user.id)
+      UpdateUserJob.perform_later(user_id: current_user.id, token_user_id: current_user.id)
     end
 
     redirect_to current_user, notice: 'Update request is successfully queued. Please wait a moment.'

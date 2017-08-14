@@ -1,11 +1,7 @@
-require 'sidekiq/web'
-
 Rails.application.routes.draw do
   root to: 'top#index'
 
   authenticate :user, ->(u) { u.admin? } do
-    mount Sidekiq::Web, at: '/sidekiq_admin'
-
     resources :access_tokens, only: :index
   end
 

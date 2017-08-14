@@ -72,8 +72,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.10.0)
-    concurrent-ruby (1.0.0)
-    connection_pool (2.2.0)
     devise (3.5.5)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -259,10 +257,6 @@ GEM
     sawyer (0.6.0)
       addressable (~> 2.3.5)
       faraday (~> 0.8, < 0.10)
-    sidekiq (4.1.0)
-      concurrent-ruby (~> 1.0)
-      connection_pool (~> 2.2, >= 2.2.0)
-      redis (~> 3.2, >= 3.2.1)
     silencer (0.6.0)
       railties (>= 3)
     sinatra (1.4.7)
@@ -341,7 +335,6 @@ DEPENDENCIES
   redis-rails
   rspec-rails
   sassc-rails
-  sidekiq
   silencer
   sinatra
   spring

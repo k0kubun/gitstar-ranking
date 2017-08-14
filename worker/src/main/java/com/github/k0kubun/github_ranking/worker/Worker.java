@@ -65,6 +65,6 @@ public abstract class Worker implements Callable<Void>
 
     private void handleException(Exception e)
     {
-        System.err.println("Perform failed!: " + e.getMessage());
+        System.err.println("Unhandled exception!: " + e.getMessage());
     }
 }

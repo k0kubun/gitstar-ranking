@@ -67,11 +67,15 @@ public class UpdateUserWorker extends Worker
             }
 
             // TODO: Log elapsed time
-            LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-            updateUser(handle, job.getUserId());
-            LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
-
-            dao.delete(job.getId());
+            try {
+                LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
+                updateUser(handle, job.getUserId());
+                LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
+            } catch (Exception e) {
+                LOG.severe("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.getMessage());
+            } finally {
+                dao.delete(job.getId());
+            }
         }
     }
 

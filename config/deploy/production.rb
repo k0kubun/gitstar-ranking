@@ -8,5 +8,25 @@ role :app, %w[gmocloud]
 role :web, %w[gmocloud]
 role :db,  []
 role :sidekiq, %w[gmocloud]
+role :worker, []
 
 set :deploy_to, '/home/k0kubun/github-ranking'
+
+set :linked_files, %w[
+  .env
+  config/database.yml
+  config/secrets.yml
+  config/initializers/redis.rb
+]
+
+set :linked_dirs, %w[
+  bin
+  log
+  solr
+  tmp/pids
+  tmp/cache
+  tmp/sockets
+  vendor/bundle
+  public/system
+  public/assets
+]

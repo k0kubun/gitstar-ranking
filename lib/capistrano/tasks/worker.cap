@@ -1,0 +1,22 @@
+namespace :worker do
+  desc "Install worker"
+  task :install do
+    on roles(:worker) do
+      execute 'cd /home/k0kubun/github-ranking-worker/current/worker && ./gradlew installDist'
+    end
+  end
+
+  desc "Start worker"
+  task :start => :install do
+    on roles(:worker) do
+      execute :systemctl, '--user', 'start', 'github-ranking-worker'
+    end
+  end
+
+  desc "Stop worker"
+  task :stop do
+    on roles(:worker) do
+      execute :systemctl, '--user', 'stop', 'github-ranking-worker'
+    end
+  end
+end

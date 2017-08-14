@@ -12,13 +12,5 @@ module Concerns
     rescue Redis::CannotConnectError
       super
     end
-
-    def update_ranking
-      if stargazers_count > 0
-        Redis.current.zadd(ranking_key, stargazers_count, id)
-      else
-        Redis.current.zrem(ranking_key, id)
-      end
-    end
   end
 end

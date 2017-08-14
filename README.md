@@ -25,7 +25,7 @@ Install following dependencies.
 - MySQL 5.7
 - Redis 3.0
 
-Then, execute following commands.
+Then, execute following command.
 
 ```
 bin/setup
@@ -38,8 +38,8 @@ foreman start
 ```
 
 ### Crash recovery
+#### Initialize ranking data on Redis
 
 ```sh
-# Initialize ranking data on Redis
 rake ranking
 ```

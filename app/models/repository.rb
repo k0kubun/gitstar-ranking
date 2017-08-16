@@ -1,7 +1,4 @@
 class Repository < ActiveRecord::Base
-  include Concerns::Rankable
-  include Concerns::Starrable
-
   class_attribute :ranking_key
   self.ranking_key = 'github-ranking:repository:world:all'
 

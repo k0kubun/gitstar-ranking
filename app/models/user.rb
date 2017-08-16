@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
     3138447, # k0kubun
   ].freeze
 
+  class_attribute :ranking_key
   self.ranking_key = 'github-ranking:user:world:all'
 
   paginates_per 100
@@ -20,6 +21,7 @@ class User < ActiveRecord::Base
   has_one :access_token
   has_many :repositories, -> { starred_first }, foreign_key: :owner_id
 
+  scope :starred_first, -> { order(stargazers_count: :desc) }
   scope :organization, -> { where(type: 'Organization') }
   scope :not_organization, -> { where(type: 'User') }
 
@@ -39,6 +41,12 @@ class User < ActiveRecord::Base
   def in_queue?
     return false if queued_at.nil?
     update_threshold <= queued_at && updated_at <= queued_at
+  end
+
+  def rank
+    Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
+  rescue Redis::CannotConnectError
+    super
   end
 
   private

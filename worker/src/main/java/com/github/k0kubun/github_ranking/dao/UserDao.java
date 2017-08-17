@@ -12,7 +12,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 public interface UserDao
 {
-    @SqlQuery("select id, login from users where id = :id")
+    @SqlQuery("select id, login, type from users where id = :id")
     @Mapper(UserMapper.class)
     User find(@Bind("id") Integer id);
 
@@ -26,7 +26,8 @@ public interface UserDao
         {
             return new User(
                     r.getInt("id"),
-                    r.getString("login")
+                    r.getString("login"),
+                    r.getString("type")
             );
         }
     }

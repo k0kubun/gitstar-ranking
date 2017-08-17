@@ -31,6 +31,7 @@ public class UpdateUserWorker extends Worker
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
     private static final String REDIS_USER_RANKING_KEY = "github-ranking:user:world:all";
+    private static final String REDIS_ORG_RANKING_KEY = "github-ranking:organization:world:all";
     private static final String REDIS_REPO_RANKING_KEY = "github-ranking:repository:world:all";
     private static final Logger LOG = Worker.buildLogger(UpdateUserWorker.class.getName());
 
@@ -104,7 +105,7 @@ public class UpdateUserWorker extends Worker
         });
         LOG.info("imported repos: " + repos.size());
 
-        updateRankings(userId, repos);
+        updateRankings(user, repos);
     }
 
     private List<Repository> fetchPublicRepos(GitHubClient client, String login) throws IOException
@@ -130,15 +131,23 @@ public class UpdateUserWorker extends Worker
     }
 
     // Update redis to have new stars.
-    private void updateRankings(Integer userId, List<Repository> repos)
+    private void updateRankings(User user, List<Repository> repos)
     {
         Jedis jedis = new Jedis("localhost");
 
         int totalStars = calcTotalStars(repos);
-        if (totalStars > 0) {
-            jedis.zadd(REDIS_USER_RANKING_KEY, totalStars, userId.toString());
+        if (user.isOrganization()) {
+            if (totalStars > 0) {
+                jedis.zadd(REDIS_ORG_RANKING_KEY, totalStars, user.getId().toString());
+            } else {
+                jedis.zrem(REDIS_ORG_RANKING_KEY, user.getId().toString());
+            }
         } else {
-            jedis.zrem(REDIS_USER_RANKING_KEY, userId.toString());
+            if (totalStars > 0) {
+                jedis.zadd(REDIS_USER_RANKING_KEY, totalStars, user.getId().toString());
+            } else {
+                jedis.zrem(REDIS_USER_RANKING_KEY, user.getId().toString());
+            }
         }
 
         for (Repository repo : repos) {

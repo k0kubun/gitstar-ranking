@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170818023855) do
+ActiveRecord::Schema.define(version: 20170818033921) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -91,6 +91,6 @@ ActiveRecord::Schema.define(version: 20170818023855) do
   end
 
   add_index "users", ["login"], name: "index_users_on_login", using: :btree
-  add_index "users", ["type", "stargazers_count"], name: "index_users_on_type_and_stargazers_count", using: :btree
+  add_index "users", ["stargazers_count"], name: "index_users_on_stargazers_count", using: :btree
 
 end

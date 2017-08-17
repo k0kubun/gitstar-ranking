@@ -1,6 +1,8 @@
 package com.github.k0kubun.github_ranking;
 
 import com.github.k0kubun.github_ranking.config.Config;
+import com.github.k0kubun.github_ranking.server.ApiApplication;
+import com.github.k0kubun.github_ranking.server.ApiServer;
 import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
 import com.github.k0kubun.github_ranking.worker.Worker;
 import com.github.k0kubun.github_ranking.worker.WorkerManager;
@@ -21,37 +23,26 @@ public class Main
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private static final int NUM_UPDATE_USER_WORKERS = 3;
 
+    private static final Config config = new Config(System.getenv());
+
     public static void main(String[] args)
     {
-        new Main().run();
-    }
-
-    private final Config config;
-    private final BlockingQueue<Void> userRankingQueue;
-    private final BlockingQueue<Void> orgRankingQueue;
-    private final BlockingQueue<Void> repoRankingQueue;
-
-    public Main()
-    {
-        config = new Config(System.getenv());
-        userRankingQueue = new LinkedBlockingQueue<>();
-        orgRankingQueue = new LinkedBlockingQueue<>();
-        repoRankingQueue = new LinkedBlockingQueue<>();
-    }
-
-    public void run()
-    {
         ScheduledExecutorService scheduler = buildAndRunScheduler();
+
         WorkerManager workers = buildWorkers(config);
         workers.start();
 
+        ApiServer server = new ApiServer(ApiApplication.class, config);
+        server.start();
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shutdownAndAwaitTermination(scheduler);
+            server.stop();
             workers.stop();
         }));
     }
 
-    private ScheduledExecutorService buildAndRunScheduler()
+    private static ScheduledExecutorService buildAndRunScheduler()
     {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setNameFormat("scheduler-%d")
@@ -64,14 +55,14 @@ public class Main
 
         // Schedule at most every 6 hours
         scheduler.scheduleWithFixedDelay(() -> {
-            scheduleIfEmpty(userRankingQueue);
-            scheduleIfEmpty(orgRankingQueue);
-            scheduleIfEmpty(repoRankingQueue);
+            scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue());
+            scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue());
+            scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue());
         }, 6, 6, TimeUnit.HOURS);
         return scheduler;
     }
 
-    private void scheduleIfEmpty(BlockingQueue<Void> queue)
+    private static void scheduleIfEmpty(BlockingQueue<Void> queue)
     {
         if (queue.size() == 0) {
             try {
@@ -82,7 +73,7 @@ public class Main
         }
     }
 
-    private WorkerManager buildWorkers(Config config)
+    private static WorkerManager buildWorkers(Config config)
     {
         DataSource dataSource = config.getDatabaseConfig().getDataSource();
 
@@ -94,7 +85,7 @@ public class Main
     }
 
     // https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html
-    private void shutdownAndAwaitTermination(ExecutorService executor) {
+    private static void shutdownAndAwaitTermination(ExecutorService executor) {
         executor.shutdown();
         try {
             if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {

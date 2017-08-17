@@ -10,9 +10,9 @@ import javax.sql.DataSource;
 // Its queue may be configurable in the future. So it's placed here but currently just a group of queues.
 public class QueueConfig
 {
-    private final BlockingQueue<Void> userRankingQueue;
-    private final BlockingQueue<Void> orgRankingQueue;
-    private final BlockingQueue<Void> repoRankingQueue;
+    private final BlockingQueue<Boolean> userRankingQueue;
+    private final BlockingQueue<Boolean> orgRankingQueue;
+    private final BlockingQueue<Boolean> repoRankingQueue;
 
     public QueueConfig()
     {
@@ -21,17 +21,17 @@ public class QueueConfig
         repoRankingQueue = new LinkedBlockingQueue<>();
     }
 
-    public BlockingQueue<Void> getUserRankingQueue()
+    public BlockingQueue<Boolean> getUserRankingQueue()
     {
         return userRankingQueue;
     }
 
-    public BlockingQueue<Void> getOrgRankingQueue()
+    public BlockingQueue<Boolean> getOrgRankingQueue()
     {
         return orgRankingQueue;
     }
 
-    public BlockingQueue<Void> getRepoRankingQueue()
+    public BlockingQueue<Boolean> getRepoRankingQueue()
     {
         return repoRankingQueue;
     }

@@ -62,7 +62,7 @@ public class Main
         return scheduler;
     }
 
-    private static void scheduleIfEmpty(BlockingQueue<Void> queue)
+    private static void scheduleIfEmpty(BlockingQueue<Boolean> queue)
     {
         if (queue.size() == 0) {
             try {

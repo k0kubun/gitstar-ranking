@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class ApiResponse<T>
 {
     public enum Type {
-        BOOLEAN;
+        BOOLEAN,
+        INTEGER;
 
         @JsonValue
         public String toString()
@@ -14,6 +15,8 @@ public class ApiResponse<T>
             switch (this) {
                 case BOOLEAN:
                     return "boolean";
+                case INTEGER:
+                    return "integer";
                 default:
                     throw new RuntimeException("unhandled ApiResponse.Type in toString()");
             }

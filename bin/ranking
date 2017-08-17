@@ -1,0 +1,19 @@
+#!/bin/sh
+
+case "$1" in
+  "users")
+    curl -v -X POST http://localhost:5001/ranks/users
+    ;;
+  "orgs")
+    curl -v -X POST http://localhost:5001/ranks/orgs
+    ;;
+  "repos")
+    curl -v -X POST http://localhost:5001/ranks/repos
+    ;;
+  *)
+    echo "Usage:"
+    echo "  bin/ranking users"
+    echo "  bin/ranking orgs"
+    echo "  bin/ranking repos"
+    ;;
+esac

@@ -12,10 +12,10 @@ public class Main
     public static void main(String[] args)
     {
         Config config = new Config(System.getenv());
-        WorkerManager workers = buildWorkers(config);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(workers::stop));
+        WorkerManager workers = buildWorkers(config);
         workers.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(workers::stop));
     }
 
     private static WorkerManager buildWorkers(Config config)

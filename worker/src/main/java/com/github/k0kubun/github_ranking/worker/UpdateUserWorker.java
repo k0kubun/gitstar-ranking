@@ -17,12 +17,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
@@ -33,7 +34,7 @@ public class UpdateUserWorker extends Worker
     private static final String REDIS_USER_RANKING_KEY = "github-ranking:user:world:all";
     private static final String REDIS_ORG_RANKING_KEY = "github-ranking:organization:world:all";
     private static final String REDIS_REPO_RANKING_KEY = "github-ranking:repository:world:all";
-    private static final Logger LOG = Worker.buildLogger(UpdateUserWorker.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
     private final DBI dbi;
     private final ClientBuilder clientBuilder;
@@ -73,7 +74,7 @@ public class UpdateUserWorker extends Worker
                 updateUser(handle, job.getUserId(), job.getTokenUserId());
                 LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
             } catch (Exception e) {
-                LOG.severe("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+                LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 dao.delete(job.getId());

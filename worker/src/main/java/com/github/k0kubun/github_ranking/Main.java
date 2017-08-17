@@ -4,6 +4,7 @@ import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.server.ApiApplication;
 import com.github.k0kubun.github_ranking.server.ApiServer;
 import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
+import com.github.k0kubun.github_ranking.worker.UserRankingWorker;
 import com.github.k0kubun.github_ranking.worker.Worker;
 import com.github.k0kubun.github_ranking.worker.WorkerManager;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -66,7 +67,7 @@ public class Main
     {
         if (queue.size() == 0) {
             try {
-                queue.put(null);
+                queue.put(true);
             } catch (InterruptedException e) {
                 LOG.error("Scheduling interrupted: " + e.getMessage());
             }
@@ -81,6 +82,7 @@ public class Main
         for (int i = 0; i < NUM_UPDATE_USER_WORKERS; i++) {
             workers.add(new UpdateUserWorker(dataSource));
         }
+        workers.add(new UserRankingWorker(config));
         return workers;
     }
 

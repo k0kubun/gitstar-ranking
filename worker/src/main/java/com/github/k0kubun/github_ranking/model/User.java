@@ -2,14 +2,14 @@ package com.github.k0kubun.github_ranking.model;
 
 public class User
 {
-    private final Integer id;
-    private final String login;
+    private final int id;
     private final String type;
+    private String login;
+    private int stargazersCount;
 
-    public User(Integer id, String login, String type)
+    public User(int id, String type)
     {
         this.id = id;
-        this.login = login;
         this.type = type;
     }
 
@@ -21,6 +21,21 @@ public class User
     public String getLogin()
     {
         return login;
+    }
+
+    public void setLogin(String login)
+    {
+        this.login = login;
+    }
+
+    public int getStargazersCount()
+    {
+        return stargazersCount;
+    }
+
+    public void setStargazersCount(Integer stargazersCount)
+    {
+        this.stargazersCount = stargazersCount;
     }
 
     public boolean isOrganization()

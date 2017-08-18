@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170818023855) do
+ActiveRecord::Schema.define(version: 20170818044312) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -21,6 +21,16 @@ ActiveRecord::Schema.define(version: 20170818023855) do
   end
 
   add_index "access_tokens", ["user_id"], name: "index_access_tokens_on_user_id", using: :btree
+
+  create_table "organization_ranks", force: :cascade do |t|
+    t.integer  "stargazers_count", limit: 4, null: false
+    t.integer  "rank",             limit: 4, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "organization_ranks", ["rank"], name: "index_organization_ranks_on_rank", unique: true, using: :btree
+  add_index "organization_ranks", ["stargazers_count"], name: "index_organization_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "repositories", force: :cascade do |t|
     t.string   "name",             limit: 255
@@ -41,6 +51,16 @@ ActiveRecord::Schema.define(version: 20170818023855) do
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
   add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
 
+  create_table "repository_ranks", force: :cascade do |t|
+    t.integer  "stargazers_count", limit: 4, null: false
+    t.integer  "rank",             limit: 4, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "repository_ranks", ["rank"], name: "index_repository_ranks_on_rank", unique: true, using: :btree
+  add_index "repository_ranks", ["stargazers_count"], name: "index_repository_ranks_on_stargazers_count", unique: true, using: :btree
+
   create_table "update_user_jobs", force: :cascade do |t|
     t.string   "payload",    limit: 255,             null: false
     t.datetime "timeout_at",                         null: false
@@ -50,6 +70,16 @@ ActiveRecord::Schema.define(version: 20170818023855) do
   end
 
   add_index "update_user_jobs", ["timeout_at"], name: "index_update_user_jobs_on_timeout_at", using: :btree
+
+  create_table "user_ranks", force: :cascade do |t|
+    t.integer  "stargazers_count", limit: 4, null: false
+    t.integer  "rank",             limit: 4, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "user_ranks", ["rank"], name: "index_user_ranks_on_rank", unique: true, using: :btree
+  add_index "user_ranks", ["stargazers_count"], name: "index_user_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "login",            limit: 255
@@ -64,6 +94,6 @@ ActiveRecord::Schema.define(version: 20170818023855) do
   end
 
   add_index "users", ["login"], name: "index_users_on_login", using: :btree
-  add_index "users", ["type", "stargazers_count"], name: "index_users_on_type_and_stargazers_count", using: :btree
+  add_index "users", ["stargazers_count"], name: "index_users_on_stargazers_count", using: :btree
 
 end

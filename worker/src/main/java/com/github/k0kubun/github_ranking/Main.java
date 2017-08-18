@@ -56,12 +56,10 @@ public class Main
             .build();
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
 
-        // Schedule at most every 6 hours
-        scheduler.scheduleWithFixedDelay(() -> {
-            scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue());
-            scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue());
-            scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue());
-        }, 6, 6, TimeUnit.HOURS);
+        // Schedule at most every 3 hours
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue()); }, 1, 3, TimeUnit.HOURS);
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); },  2, 3, TimeUnit.HOURS);
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 3, 3, TimeUnit.HOURS);
         return scheduler;
     }
 

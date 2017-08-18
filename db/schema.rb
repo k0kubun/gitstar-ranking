@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170818033921) do
+ActiveRecord::Schema.define(version: 20170818044312) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20170818033921) do
     t.datetime "updated_at",                 null: false
   end
 
+  add_index "organization_ranks", ["rank"], name: "index_organization_ranks_on_rank", unique: true, using: :btree
   add_index "organization_ranks", ["stargazers_count"], name: "index_organization_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "repositories", force: :cascade do |t|
@@ -57,6 +58,7 @@ ActiveRecord::Schema.define(version: 20170818033921) do
     t.datetime "updated_at",                 null: false
   end
 
+  add_index "repository_ranks", ["rank"], name: "index_repository_ranks_on_rank", unique: true, using: :btree
   add_index "repository_ranks", ["stargazers_count"], name: "index_repository_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "update_user_jobs", force: :cascade do |t|
@@ -76,6 +78,7 @@ ActiveRecord::Schema.define(version: 20170818033921) do
     t.datetime "updated_at",                 null: false
   end
 
+  add_index "user_ranks", ["rank"], name: "index_user_ranks_on_rank", unique: true, using: :btree
   add_index "user_ranks", ["stargazers_count"], name: "index_user_ranks_on_stargazers_count", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|

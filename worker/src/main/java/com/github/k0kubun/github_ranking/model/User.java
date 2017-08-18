@@ -2,12 +2,12 @@ package com.github.k0kubun.github_ranking.model;
 
 public class User
 {
-    private final Integer id;
+    private final int id;
     private final String type;
     private String login;
-    private Integer stargazersCount;
+    private int stargazersCount;
 
-    public User(Integer id, String type)
+    public User(int id, String type)
     {
         this.id = id;
         this.type = type;
@@ -28,7 +28,7 @@ public class User
         this.login = login;
     }
 
-    public Integer getStargazersCount()
+    public int getStargazersCount()
     {
         return stargazersCount;
     }

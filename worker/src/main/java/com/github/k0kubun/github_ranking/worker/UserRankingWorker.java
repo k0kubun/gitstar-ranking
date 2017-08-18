@@ -45,6 +45,7 @@ public class UserRankingWorker extends Worker
 
     private void updateUserRanking(Handle handle)
     {
+        int count = handle.attach(UserDao.class).countUsers(); // warmup
         PaginatedUsers paginatedUsers = new PaginatedUsers(handle);
         List<User> users;
 
@@ -74,7 +75,8 @@ public class UserRankingWorker extends Worker
                 commitRanks(handle, commitPendingRanks);
                 commitPendingRanks.clear();
             }
-            LOG.info("UserRankingWorker (" + Integer.valueOf(currentRank.getRank() + currentRankNum - 1).toString() +
+            int rows = currentRank.getRank() + currentRankNum - 1;
+            LOG.info("UserRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
                     " rows, rank " + Integer.valueOf(currentRank.getRank()).toString() + ", " +
                     Integer.valueOf(currentRank.getStargazersCount()).toString() + " stars)");
         }
@@ -99,6 +101,11 @@ public class UserRankingWorker extends Worker
     private UserRank lastOf(List<UserRank> userRanks)
     {
         return userRanks.get(userRanks.size() - 1);
+    }
+
+    private String calcProgress(int child, int parent)
+    {
+        return String.format("%.3f%%", (float)child / (float)parent);
     }
 
     // This class does cursor-based-pagination for users order by stargazers_count DESC.

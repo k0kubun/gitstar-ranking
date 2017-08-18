@@ -29,6 +29,9 @@ public interface UserDao
     @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
 
+    @SqlQuery("select count(1) from users where type = 'User'")
+    int countUsers();
+
     class FindUserMapper implements ResultSetMapper<User>
     {
         @Override

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170817094219) do
+ActiveRecord::Schema.define(version: 20170818023855) do
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -26,20 +26,20 @@ ActiveRecord::Schema.define(version: 20170817094219) do
     t.string   "name",             limit: 255
     t.string   "full_name",        limit: 255
     t.integer  "owner_id",         limit: 4
-    t.text     "description",      limit: 65535
+    t.text     "description",      limit: 16777215
     t.boolean  "fork"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "homepage",         limit: 255
-    t.integer  "stargazers_count", limit: 4,     default: 0, null: false
+    t.integer  "stargazers_count", limit: 4,        default: 0, null: false
     t.string   "language",         limit: 255
     t.datetime "fetched_at"
     t.integer  "rank",             limit: 4
   end
 
-  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", using: :btree
+  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", length: {"full_name"=>191}, using: :btree
   add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
-  add_index "repositories", ["stargazers_count", "id"], name: "index_repositories_on_stargazers_count_and_id", using: :btree
+  add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
 
   create_table "update_user_jobs", force: :cascade do |t|
     t.string   "payload",    limit: 255,             null: false
@@ -64,6 +64,6 @@ ActiveRecord::Schema.define(version: 20170817094219) do
   end
 
   add_index "users", ["login"], name: "index_users_on_login", using: :btree
-  add_index "users", ["type", "stargazers_count", "id"], name: "index_users_on_type_and_stargazers_count_and_id", using: :btree
+  add_index "users", ["type", "stargazers_count"], name: "index_users_on_type_and_stargazers_count", using: :btree
 
 end

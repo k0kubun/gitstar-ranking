@@ -4,6 +4,7 @@ import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.server.ApiApplication;
 import com.github.k0kubun.github_ranking.server.ApiServer;
 import com.github.k0kubun.github_ranking.worker.OrganizationRankingWorker;
+import com.github.k0kubun.github_ranking.worker.RepositoryRankingWorker;
 import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
 import com.github.k0kubun.github_ranking.worker.UserRankingWorker;
 import com.github.k0kubun.github_ranking.worker.Worker;
@@ -85,6 +86,7 @@ public class Main
         }
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
+        workers.add(new RepositoryRankingWorker(config));
         return workers;
     }
 

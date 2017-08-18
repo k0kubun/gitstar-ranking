@@ -28,6 +28,30 @@ public interface RepositoryDao
     @BatchChunkSize(1000)
     void bulkInsert(@BindBean List<Repository> repos);
 
+    @SqlQuery("select id, stargazers_count from repositories order by stargazers_count desc, id desc limit :limit")
+    @Mapper(RepositoryStarMapper.class)
+    List<Repository> starsDescFirstRepos(@Bind("limit") Integer limit);
+
+    @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) < (:stargazersCount, :id) " +
+              "order by stargazers_count desc, id desc limit :limit")
+    @Mapper(RepositoryStarMapper.class)
+    List<Repository> starsDescReposAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Long id, @Bind("limit") Integer limit);
+
+    @SqlQuery("select count(1) from repositories")
+    int countRepos();
+
+    @SqlQuery("select count(1) from repositories where stargazers_count = :stargazersCount")
+    int countReposHavingStars(@Bind("stargazersCount") int stargazersCount);
+
+    class RepositoryStarMapper implements ResultSetMapper<Repository>
+    {
+        @Override
+        public Repository map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        {
+            return new Repository(r.getLong("id"), r.getInt("stargazers_count"));
+        }
+    }
+
     class RepositoryMapper implements ResultSetMapper<Repository>
     {
         @Override

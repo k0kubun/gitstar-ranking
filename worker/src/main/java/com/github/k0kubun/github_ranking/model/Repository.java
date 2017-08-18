@@ -12,7 +12,7 @@ public class Repository
     private final String description;
     private final Boolean fork;
     private final String homepage;
-    private final Integer stargazersCount;
+    private final int stargazersCount;
     private final String language;
 
     public static List<Repository> fromGitHubRepos(List<org.eclipse.egit.github.core.Repository> repos, String login)
@@ -39,8 +39,21 @@ public class Repository
         );
     }
 
+    public Repository(Long id, int stargazersCount)
+    {
+        this.id = id;
+        this.stargazersCount = stargazersCount;
+        this.ownerId = null;
+        this.name = null;
+        this.fullName = null;
+        this.description = null;
+        this.fork = null;
+        this.homepage = null;
+        this.language = null;
+    }
+
     public Repository(Long id, Integer ownerId, String name, String fullName, String description,
-            Boolean fork, String homepage, Integer stargazersCount, String language)
+            Boolean fork, String homepage, int stargazersCount, String language)
     {
         this.id = id;
         this.ownerId = ownerId;
@@ -88,7 +101,7 @@ public class Repository
         return homepage;
     }
 
-    public Integer getStargazersCount()
+    public int getStargazersCount()
     {
         return stargazersCount;
     }

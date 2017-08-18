@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class UserRankingWorker extends Worker
 {
+    private static final int ITERATE_MIN_STARS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(UserRankingWorker.class);
 
     private final BlockingQueue<Boolean> userRankingQueue;
@@ -38,12 +39,15 @@ public class UserRankingWorker extends Worker
         }
         LOG.info("----- started UserRankingWorker -----");
         try (Handle handle = dbi.open()) {
-            updateUserRanking(handle);
+            UserRank lastRank = updateUpperRanking(handle);
+            if (lastRank != null) {
+                updateLowerRanking(handle, lastRank);
+            }
         }
         LOG.info("----- finished UserRankingWorker -----");
     }
 
-    private void updateUserRanking(Handle handle)
+    private UserRank updateUpperRanking(Handle handle)
     {
         int count = handle.attach(UserDao.class).countUsers(); // warmup
         PaginatedUsers paginatedUsers = new PaginatedUsers(handle);
@@ -54,8 +58,9 @@ public class UserRankingWorker extends Worker
         int currentRankNum = 0;
 
         while (!(users = paginatedUsers.nextUsers()).isEmpty()) {
+            // Shutdown immediately if requested, even if it's in progress.
             if (isStopped) {
-                return;
+                return null;
             }
 
             for (User user : users) {
@@ -77,13 +82,30 @@ public class UserRankingWorker extends Worker
             }
             int rows = currentRank.getRank() + currentRankNum - 1;
             LOG.info("UserRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
-                    " rows, rank " + Integer.valueOf(currentRank.getRank()).toString() + ", " +
+                    "/" + Integer.valueOf(count).toString() + " rows, rank " + Integer.valueOf(currentRank.getRank()).toString() + ", " +
                     Integer.valueOf(currentRank.getStargazersCount()).toString() + " stars)");
+
+            // Switch the way to calculate ranking under 10 stars
+            if (currentRank.getStargazersCount() <= ITERATE_MIN_STARS) {
+                return currentRank;
+            }
         }
-        if (currentRank != null && currentRank.getStargazersCount() == 0) {
-            commitPendingRanks.add(currentRank);
-            commitRanks(handle, commitPendingRanks);
+        return currentRank;
+    }
+
+    private void updateLowerRanking(Handle handle, UserRank lastUserRank)
+    {
+        List<UserRank> userRanks = new ArrayList<>(); // listed in stargazers_count DESC
+        userRanks.add(lastUserRank);
+
+        int lastRank = lastUserRank.getRank();
+        for (int lastStars = lastUserRank.getStargazersCount(); lastStars > 0; lastStars--) {
+            LOG.info("UserRankingWorker for " + Integer.valueOf(lastStars-1).toString());
+            int count = handle.attach(UserDao.class).countUsersHavingStars(lastStars);
+            userRanks.add(new UserRank(lastStars-1, lastRank + count));
+            lastRank += count;
         }
+        commitRanks(handle, userRanks);
     }
 
     private void commitRanks(Handle handle, List<UserRank> userRanks)

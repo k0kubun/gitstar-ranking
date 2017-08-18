@@ -32,6 +32,9 @@ public interface UserDao
     @SqlQuery("select count(1) from users where type = 'User'")
     int countUsers();
 
+    @SqlQuery("select count(1) from users where type = 'User' and stargazers_count = :stargazersCount")
+    int countUsersHavingStars(@Bind("stargazersCount") int stargazersCount);
+
     class FindUserMapper implements ResultSetMapper<User>
     {
         @Override

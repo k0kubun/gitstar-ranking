@@ -75,7 +75,8 @@ public class UserRankingWorker extends Worker
                 commitPendingRanks.clear();
             }
             LOG.info("UserRankingWorker (" + Integer.valueOf(currentRank.getRank() + currentRankNum - 1).toString() +
-                    " rows, rank " + Integer.valueOf(currentRank.getRank()).toString() + ")");
+                    " rows, rank " + Integer.valueOf(currentRank.getRank()).toString() + ", " +
+                    Integer.valueOf(currentRank.getStargazersCount()).toString() + " stars)");
         }
         if (currentRank != null && currentRank.getStargazersCount() == 0) {
             commitPendingRanks.add(currentRank);

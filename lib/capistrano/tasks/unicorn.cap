@@ -3,29 +3,17 @@ namespace :unicorn do
     set :unicorn_pid, "#{shared_path}/tmp/pids/unicorn.pid"
   end
 
-  def start_unicorn
-    execute :systemctl, '--user', 'start', 'unicorn'
-  end
-
-  def stop_unicorn
-    execute :systemctl, '--user', 'stop', 'unicorn'
-  end
-
-  def reload_unicorn
-    execute :systemctl, '--user', 'reload', 'unicorn'
-  end
-
   desc "Start unicorn server"
   task :start => :environment do
     on roles(:app) do
-      start_unicorn
+      execute :systemctl, '--user', 'start', 'unicorn'
     end
   end
 
   desc "Stop unicorn server gracefully"
   task :stop => :environment do
     on roles(:app) do
-      stop_unicorn
+      execute :systemctl, '--user', 'stop', 'unicorn'
     end
   end
 
@@ -33,9 +21,9 @@ namespace :unicorn do
   task :restart => :environment do
     on roles(:app) do
       if test("[ -f #{fetch(:unicorn_pid)} ]")
-        reload_unicorn
+        execute :systemctl, '--user', 'reload', 'unicorn'
       else
-        start_unicorn
+        execute :systemctl, '--user', 'start', 'unicorn'
       end
     end
   end

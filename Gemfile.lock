@@ -130,6 +130,10 @@ GEM
       kaminari-core (= 1.0.1)
     kaminari-core (1.0.1)
     kgio (2.11.0)
+    listen (3.1.5)
+      rb-fsevent (~> 0.9, >= 0.9.4)
+      rb-inotify (~> 0.9, >= 0.9.7)
+      ruby_dep (~> 1.2)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.6)
@@ -236,6 +240,7 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
+    ruby_dep (1.5.0)
     sass (3.5.1)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
@@ -314,6 +319,7 @@ DEPENDENCIES
   hamlit
   jquery-rails
   kaminari
+  listen
   mysql2
   octokit
   omniauth

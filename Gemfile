@@ -36,6 +36,7 @@ group :development do
   gem 'silencer'
   gem 'spring'
   gem 'spring-commands-rspec'
+  gem 'listen'
 end
 
 group :development, :test do

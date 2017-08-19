@@ -18,7 +18,6 @@ gem 'mysql2'
 gem 'octokit'
 gem 'omniauth'
 gem 'omniauth-github'
-gem 'progress_bar'
 gem 'rack-user_agent'
 gem 'unicorn'
 

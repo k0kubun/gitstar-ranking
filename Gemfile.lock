@@ -107,7 +107,6 @@ GEM
       thor
       tilt
     hashie (3.4.3)
-    highline (1.7.8)
     i18n (0.7.0)
     jquery-rails (4.1.0)
       rails-dom-testing (~> 1.0)
@@ -153,11 +152,7 @@ GEM
     omniauth-oauth2 (1.4.0)
       oauth2 (~> 1.0)
       omniauth (~> 1.2)
-    options (2.3.2)
     orm_adapter (0.5.0)
-    progress_bar (1.0.5)
-      highline (~> 1.6)
-      options (~> 2.3.0)
     pry (0.10.3)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -298,7 +293,6 @@ DEPENDENCIES
   octokit
   omniauth
   omniauth-github
-  progress_bar
   pry-byebug
   pry-doc
   pry-rails

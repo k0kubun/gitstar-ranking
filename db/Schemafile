@@ -1,0 +1,8 @@
+# vi: ft=ruby
+# frozen_string_literal: true
+
+schema_dir = File.expand_path('../schema', __FILE__)
+
+Dir[File.join(schema_dir, '**', '*.rb')].each do |migration|
+  require migration
+end

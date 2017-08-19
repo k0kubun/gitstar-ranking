@@ -1,4 +1,6 @@
 class Repository < ActiveRecord::Base
+  attr_writer :rank
+
   class_attribute :ranking_key
   self.ranking_key = 'github-ranking:repository:world:all'
 
@@ -13,8 +15,6 @@ class Repository < ActiveRecord::Base
   end
 
   def rank
-    Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
-  rescue Redis::CannotConnectError
-    super
+    @rank ||= RankBuilder.new(RepositoryRank).build(self)
   end
 end

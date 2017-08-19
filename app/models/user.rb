@@ -4,6 +4,8 @@ class User < ActiveRecord::Base
     3138447, # k0kubun
   ].freeze
 
+  attr_writer :rank
+
   class_attribute :ranking_key
   self.ranking_key = 'github-ranking:user:world:all'
 
@@ -41,9 +43,7 @@ class User < ActiveRecord::Base
   end
 
   def rank
-    Redis.current.zcount(ranking_key, "(#{stargazers_count}", '+inf') + 1
-  rescue Redis::CannotConnectError
-    super
+    @rank ||= RankBuilder.new(UserRank).build(self)
   end
 
   private

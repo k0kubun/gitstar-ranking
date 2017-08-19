@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,89 +10,80 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170818044312) do
+ActiveRecord::Schema.define(version: 20170819053158) do
 
-  create_table "access_tokens", force: :cascade do |t|
-    t.integer  "user_id",    limit: 4
-    t.string   "token",      limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "access_tokens", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+    t.integer  "user_id"
+    t.string   "token",                   collation: "latin1_swedish_ci"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_access_tokens_on_user_id", using: :btree
   end
 
-  add_index "access_tokens", ["user_id"], name: "index_access_tokens_on_user_id", using: :btree
-
-  create_table "organization_ranks", force: :cascade do |t|
-    t.integer  "stargazers_count", limit: 4, null: false
-    t.integer  "rank",             limit: 4, null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+  create_table "organization_ranks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "stargazers_count", null: false
+    t.integer  "rank",             null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["rank"], name: "index_organization_ranks_on_rank", unique: true, using: :btree
+    t.index ["stargazers_count"], name: "index_organization_ranks_on_stargazers_count", unique: true, using: :btree
   end
 
-  add_index "organization_ranks", ["rank"], name: "index_organization_ranks_on_rank", unique: true, using: :btree
-  add_index "organization_ranks", ["stargazers_count"], name: "index_organization_ranks_on_stargazers_count", unique: true, using: :btree
-
-  create_table "repositories", force: :cascade do |t|
-    t.string   "name",             limit: 255
-    t.string   "full_name",        limit: 255
-    t.integer  "owner_id",         limit: 4
+  create_table "repositories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+    t.string   "name"
+    t.string   "full_name"
+    t.integer  "owner_id"
     t.text     "description",      limit: 16777215
     t.boolean  "fork"
     t.datetime "created_at",                                    null: false
     t.datetime "updated_at",                                    null: false
-    t.string   "homepage",         limit: 255
-    t.integer  "stargazers_count", limit: 4,        default: 0, null: false
-    t.string   "language",         limit: 255
+    t.string   "homepage"
+    t.integer  "stargazers_count",                  default: 0, null: false
+    t.string   "language"
     t.datetime "fetched_at"
-    t.integer  "rank",             limit: 4
+    t.index ["full_name"], name: "index_repositories_on_full_name", length: { full_name: 191 }, using: :btree
+    t.index ["owner_id", "stargazers_count"], name: "index_repositories_on_owner_id_and_stargazers_count", using: :btree
+    t.index ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
   end
 
-  add_index "repositories", ["full_name"], name: "index_repositories_on_full_name", length: {"full_name"=>191}, using: :btree
-  add_index "repositories", ["owner_id"], name: "index_repositories_on_owner_id", using: :btree
-  add_index "repositories", ["stargazers_count"], name: "index_repositories_on_stargazers_count", using: :btree
-
-  create_table "repository_ranks", force: :cascade do |t|
-    t.integer  "stargazers_count", limit: 4, null: false
-    t.integer  "rank",             limit: 4, null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+  create_table "repository_ranks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "stargazers_count", null: false
+    t.integer  "rank",             null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["rank"], name: "index_repository_ranks_on_rank", unique: true, using: :btree
+    t.index ["stargazers_count"], name: "index_repository_ranks_on_stargazers_count", unique: true, using: :btree
   end
 
-  add_index "repository_ranks", ["rank"], name: "index_repository_ranks_on_rank", unique: true, using: :btree
-  add_index "repository_ranks", ["stargazers_count"], name: "index_repository_ranks_on_stargazers_count", unique: true, using: :btree
-
-  create_table "update_user_jobs", force: :cascade do |t|
-    t.string   "payload",    limit: 255,             null: false
-    t.datetime "timeout_at",                         null: false
-    t.integer  "owner",      limit: 8,   default: 0, null: false
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+  create_table "update_user_jobs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string   "payload",                null: false
+    t.datetime "timeout_at",             null: false
+    t.bigint   "owner",      default: 0, null: false, unsigned: true
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.index ["timeout_at"], name: "index_update_user_jobs_on_timeout_at", using: :btree
   end
 
-  add_index "update_user_jobs", ["timeout_at"], name: "index_update_user_jobs_on_timeout_at", using: :btree
-
-  create_table "user_ranks", force: :cascade do |t|
-    t.integer  "stargazers_count", limit: 4, null: false
-    t.integer  "rank",             limit: 4, null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+  create_table "user_ranks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "stargazers_count", null: false
+    t.integer  "rank",             null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["rank"], name: "index_user_ranks_on_rank", unique: true, using: :btree
+    t.index ["stargazers_count"], name: "index_user_ranks_on_stargazers_count", unique: true, using: :btree
   end
 
-  add_index "user_ranks", ["rank"], name: "index_user_ranks_on_rank", unique: true, using: :btree
-  add_index "user_ranks", ["stargazers_count"], name: "index_user_ranks_on_stargazers_count", unique: true, using: :btree
-
-  create_table "users", force: :cascade do |t|
-    t.string   "login",            limit: 255
-    t.string   "avatar_url",       limit: 255
-    t.string   "type",             limit: 255
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
+  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+    t.string   "login",                                     collation: "utf8_unicode_ci"
+    t.string   "avatar_url",                                collation: "utf8_unicode_ci"
+    t.string   "type",                                      collation: "utf8_unicode_ci"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
     t.datetime "queued_at"
-    t.integer  "stargazers_count", limit: 4,   default: 0, null: false
-    t.integer  "rank",             limit: 4
-    t.string   "location",         limit: 255
+    t.integer  "stargazers_count", default: 0, null: false
+    t.string   "location",                                  collation: "utf8_unicode_ci"
+    t.index ["login"], name: "index_users_on_login", using: :btree
+    t.index ["stargazers_count"], name: "index_users_on_stargazers_count", using: :btree
   end
-
-  add_index "users", ["login"], name: "index_users_on_login", using: :btree
-  add_index "users", ["stargazers_count"], name: "index_users_on_stargazers_count", using: :btree
 
 end

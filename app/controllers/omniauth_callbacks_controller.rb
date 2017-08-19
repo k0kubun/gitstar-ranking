@@ -12,7 +12,6 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       login:      login,
       type:       'User',
       avatar_url: image,
-      rank:       0,
     )
     register_token(id, token)
 

@@ -32,6 +32,7 @@ group :development do
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
   gem 'foreman'
+  gem 'puma'
   gem 'silencer'
   gem 'spring'
   gem 'spring-commands-rspec'

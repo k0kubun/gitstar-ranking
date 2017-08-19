@@ -20,10 +20,9 @@ https://github-ranking.com
 
 Install following dependencies.
 
-- Ruby 2.3
-- Java 1.8
+- Ruby 2.4.1
+- Java 1.8.0
 - MySQL 5.7
-- Redis 3.0
 
 Then, execute following command.
 

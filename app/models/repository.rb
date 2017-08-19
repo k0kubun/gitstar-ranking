@@ -1,9 +1,6 @@
 class Repository < ActiveRecord::Base
   attr_writer :rank
 
-  class_attribute :ranking_key
-  self.ranking_key = 'github-ranking:repository:world:all'
-
   paginates_per 100
 
   belongs_to :owner, class_name: 'User'

@@ -37,13 +37,6 @@ bin/setup
 foreman start
 ```
 
-## Crash recovery
-### Initialize ranking data on Redis
-
-```sh
-rake ranking
-```
-
 ## Requirements
 
 - MySQL's time\_zone must be UTC.

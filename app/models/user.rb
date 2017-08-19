@@ -6,9 +6,6 @@ class User < ActiveRecord::Base
 
   attr_writer :rank
 
-  class_attribute :ranking_key
-  self.ranking_key = 'github-ranking:user:world:all'
-
   paginates_per 100
 
   devise :omniauthable, omniauth_providers: [:github]

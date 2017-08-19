@@ -1,4 +1,4 @@
-class CreateRepos < ActiveRecord::Migration
+class CreateRepos < ActiveRecord::Migration[4.2]
   def change
     create_table :repos, options: 'ENGINE=InnoDB ROW_FORMAT=dynamic DEFAULT CHARSET=utf8mb4' do |t|
       t.string :name

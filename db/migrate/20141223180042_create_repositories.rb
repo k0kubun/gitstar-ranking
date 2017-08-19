@@ -1,4 +1,4 @@
-class CreateRepositories < ActiveRecord::Migration
+class CreateRepositories < ActiveRecord::Migration[4.2]
   def up
     drop_table :repos
     create_table :repositories, options: 'ENGINE=InnoDB ROW_FORMAT=dynamic DEFAULT CHARSET=utf8mb4' do |t|

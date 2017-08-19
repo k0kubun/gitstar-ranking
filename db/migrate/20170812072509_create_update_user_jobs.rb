@@ -1,4 +1,4 @@
-class CreateUpdateUserJobs < ActiveRecord::Migration
+class CreateUpdateUserJobs < ActiveRecord::Migration[4.2]
   def change
     create_table :update_user_jobs do |t|
       t.string :payload, null: false

@@ -1,4 +1,4 @@
-class CreateUserRanks < ActiveRecord::Migration
+class CreateUserRanks < ActiveRecord::Migration[4.2]
   def change
     create_table :user_ranks do |t|
       t.integer :stargazers_count, null: false

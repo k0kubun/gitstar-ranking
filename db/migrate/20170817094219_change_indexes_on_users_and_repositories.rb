@@ -1,4 +1,4 @@
-class ChangeIndexesOnUsersAndRepositories < ActiveRecord::Migration
+class ChangeIndexesOnUsersAndRepositories < ActiveRecord::Migration[4.2]
   def change
     remove_index :users, :rank
     add_index :users, [:type, :stargazers_count, :id]

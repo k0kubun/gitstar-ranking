@@ -24,7 +24,7 @@ gem 'unicorn'
 
 gem 'coffee-rails'
 gem 'sassc-rails'
-gem 'sprockets', '< 3.0'
+gem 'sprockets'
 gem 'uglifier'
 
 group :development do

@@ -1,3 +1,4 @@
+# id, login, avatar_url, type should be given from API.
 class User < ActiveRecord::Base
   IMPORT_ATTRIBUTES = %i[id login avatar_url type]
   ADMIN_IDS = [

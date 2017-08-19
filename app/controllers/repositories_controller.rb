@@ -3,7 +3,7 @@ class RepositoriesController < ApplicationController
 
   GITHUB_HOST = 'https://github.com'
 
-  before_filter :validate_page_param, only: :index
+  before_action :validate_page_param, only: :index
 
   def index
     @repositories = Repository.preload(:owner).starred_first.page(params[:page])

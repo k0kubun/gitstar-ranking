@@ -7,7 +7,7 @@ class RepositoriesController < ApplicationController
 
   def index
     @repositories = Repository.preload(:owner).starred_first.page(params[:page])
-    RankBuilder.new(RepositoryRank).preload(@repositories)
+    RankBuilder.new(RepositoryRank).realtime_preload(@repositories)
   end
 
   def show

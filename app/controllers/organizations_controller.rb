@@ -5,6 +5,6 @@ class OrganizationsController < ApplicationController
 
   def index
     @organizations = Organization.starred_first.page(params[:page])
-    RankBuilder.new(OrganizationRank).preload(@organizations)
+    RankBuilder.new(OrganizationRank).realtime_preload(@organizations)
   end
 end

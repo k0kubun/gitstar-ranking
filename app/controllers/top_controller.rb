@@ -6,8 +6,8 @@ class TopController < ApplicationController
     @orgs  = Organization.starred_first.first(MAX_RECORDS)
     @repos = Repository.preload(:owner).starred_first.first(MAX_RECORDS)
 
-    RankBuilder.new(UserRank).preload(@users)
-    RankBuilder.new(OrganizationRank).preload(@orgs)
-    RankBuilder.new(RepositoryRank).preload(@repos)
+    RankBuilder.new(UserRank).realtime_preload(@users)
+    RankBuilder.new(OrganizationRank).realtime_preload(@orgs)
+    RankBuilder.new(RepositoryRank).realtime_preload(@repos)
   end
 end

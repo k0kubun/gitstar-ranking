@@ -7,7 +7,7 @@ class UsersController < ApplicationController
 
   def index
     @users = User.not_organization.starred_first.page(params[:page])
-    RankBuilder.new(UserRank).preload(@users)
+    RankBuilder.new(UserRank).realtime_preload(@users)
   end
 
   def show

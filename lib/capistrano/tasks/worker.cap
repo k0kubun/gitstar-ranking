@@ -2,7 +2,7 @@ namespace :worker do
   desc "Install worker"
   task :install do
     on roles(:worker) do
-      execute 'cd /home/k0kubun/github-ranking-worker/current/worker && ./gradlew installDist'
+      execute 'cd /home/k0kubun/github-ranking-worker/current/worker && ./gradlew --no-daemon installDist'
     end
   end
 

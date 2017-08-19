@@ -21,7 +21,6 @@ gem 'omniauth'
 gem 'omniauth-github'
 gem 'progress_bar'
 gem 'rack-user_agent'
-gem 'sinatra'
 gem 'unicorn'
 
 gem 'coffee-rails'

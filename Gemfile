@@ -19,7 +19,7 @@ gem 'octokit'
 gem 'omniauth'
 gem 'omniauth-github'
 gem 'rack-user_agent'
-#gem 'ridgepoler-rails'
+gem 'ridgepoler-rails'
 gem 'unicorn'
 
 gem 'coffee-rails'

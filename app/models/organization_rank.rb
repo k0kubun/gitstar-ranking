@@ -1,2 +1,2 @@
-class OrganizationRank < ActiveRecord::Base
+class OrganizationRank < ApplicationRecord
 end

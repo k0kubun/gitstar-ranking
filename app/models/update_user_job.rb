@@ -1,4 +1,4 @@
-class UpdateUserJob < ActiveRecord::Base
+class UpdateUserJob < ApplicationRecord
   # Kick UpdateUserWorker.java via MySQL queue
   # @param [Integer] user_id
   # @param [Integer] token_user_id

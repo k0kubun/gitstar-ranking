@@ -1,4 +1,4 @@
-class AccessToken < ActiveRecord::Base
+class AccessToken < ApplicationRecord
   TOKEN_LIST_KEY = 'access-token-list'
   TOKEN_LIMIT = 100
 

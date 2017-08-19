@@ -1,2 +1,2 @@
-class RepositoryRank < ActiveRecord::Base
+class RepositoryRank < ApplicationRecord
 end

@@ -1,2 +1,2 @@
-class UserRank < ActiveRecord::Base
+class UserRank < ApplicationRecord
 end

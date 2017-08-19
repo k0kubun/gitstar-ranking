@@ -24,16 +24,12 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker extends Worker
 {
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
-    private static final String REDIS_USER_RANKING_KEY = "github-ranking:user:world:all";
-    private static final String REDIS_ORG_RANKING_KEY = "github-ranking:organization:world:all";
-    private static final String REDIS_REPO_RANKING_KEY = "github-ranking:repository:world:all";
     private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
     private final DBI dbi;
@@ -105,8 +101,6 @@ public class UpdateUserWorker extends Worker
             conn.attach(UserDao.class).updateStars(user.getId(), calcTotalStars(repos));
         });
         LOG.info("imported repos: " + repos.size());
-
-        updateRankings(user, repos);
     }
 
     private List<Repository> fetchPublicRepos(GitHubClient client, String login) throws IOException
@@ -129,34 +123,5 @@ public class UpdateUserWorker extends Worker
             totalStars += repo.getStargazersCount();
         }
         return totalStars;
-    }
-
-    // Update redis to have new stars.
-    private void updateRankings(User user, List<Repository> repos)
-    {
-        Jedis jedis = new Jedis("localhost");
-
-        int totalStars = calcTotalStars(repos);
-        if (user.isOrganization()) {
-            if (totalStars > 0) {
-                jedis.zadd(REDIS_ORG_RANKING_KEY, totalStars, user.getId().toString());
-            } else {
-                jedis.zrem(REDIS_ORG_RANKING_KEY, user.getId().toString());
-            }
-        } else {
-            if (totalStars > 0) {
-                jedis.zadd(REDIS_USER_RANKING_KEY, totalStars, user.getId().toString());
-            } else {
-                jedis.zrem(REDIS_USER_RANKING_KEY, user.getId().toString());
-            }
-        }
-
-        for (Repository repo : repos) {
-            if (repo.getStargazersCount() > 0) {
-                jedis.zadd(REDIS_REPO_RANKING_KEY, repo.getStargazersCount(), repo.getId().toString());
-            } else {
-                jedis.zrem(REDIS_REPO_RANKING_KEY, repo.getId().toString());
-            }
-        }
     }
 }

@@ -44,6 +44,10 @@ class User < ApplicationRecord
     @rank ||= RankBuilder.new(UserRank).build(self)
   end
 
+  def member_of?(organization_name)
+    Octokit.organization_member?(organization_name, login)
+  end
+
   private
 
   def update_threshold

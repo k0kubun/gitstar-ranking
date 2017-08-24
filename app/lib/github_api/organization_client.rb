@@ -7,20 +7,20 @@ class GithubApi::OrganizationClient < GithubApi::V4::Client
   # @param [String] user_login - "login" field of user
   def organization_member?(organization_login, user_login)
     # TODO: This should find user edge for `user_login` directly
-    logins = user_logins_for(organization_login)
-    logins.include?(user_login)
+    logins = organizations_for(user_login)
+    logins.include?(organization_login)
   end
 
   private
 
-  def user_logins_for(organization_login)
+  def organizations_for(user_login)
     logins = []
     cursor = nil
     loop do
-      edges = graphql(query: <<~QUERY).dig('data', 'organization', 'members', 'edges')
+      edges = graphql(query: <<~QUERY).dig('data', 'user', 'organizations', 'edges')
         query {
-          organization(login: #{organization_login.dump}) {
-            members(first: #{PAGE_SIZE} #{("after: #{cursor.dump}" if cursor)}) {
+          user(login: #{user_login.dump}) {
+            organizations(first: #{PAGE_SIZE} #{("after: #{cursor.dump}" if cursor)}) {
               edges {
                 node {
                   login

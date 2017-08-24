@@ -44,8 +44,10 @@ class User < ApplicationRecord
     @rank ||= RankBuilder.new(UserRank).build(self)
   end
 
-  def member_of?(organization_name)
-    Octokit.organization_member?(organization_name, login)
+  def member_of?(organization_login)
+    return false if access_token&.token.nil?
+    client = GithubApi::OrganizationClient.new(access_token.token)
+    client.organization_member?(organization_login, login)
   end
 
   private

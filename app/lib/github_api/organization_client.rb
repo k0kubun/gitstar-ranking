@@ -1,44 +1,34 @@
-require 'github_api/v4/client'
+require 'net/http'
+require 'uri'
 
-class GithubApi::OrganizationClient < GithubApi::V4::Client
-  PAGE_SIZE = 100
+class GithubApi::OrganizationClient
+  ENDPOINT = URI.parse('https://api.github.com')
+  ClientError = Class.new(StandardError)
+  ServerError = Class.new(StandardError)
+
+  # @param [String] access_token
+  def initialize(access_token)
+    @access_token = access_token
+  end
 
   # @param [String] organization_login - "login" field of organization
   # @param [String] user_login - "login" field of user
+  # @return [Boolean]
   def organization_member?(organization_login, user_login)
-    # TODO: This should find user edge for `user_login` directly
-    logins = organizations_for(user_login)
-    logins.include?(organization_login)
+    resp = get("/orgs/#{organization_login}/members/#{user_login}")
+    resp.code == '204'
   end
 
   private
 
-  def organizations_for(user_login)
-    logins = []
-    cursor = nil
-    loop do
-      edges = graphql(query: <<~QUERY).dig('data', 'user', 'organizations', 'edges')
-        query {
-          user(login: #{user_login.dump}) {
-            organizations(first: #{PAGE_SIZE} #{("after: #{cursor.dump}" if cursor)}) {
-              edges {
-                node {
-                  login
-                }
-                cursor
-              }
-            }
-          }
-        }
-      QUERY
-      logins += edges.map { |e| e.dig('node', 'login') }
-
-      if edges.size < PAGE_SIZE
-        break
-      else
-        cursor = edges.last.fetch('cursor')
-      end
+  def get(path)
+    Net::HTTP.start(ENDPOINT.host, ENDPOINT.port, use_ssl: ENDPOINT.scheme == 'https') do |http|
+      headers = {
+        'Accept':        'application/vnd.github.v3+json',
+        'Authorization': "bearer #{@access_token}",
+        'Content-Type':  'application/json',
+      }
+      http.get(path, headers)
     end
-    logins
   end
 end

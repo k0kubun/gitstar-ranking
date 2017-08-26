@@ -3,8 +3,6 @@ require 'uri'
 
 class GithubApi::OrganizationClient
   ENDPOINT = URI.parse('https://api.github.com')
-  ClientError = Class.new(StandardError)
-  ServerError = Class.new(StandardError)
 
   # @param [String] access_token
   def initialize(access_token)

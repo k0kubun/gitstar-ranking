@@ -1,0 +1,182 @@
+package com.github.k0kubun.github_ranking.github;
+
+import com.github.k0kubun.github_ranking.model.Repository;
+import com.github.k0kubun.github_ranking.model.User;
+import com.google.api.client.http.ByteArrayContent;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class GitHubClient
+{
+    private static final Integer PAGE_SIZE = 100;
+    private static final Logger LOG = LoggerFactory.getLogger(GitHubClient.class);
+    private static final String GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
+
+    private final String accessToken;
+    private final HttpRequestFactory requestFactory;
+
+    public GitHubClient(String accessToken)
+    {
+        this.accessToken = accessToken;
+        requestFactory = new NetHttpTransport().createRequestFactory();
+    }
+
+    public List<Repository> getPublicRepos(Integer userId) throws IOException
+    {
+        List<Repository> repos = new ArrayList<>();
+        for (JsonObject node : getPublicRepoNodes(userId)) {
+            try {
+                Long id = decodeRepositoryId(node.getString("id"));
+                Integer ownerId = decodeUserId(node.getJsonObject("owner").getString("id"));
+                String name = node.getString("name");
+                String fullName = node.getString("nameWithOwner");
+                String description = node.isNull("description") ? null : node.getString("description");
+                Boolean fork = node.getBoolean("isFork");
+                String homepage = node.isNull("homepageUrl") ? null : node.getString("homepageUrl");
+                int stargazersCount = node.getJsonObject("stargazers").getInt("totalCount");
+                String language = node.isNull("primaryLanguage") ? null : node.getJsonObject("primaryLanguage").getString("name");
+
+                repos.add(new Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language));
+            } catch (ClassCastException e) {
+                LOG.debug("node: " + node.toString());
+                throw e;
+            }
+        }
+        return repos;
+    }
+
+    private JsonObject graphql(String query) throws IOException
+    {
+        String payload = Json.createObjectBuilder()
+            .add("query", query)
+            .add("variables", "{}")
+            .build().toString();
+
+        HttpRequest request = requestFactory.buildPostRequest(
+                new GenericUrl(GRAPHQL_ENDPOINT),
+                ByteArrayContent.fromString("application/json", payload));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAuthorization("bearer " + accessToken);
+        request.setHeaders(headers);
+
+        HttpResponse response = request.execute();
+        // TODO: Handle error status code
+        JsonObject responseObject = Json.createReader(new StringReader(response.parseAsString())).readObject();
+
+        if (responseObject.containsKey("errors")) {
+            LOG.debug(query);
+
+            List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
+            StringBuilder builder = new StringBuilder();
+            for (JsonObject error : errors) {
+                builder.append(error.getString("message"));
+                builder.append("\n");
+            }
+            throw new ErrorObjectException(builder.toString());
+        }
+
+        return responseObject;
+    }
+
+    private List<JsonObject> getPublicRepoNodes(Integer userId) throws IOException
+    {
+        String cursor = null;
+        List<JsonObject> nodes = new ArrayList<>();
+
+        while (true) {
+            String after = "";
+            if (cursor != null) {
+                after = " after:\"" + cursor + "\"";
+            }
+            JsonObject response = graphql(
+                    "query {" +
+                    "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
+                    "\n  ... on User {" +
+                    "\n    repositories(first:" + PAGE_SIZE.toString() + after + " privacy:PUBLIC affiliations:OWNER) {" +
+                    "\n      edges {" +
+                    "\n        cursor" +
+                    "\n        node {" +
+                    "\n          ... on Repository {" +
+                    "\n            id" +
+                    "\n            owner {" +
+                    "\n              id" +
+                    "\n            }" +
+                    "\n            name" +
+                    "\n            nameWithOwner" +
+                    "\n            description" +
+                    "\n            isFork" +
+                    "\n            homepageUrl" +
+                    "\n            stargazers {" +
+                    "\n              totalCount" +
+                    "\n            }" +
+                    "\n            primaryLanguage {" +
+                    "\n              name" +
+                    "\n            }" +
+                    "\n          }" +
+                    "\n        }" +
+                    "\n      }" +
+                    "\n    }" +
+                    "\n  }" +
+                    "\n}" +
+                    "}"
+                    );
+
+            List<JsonObject> edges = response.getJsonObject("data").getJsonObject("node")
+                .getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
+            for (JsonObject edge : edges) {
+                nodes.add(edge.getJsonObject("node"));
+            }
+
+            if (edges.size() == PAGE_SIZE) {
+                cursor = edges.get(PAGE_SIZE - 1).getString("cursor");
+            } else {
+                break;
+            }
+        }
+        return nodes;
+    }
+
+    private String encodeUserId(Integer id)
+    {
+        String unencoded = "04:User" + id.toString();
+        return Base64.getEncoder().encodeToString(unencoded.getBytes());
+    }
+
+    private Integer decodeUserId(String encoded)
+    {
+        String decoded = new String(Base64.getDecoder().decode(encoded));
+        // TODO: Raise error if prefix is wrong
+        return Integer.valueOf(decoded.replaceFirst("04:User", ""));
+    }
+
+    private Long decodeRepositoryId(String encoded)
+    {
+        String decoded = new String(Base64.getDecoder().decode(encoded));
+        // TODO: Raise error if prefix is wrong
+        return Long.valueOf(decoded.replaceFirst("010:Repository", ""));
+    }
+
+    public class ErrorObjectException extends RuntimeException
+    {
+        public ErrorObjectException(String message)
+        {
+            super(message);
+        }
+    }
+}

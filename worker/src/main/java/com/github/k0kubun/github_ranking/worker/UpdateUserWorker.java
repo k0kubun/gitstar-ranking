@@ -51,7 +51,7 @@ public class UpdateUserWorker extends Worker
 
             // Poll until it succeeds to acquire a job...
             Timestamp timeoutAt;
-            while (dao.acquireUntil(timeoutAt = nextTimeout()) == 0) {
+            while (acquireUntil(dao, timeoutAt = nextTimeout()) == 0) {
                 if (isStopped) {
                     return;
                 }
@@ -74,6 +74,24 @@ public class UpdateUserWorker extends Worker
                 e.printStackTrace();
             } finally {
                 dao.delete(job.getId());
+            }
+        }
+    }
+
+    // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
+    private long acquireUntil(UpdateUserJobDao dao, Timestamp timeoutAt)
+    {
+        boolean locked = false;
+        try {
+            while (!(locked = (dao.getLock(10) == 1))) {
+                if (isStopped) {
+                    return 0;
+                }
+            }
+            return dao.acquireUntil(timeoutAt);
+        } finally {
+            if (locked) {
+                dao.releaseLock();
             }
         }
     }

@@ -22,6 +22,14 @@ public interface UpdateUserJobDao
                "as t1 using(id) set timeout_at = :timeoutAt, owner = connection_id()")
     long acquireUntil(@Bind("timeoutAt") Timestamp timeoutAt);
 
+    // Lock for `acquireUntil`. We need this to execute `acquireUntil` because concurrent execution of the query causes dead lock...:
+    // com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException: Deadlock found when trying to get lock; try restarting transaction
+    @SqlQuery("select get_lock('update_user_jobs', :timeout)")
+    long getLock(@Bind("timeout") long timeout);
+
+    @SqlUpdate("do release_lock('update_user_jobs')")
+    long releaseLock();
+
     // Using the timeout value and connection_id as key, fetch payload of acquired job.
     @SqlQuery("select id, payload from update_user_jobs where timeout_at = :timeoutAt and owner = connection_id()")
     @Mapper(UpdateUserJobMapper.class)

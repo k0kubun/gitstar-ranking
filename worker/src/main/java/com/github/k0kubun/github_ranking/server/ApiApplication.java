@@ -2,18 +2,17 @@ package com.github.k0kubun.github_ranking.server;
 
 import com.github.k0kubun.github_ranking.api.AvailabilityResource;
 import com.github.k0kubun.github_ranking.api.RankingResource;
+import com.treasuredata.underwrap.UnderwrapServer;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 
-public class ApiApplication extends Application
+public class ApiApplication extends UnderwrapServer.UnderwrapApplication
 {
     @Override
-    public Set<Class<?>> getClasses()
+    protected void registerResources(Set<Class<?>> classes)
     {
-        HashSet<Class<?>> classes = new HashSet<>();
         classes.add(AvailabilityResource.class);
         classes.add(RankingResource.class);
-        return classes;
     }
 }

@@ -1,10 +1,12 @@
 package com.github.k0kubun.github_ranking.dao;
 
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
+import java.io.StringReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import org.json.JSONObject;
+import javax.json.Json;
+import javax.json.JsonObject;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -34,7 +36,7 @@ public interface UpdateUserJobDao
         public UpdateUserJob map(int index, ResultSet r, StatementContext ctx) throws SQLException
         {
             // Payload is built in: app/models/update_user_job.rb
-            JSONObject payload = new JSONObject(r.getString("payload"));
+            JsonObject payload = Json.createReader(new StringReader(r.getString("payload"))).readObject();
             return new UpdateUserJob(
                     r.getInt("id"),
                     payload.getInt("user_id"),

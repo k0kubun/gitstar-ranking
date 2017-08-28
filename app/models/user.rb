@@ -46,7 +46,7 @@ class User < ApplicationRecord
 
   def member_of?(organization_login)
     return false if access_token&.token.nil?
-    client = GithubApi::V3::Client.new(access_token.token)
+    client = GithubApi::V3Client.new(access_token.token)
     client.organization_member?(organization_login, login)
   end
 

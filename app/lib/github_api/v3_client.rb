@@ -1,7 +1,7 @@
 require 'net/http'
 require 'uri'
 
-class GithubApi::V3::Client
+class GithubApi::V3Client
   ENDPOINT = URI.parse('https://api.github.com')
 
   # @param [String] access_token

@@ -106,7 +106,6 @@ public class UpdateUserWorker extends Worker
     // TODO: Delete user if it's deleted on GitHub (was implemented in Sidekiq version)
     // TODO: Delete repos if they are deleted on GitHub (was implemented in Sidekiq version)
     // TODO: Requeue if GitHub API limit exceeded
-    // TODO: Don't call API using "login" for key, and update users.login if updated
     private void updateUser(Handle handle, Integer userId, Integer tokenUserId) throws IOException
     {
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);

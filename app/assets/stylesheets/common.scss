@@ -46,9 +46,13 @@ footer {
     font-size: 20px;
   }
 
-  .queued_at {
-    margin-top: 8px;
+  .queued_at,
+  .rate_limit {
     color: #aaa;
+  }
+
+  .update_button {
+    margin-top: 12px;
   }
 
   @media (min-width: $screen-sm-max) {

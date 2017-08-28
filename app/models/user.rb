@@ -44,6 +44,11 @@ class User < ApplicationRecord
     @rank ||= RankBuilder.new(UserRank).build(self)
   end
 
+  def rate_limit
+    client = GithubApi::V4Client.new(access_token.token)
+    client.rate_limit
+  end
+
   def member_of?(organization_login)
     return false if access_token&.token.nil?
     client = GithubApi::V3Client.new(access_token.token)

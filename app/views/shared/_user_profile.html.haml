@@ -17,18 +17,21 @@
       Rank
     .user_value.col-xs-7
       = user.rank
-  - unless user_signed_in? && current_user.in_queue?
-    .row
-      .queued_at.col-xs-12
-        Fetched on #{l(user.updated_at, format: :middle)}
   .row
     .go_to_github.col-xs-12
       = link_to_github user.login do
         Go to GitHub
         = fa_icon 'external-link'
-    - if user_signed_in? && @user.type == 'Organization' && current_user.member_of?(@user.login)
+
+  - unless user_signed_in? && current_user.in_queue?
+    .row
+      .queued_at.col-xs-12
+        Fetched on #{l(user.updated_at, format: :middle)}
+
+  - if user_signed_in?
+    - if @user.type == 'Organization' && current_user.member_of?(@user.login)
       .row
-        .col-xs-12
+        .update_button.col-xs-12
           - if @user.in_queue?
             %span.btn.btn-default.disabled.col-xs-12 Updating stars...
           - elsif @user.queued_recently?
@@ -36,13 +39,13 @@
           - else
             = link_to update_org_user_path(organization: { login: @user.login }), class: 'btn btn-info col-xs-12', method: :post do
               Update stars
-  - if user_signed_in? && @user == current_user
-    .row
-      .col-xs-12
-        - if @user.in_queue?
-          %span.btn.btn-default.disabled.col-xs-12 Updating your stars...
-        - elsif @user.queued_recently?
-          %span.btn.btn-default.disabled.col-xs-12 Up to date
-        - else
-          = link_to update_myself_user_path, class: 'btn btn-info col-xs-12', method: :post do
-            Update your stars
+    - elsif @user == current_user
+      .row
+        .update_button.col-xs-12
+          - if @user.in_queue?
+            %span.btn.btn-default.disabled.col-xs-12 Updating your stars...
+          - elsif @user.queued_recently?
+            %span.btn.btn-default.disabled.col-xs-12 Up to date
+          - else
+            = link_to update_myself_user_path, class: 'btn btn-info col-xs-12', method: :post do
+              Update your stars

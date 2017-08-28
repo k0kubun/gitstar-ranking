@@ -1,14 +1,15 @@
 package com.github.k0kubun.github_ranking.dao;
 
 import com.github.k0kubun.github_ranking.model.Repository;
-import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -42,6 +43,9 @@ public interface RepositoryDao
 
     @SqlQuery("select count(1) from repositories where stargazers_count = :stargazersCount")
     int countReposHavingStars(@Bind("stargazersCount") int stargazersCount);
+
+    @SqlUpdate("delete from repositories where owner_id = :userId")
+    long deleteAllOwnedBy(@Bind("userId") Integer userId);
 
     class RepositoryStarMapper implements ResultSetMapper<Repository>
     {

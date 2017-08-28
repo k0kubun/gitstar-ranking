@@ -18,7 +18,7 @@ public interface UserDao
     User find(@Bind("id") Integer id);
 
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
-    long updateStars(@Bind("id") Integer uuid, @Bind("stargazersCount") Integer stargazersCount);
+    long updateStars(@Bind("id") Integer id, @Bind("stargazersCount") Integer stargazersCount);
 
     @SqlQuery("select id, type, stargazers_count from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
@@ -34,6 +34,9 @@ public interface UserDao
 
     @SqlQuery("select count(1) from users where type = 'User' and stargazers_count = :stargazersCount")
     int countUsersHavingStars(@Bind("stargazersCount") int stargazersCount);
+
+    @SqlUpdate("delete from users where id = :id")
+    long delete(@Bind("id") Integer id);
 
     class FindUserMapper implements ResultSetMapper<User>
     {

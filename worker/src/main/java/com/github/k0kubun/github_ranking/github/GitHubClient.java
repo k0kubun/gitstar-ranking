@@ -18,6 +18,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
+import javax.json.JsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,19 +79,9 @@ public class GitHubClient
         HttpResponse response = request.execute();
         // TODO: Handle error status code
         JsonObject responseObject = Json.createReader(new StringReader(response.parseAsString())).readObject();
-
         if (responseObject.containsKey("errors")) {
-            LOG.debug(query);
-
-            List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
-            StringBuilder builder = new StringBuilder();
-            for (JsonObject error : errors) {
-                builder.append(error.getString("message"));
-                builder.append("\n");
-            }
-            throw new ErrorObjectException(builder.toString());
+            LOG.debug("errors with query: " + query);
         }
-
         return responseObject;
     }
 
@@ -104,7 +95,7 @@ public class GitHubClient
             if (cursor != null) {
                 after = " after:\"" + cursor + "\"";
             }
-            JsonObject response = graphql(
+            JsonObject responseObject = graphql(
                     "query {" +
                     "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
                     "\n  ... on User {" +
@@ -136,8 +127,21 @@ public class GitHubClient
                     "\n}" +
                     "}"
                     );
+            if (responseObject.containsKey("errors")) {
+                List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
+                for (JsonObject error : errors) { // TODO: Log suppressed errors
+                    if (error.containsKey("type") && error.getString("type") == "NOT_FOUND" && error.containsKey("path")) {
+                        for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
+                            if (path.toString() == "node") {
+                                throw new UserNotFoundException(error.getString("message"));
+                            }
+                        }
+                    }
+                }
+                throwUnhandledErrors(errors);
+            }
 
-            List<JsonObject> edges = response.getJsonObject("data").getJsonObject("node")
+            List<JsonObject> edges = responseObject.getJsonObject("data").getJsonObject("node")
                 .getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
             for (JsonObject edge : edges) {
                 nodes.add(edge.getJsonObject("node"));
@@ -172,9 +176,28 @@ public class GitHubClient
         return Long.valueOf(decoded.replaceFirst("010:Repository", ""));
     }
 
-    public class ErrorObjectException extends RuntimeException
+    void throwUnhandledErrors(List<JsonObject> errors)
     {
-        public ErrorObjectException(String message)
+        StringBuilder builder = new StringBuilder();
+        for (JsonObject error : errors) {
+            builder.append(error.getString("message"));
+            builder.append("\n");
+        }
+        throw new GraphQLUnhandledException(builder.toString());
+    }
+
+
+    public class UserNotFoundException extends RuntimeException
+    {
+        public UserNotFoundException(String message)
+        {
+            super(message);
+        }
+    }
+
+    public class GraphQLUnhandledException extends RuntimeException
+    {
+        public GraphQLUnhandledException(String message)
         {
             super(message);
         }

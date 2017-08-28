@@ -17,7 +17,8 @@ public interface UserDao
     @Mapper(FindUserMapper.class)
     User find(@Bind("id") Integer id);
 
-    @SqlUpdate("update users set login = :login, updated_at = current_timestamp() where id = :id")
+    // This query does not update updated_at because updating it will show "Up to date" before updating repositories.
+    @SqlUpdate("update users set login = :login where id = :id")
     long updateLogin(@Bind("id") Integer id, @Bind("login") String login);
 
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")

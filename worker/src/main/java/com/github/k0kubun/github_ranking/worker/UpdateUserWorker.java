@@ -109,12 +109,12 @@ public class UpdateUserWorker extends Worker
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
 
         try {
-            String login = client.getLogin(userId);
-            handle.attach(UserDao.class).updateLogin(userId, login);
+            //String login = client.getLogin(userId);
+            //handle.attach(UserDao.class).updateLogin(userId, login);
 
             List<Repository> repos = client.getPublicRepos(userId);
             handle.useTransaction((conn, status) -> {
-                //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
+                conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
             });

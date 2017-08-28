@@ -15,30 +15,6 @@ public class Repository
     private final int stargazersCount;
     private final String language;
 
-    public static List<Repository> fromGitHubRepos(List<org.eclipse.egit.github.core.Repository> repos, String login)
-    {
-        List<Repository> result = new ArrayList<Repository>();
-        for (org.eclipse.egit.github.core.Repository repo : repos) {
-            result.add(fromGitHubRepo(repo, login));
-        }
-        return result;
-    }
-
-    public static Repository fromGitHubRepo(org.eclipse.egit.github.core.Repository repo, String login)
-    {
-        return new Repository(
-                repo.getId(),
-                repo.getOwner().getId(),
-                repo.getName(),
-                login + "/" + repo.getName(),
-                repo.getDescription(),
-                repo.isFork(),
-                repo.getHomepage(),
-                repo.getWatchers(), // stargazers_count
-                repo.getLanguage()
-        );
-    }
-
     public Repository(Long id, int stargazersCount)
     {
         this.id = id;

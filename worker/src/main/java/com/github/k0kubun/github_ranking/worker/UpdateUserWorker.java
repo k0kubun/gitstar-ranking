@@ -5,7 +5,8 @@ import com.github.k0kubun.github_ranking.dao.AccessTokenDao;
 import com.github.k0kubun.github_ranking.dao.RepositoryDao;
 import com.github.k0kubun.github_ranking.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.dao.UserDao;
-import com.github.k0kubun.github_ranking.github.ClientBuilder;
+import com.github.k0kubun.github_ranking.github.GitHubClient;
+import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
 import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
@@ -18,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
-import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.service.RepositoryService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
@@ -33,12 +32,12 @@ public class UpdateUserWorker extends Worker
     private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
     private final DBI dbi;
-    private final ClientBuilder clientBuilder;
+    private final GitHubClientBuilder clientBuilder;
 
     public UpdateUserWorker(DataSource dataSource)
     {
         super();
-        clientBuilder = new ClientBuilder(dataSource);
+        clientBuilder = new GitHubClientBuilder(dataSource);
         dbi = new DBI(dataSource);
     }
 
@@ -113,25 +112,12 @@ public class UpdateUserWorker extends Worker
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
         User user = handle.attach(UserDao.class).find(userId);
 
-        List<Repository> repos = fetchPublicRepos(client, user.getLogin());
+        List<Repository> repos = client.getPublicRepos(user.getId());
         handle.useTransaction((conn, status) -> {
             conn.attach(RepositoryDao.class).bulkInsert(repos);
             conn.attach(UserDao.class).updateStars(user.getId(), calcTotalStars(repos));
         });
         LOG.info("imported repos: " + repos.size());
-    }
-
-    private List<Repository> fetchPublicRepos(GitHubClient client, String login) throws IOException
-    {
-        RepositoryService service = new RepositoryService(client);
-        List<org.eclipse.egit.github.core.Repository> publicRepos = new ArrayList<>();
-
-        for (org.eclipse.egit.github.core.Repository repo : service.getRepositories(login)) {
-            if (!repo.isPrivate()) {
-                publicRepos.add(repo);
-            }
-        }
-        return Repository.fromGitHubRepos(publicRepos, login);
     }
 
     private int calcTotalStars(List<Repository> repos)

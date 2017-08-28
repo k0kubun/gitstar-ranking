@@ -103,7 +103,6 @@ public class UpdateUserWorker extends Worker
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
-    // TODO: Delete repos if they are deleted on GitHub (was implemented in Sidekiq version)
     // TODO: Requeue if GitHub API limit exceeded
     private void updateUser(Handle handle, Integer userId, Integer tokenUserId) throws IOException
     {
@@ -113,6 +112,7 @@ public class UpdateUserWorker extends Worker
             List<Repository> repos = client.getPublicRepos(userId);
 
             handle.useTransaction((conn, status) -> {
+                conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
             });

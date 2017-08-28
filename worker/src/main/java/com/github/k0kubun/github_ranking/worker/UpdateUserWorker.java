@@ -109,12 +109,11 @@ public class UpdateUserWorker extends Worker
     private void updateUser(Handle handle, Integer userId, Integer tokenUserId) throws IOException
     {
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
-        User user = handle.attach(UserDao.class).find(userId);
 
-        List<Repository> repos = client.getPublicRepos(user.getId());
+        List<Repository> repos = client.getPublicRepos(userId);
         handle.useTransaction((conn, status) -> {
             conn.attach(RepositoryDao.class).bulkInsert(repos);
-            conn.attach(UserDao.class).updateStars(user.getId(), calcTotalStars(repos));
+            conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
         });
         LOG.info("imported repos: " + repos.size());
     }

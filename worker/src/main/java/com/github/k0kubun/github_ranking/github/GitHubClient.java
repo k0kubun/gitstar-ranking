@@ -37,6 +37,21 @@ public class GitHubClient
         requestFactory = new NetHttpTransport().createRequestFactory();
     }
 
+    public String getLogin(Integer userId) throws IOException
+    {
+        JsonObject responseObject = graphql(
+                "query {" +
+                "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
+                "\n  ... on User {" +
+                "\n    login" +
+                "\n  }" +
+                "\n}" +
+                "}"
+                );
+        handleUserNodeErrors(responseObject);
+        return responseObject.getJsonObject("data").getJsonObject("node").getString("login");
+    }
+
     public List<Repository> getPublicRepos(Integer userId) throws IOException
     {
         List<Repository> repos = new ArrayList<>();
@@ -127,19 +142,7 @@ public class GitHubClient
                     "\n}" +
                     "}"
                     );
-            if (responseObject.containsKey("errors")) {
-                List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
-                for (JsonObject error : errors) { // TODO: Log suppressed errors
-                    if (error.containsKey("type") && error.getString("type") == "NOT_FOUND" && error.containsKey("path")) {
-                        for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
-                            if (path.toString() == "node") {
-                                throw new UserNotFoundException(error.getString("message"));
-                            }
-                        }
-                    }
-                }
-                throwUnhandledErrors(errors);
-            }
+            handleUserNodeErrors(responseObject);
 
             List<JsonObject> edges = responseObject.getJsonObject("data").getJsonObject("node")
                 .getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
@@ -176,16 +179,28 @@ public class GitHubClient
         return Long.valueOf(decoded.replaceFirst("010:Repository", ""));
     }
 
-    void throwUnhandledErrors(List<JsonObject> errors)
+    private void handleUserNodeErrors(JsonObject responseObject)
     {
-        StringBuilder builder = new StringBuilder();
-        for (JsonObject error : errors) {
-            builder.append(error.getString("message"));
-            builder.append("\n");
-        }
-        throw new GraphQLUnhandledException(builder.toString());
-    }
+        if (responseObject.containsKey("errors")) {
+            List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
+            for (JsonObject error : errors) { // TODO: Log suppressed errors
+                if (error.containsKey("type") && error.getString("type") == "NOT_FOUND" && error.containsKey("path")) {
+                    for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
+                        if (path.toString() == "node") {
+                            throw new UserNotFoundException(error.getString("message"));
+                        }
+                    }
+                }
+            }
 
+            StringBuilder builder = new StringBuilder();
+            for (JsonObject error : errors) {
+                builder.append(error.getString("message"));
+                builder.append("\n");
+            }
+            throw new GraphQLUnhandledException(builder.toString());
+        }
+    }
 
     public class UserNotFoundException extends RuntimeException
     {

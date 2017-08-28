@@ -1,0 +1,49 @@
+- append_page_title 'Settings'
+
+.row
+  .col-lg-12
+    = render_flash :notice
+
+    %h1 Settings
+
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th Item name
+          %th Value
+      %tbody
+        %tr
+          %td API Rate Limit (Remaining / Limit)
+          %td
+            - rate_limit = current_user.rate_limit
+            - if rate_limit.key?(:remaining) && rate_limit.key?(:limit)
+              #{rate_limit[:remaining]} / #{rate_limit[:limit]}
+            - else
+              Failed to fetch rate limit...
+        %tr
+          %td Allow GitHub Ranking to use access token to update ranking
+          %td
+            - if current_user.access_token.enabled
+              Yes
+            - else
+              %strong No
+
+    %h3 About access token and API rate limit
+    %p
+      GitHub Ranking's data is maintained by requesting GitHub API using user's access tokens.
+      So we need your access token to keep GitHub Ranking up-to-date.
+    %p
+      If you select "Yes" to "Allow GitHub Ranking to use access token to update ranking",
+      GitHub Ranking may use your access token to update other users' outdated data
+      if and only if your access token's API limit is remaining over 60%.
+      When 40% of API rate limit is already used by GitHub Ranking or other services,
+      GitHub Ranking won't use your access token to update other users' data.
+      So your access token won't be exhausted for other users even if you select "Yes".
+    %p
+      If you select "No" to it or until you answer to it,
+      GitHub Ranking will use your access token only when it updates your data.
+    %p
+      - if current_user.access_token.enabled
+        = link_to 'Change to "No"', disable_settings_access_tokens_path, method: :post
+      - else
+        = link_to 'Change to "Yes", I allow GitHub Ranking to update data with my access token', enable_settings_access_tokens_path, method: :post

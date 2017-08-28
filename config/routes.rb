@@ -16,6 +16,15 @@ Rails.application.routes.draw do
       post :update_myself, on: :member
       post :update_org, on: :member
     end
+
+    resource :settings, only: :show do
+      resource :access_tokens, only: [] do
+        member do
+          post :enable
+          post :disable
+        end
+      end
+    end
   end
 
   resources :users, only: :index

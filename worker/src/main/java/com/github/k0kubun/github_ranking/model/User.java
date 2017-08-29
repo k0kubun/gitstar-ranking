@@ -40,6 +40,6 @@ public class User
 
     public boolean isOrganization()
     {
-        return type == "Organization";
+        return type.equals("Organization");
     }
 }

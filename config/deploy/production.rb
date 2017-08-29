@@ -18,9 +18,7 @@ set :linked_files, %w[
 ]
 
 set :linked_dirs, %w[
-  bin
   log
-  solr
   tmp/pids
   tmp/cache
   tmp/sockets

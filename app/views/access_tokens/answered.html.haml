@@ -1,5 +1,5 @@
 %h3
-  Answered Access Tokens (#{AccessToken.where(enabled: nil).count}) - #{link_to 'See all', access_tokens_path}
+  Answered Access Tokens (#{AccessToken.where.not(enabled: nil).count}) - #{link_to 'See all', access_tokens_path}
 
 %table.table
   %thead

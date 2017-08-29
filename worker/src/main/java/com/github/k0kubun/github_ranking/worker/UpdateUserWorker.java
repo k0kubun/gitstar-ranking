@@ -112,7 +112,8 @@ public class UpdateUserWorker extends Worker
             //String login = client.getLogin(userId);
             //handle.attach(UserDao.class).updateLogin(userId, login);
 
-            List<Repository> repos = client.getPublicRepos(userId);
+            User user = handle.attach(UserDao.class).find(userId);
+            List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
             handle.useTransaction((conn, status) -> {
                 //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);

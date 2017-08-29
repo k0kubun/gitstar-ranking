@@ -52,10 +52,10 @@ public class GitHubClient
         return responseObject.getJsonObject("data").getJsonObject("node").getString("login");
     }
 
-    public List<Repository> getPublicRepos(Integer userId) throws IOException
+    public List<Repository> getPublicRepos(Integer userId, boolean isOrganization) throws IOException
     {
         List<Repository> repos = new ArrayList<>();
-        for (JsonObject node : getPublicRepoNodes(userId)) {
+        for (JsonObject node : getPublicRepoNodes(userId, isOrganization)) {
             try {
                 Long id = decodeRepositoryId(node.getString("id"));
                 Integer ownerId = decodeUserId(node.getJsonObject("owner").getString("id"));
@@ -100,7 +100,7 @@ public class GitHubClient
         return responseObject;
     }
 
-    private List<JsonObject> getPublicRepoNodes(Integer userId) throws IOException
+    private List<JsonObject> getPublicRepoNodes(Integer userId, boolean isOrganization) throws IOException
     {
         String cursor = null;
         List<JsonObject> nodes = new ArrayList<>();
@@ -113,7 +113,7 @@ public class GitHubClient
             JsonObject responseObject = graphql(
                     "query {" +
                     "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
-                    "\n  ... on User {" +
+                    "\n  ... on " + (isOrganization ? "Organization" : "User") + " {" +
                     "\n    repositories(first:" + PAGE_SIZE.toString() + after + " privacy:PUBLIC affiliations:OWNER) {" +
                     "\n      edges {" +
                     "\n        cursor" +
@@ -144,8 +144,11 @@ public class GitHubClient
                     );
             handleUserNodeErrors(responseObject);
 
-            List<JsonObject> edges = responseObject.getJsonObject("data").getJsonObject("node")
-                .getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
+            JsonObject node = responseObject.getJsonObject("data").getJsonObject("node");
+            if (!node.containsKey("repositories")) {
+                throw new NodeNotFoundException(responseObject.toString());
+            }
+            List<JsonObject> edges = node.getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
             for (JsonObject edge : edges) {
                 nodes.add(edge.getJsonObject("node"));
             }
@@ -199,6 +202,14 @@ public class GitHubClient
                 builder.append("\n");
             }
             throw new GraphQLUnhandledException(builder.toString());
+        }
+    }
+
+    public class NodeNotFoundException extends RuntimeException
+    {
+        public NodeNotFoundException(String message)
+        {
+            super(message);
         }
     }
 

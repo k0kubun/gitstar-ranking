@@ -26,7 +26,7 @@ public interface RepositoryDao
               "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(), current_timestamp(), current_timestamp()) " +
               "on duplicate key update " +
               "owner_id=values(owner_id), name=values(name), full_name=values(full_name), description=values(description), homepage=values(homepage), stargazers_count=values(stargazers_count), language=values(language), updated_at=values(updated_at), fetched_at=values(fetched_at)")
-    @BatchChunkSize(1000)
+    @BatchChunkSize(50)
     void bulkInsert(@BindBean List<Repository> repos);
 
     @SqlQuery("select id, stargazers_count from repositories order by stargazers_count desc, id desc limit :limit")

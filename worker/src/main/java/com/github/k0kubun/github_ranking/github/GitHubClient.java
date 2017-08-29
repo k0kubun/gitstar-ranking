@@ -110,7 +110,7 @@ public class GitHubClient
             if (cursor != null) {
                 after = " after:\"" + cursor + "\"";
             }
-            JsonObject responseObject = graphql(
+            String query =
                     "query {" +
                     "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
                     "\n  ... on " + (isOrganization ? "Organization" : "User") + " {" +
@@ -140,13 +140,13 @@ public class GitHubClient
                     "\n    }" +
                     "\n  }" +
                     "\n}" +
-                    "}"
-                    );
+                    "}";
+            JsonObject responseObject = graphql(query);
             handleUserNodeErrors(responseObject);
 
             JsonObject node = responseObject.getJsonObject("data").getJsonObject("node");
             if (!node.containsKey("repositories")) {
-                throw new NodeNotFoundException(responseObject.toString());
+                throw new NodeNotFoundException(query + "\n" + responseObject.toString());
             }
             List<JsonObject> edges = node.getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject.class);
             for (JsonObject edge : edges) {

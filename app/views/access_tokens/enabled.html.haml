@@ -1,5 +1,5 @@
 %h3
-  Access Tokens (#{AccessToken.count}) - #{link_to 'See enabled', enabled_access_tokens_path}
+  Enabled Access Tokens (#{AccessToken.where(enabled: true).count}) - #{link_to 'See all', access_tokens_path}
 
 %table.table
   %thead

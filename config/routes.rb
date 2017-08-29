@@ -2,7 +2,11 @@ Rails.application.routes.draw do
   root to: 'top#index'
 
   authenticate :user, ->(u) { u.admin? } do
-    resources :access_tokens, only: :index
+    resources :access_tokens, only: :index do
+      collection do
+        get :enabled
+      end
+    end
   end
 
   devise_for :users, controllers: { omniauth_callbacks: :omniauth_callbacks }

@@ -5,6 +5,7 @@ create_table "access_tokens", id: :integer, force: :cascade, options: "ENGINE=In
   t.datetime "updated_at", null: false
   t.boolean "enabled"
   t.index ["user_id"], name: "index_access_tokens_on_user_id"
+  t.index ["enabled"], name: "index_access_tokens_on_enabled"
 end
 
 create_table "organization_ranks", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|

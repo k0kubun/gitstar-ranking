@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Main
 {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-    private static final int NUM_UPDATE_USER_WORKERS = 3;
+    private static final int NUM_UPDATE_USER_WORKERS = 1;
 
     private static final Config config = new Config(System.getenv());
 

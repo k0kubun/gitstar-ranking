@@ -21,7 +21,7 @@ create_table "repositories", id: :integer, force: :cascade, options: "ENGINE=Inn
   t.string "name"
   t.string "full_name"
   t.integer "owner_id"
-  t.text "description"
+  t.text "description", limit: 16777215
   t.boolean "fork"
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false

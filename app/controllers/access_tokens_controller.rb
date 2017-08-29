@@ -6,11 +6,11 @@ class AccessTokensController < ApplicationController
     @access_tokens = AccessToken.preload(:user).page(params[:page])
   end
 
-  def enabled
+  def answered
     unless current_user.admin? # double check with devise
       raise ActionController::BadRequest
     end
-    @access_tokens = AccessToken.where(enabled: true).preload(:user).page(params[:page])
+    @access_tokens = AccessToken.where.not(enabled: nil).preload(:user).page(params[:page])
   end
 
   def enable

@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   authenticate :user, ->(u) { u.admin? } do
     resources :access_tokens, only: :index do
       collection do
-        get :enabled
+        get :answered
       end
     end
   end

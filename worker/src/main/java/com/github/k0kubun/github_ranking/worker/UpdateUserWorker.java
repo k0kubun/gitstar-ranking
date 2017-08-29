@@ -117,7 +117,7 @@ public class UpdateUserWorker extends Worker
 
             List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
             handle.useTransaction((conn, status) -> {
-                conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
+                //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
             });

@@ -58,7 +58,8 @@ public class GitHubClient
         for (JsonObject node : getPublicRepoNodes(userId, isOrganization)) {
             try {
                 Long id = decodeRepositoryId(node.getString("id"));
-                Integer ownerId = decodeUserId(node.getJsonObject("owner").getString("id"));
+                String encodedOwnerId = node.getJsonObject("owner").getString("id");
+                Integer ownerId = isOrganization ? decodeOrganizationId(encodedOwnerId) : decodeUserId(encodedOwnerId);
                 String name = node.getString("name");
                 String fullName = node.getString("nameWithOwner");
                 String description = node.isNull("description") ? null : node.getString("description");
@@ -180,6 +181,13 @@ public class GitHubClient
         String decoded = new String(Base64.getDecoder().decode(encoded));
         // TODO: Raise error if prefix is wrong
         return Long.valueOf(decoded.replaceFirst("010:Repository", ""));
+    }
+
+    private Integer decodeOrganizationId(String encoded)
+    {
+        String decoded = new String(Base64.getDecoder().decode(encoded));
+        // TODO: Raise error if prefix is wrong
+        return Integer.valueOf(decoded.replaceFirst("12:Organization", ""));
     }
 
     private void handleUserNodeErrors(JsonObject responseObject)

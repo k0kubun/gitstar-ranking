@@ -2,7 +2,9 @@ package com.github.k0kubun.github_ranking.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import java.util.Map;
+
 import javax.sql.DataSource;
 
 public class DatabaseConfig

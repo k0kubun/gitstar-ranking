@@ -9,16 +9,19 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import javax.json.JsonValue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +40,24 @@ public class GitHubClient
         requestFactory = new NetHttpTransport().createRequestFactory();
     }
 
-    public String getLogin(Integer userId) throws IOException
+    public String getLogin(Integer userId)
+            throws IOException
     {
         JsonObject responseObject = graphql(
                 "query {" +
-                "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
-                "\n  ... on User {" +
-                "\n    login" +
-                "\n  }" +
-                "\n}" +
-                "}"
-                );
+                        "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
+                        "\n  ... on User {" +
+                        "\n    login" +
+                        "\n  }" +
+                        "\n}" +
+                        "}"
+        );
         handleUserNodeErrors(responseObject);
         return responseObject.getJsonObject("data").getJsonObject("node").getString("login");
     }
 
-    public List<Repository> getPublicRepos(Integer userId, boolean isOrganization) throws IOException
+    public List<Repository> getPublicRepos(Integer userId, boolean isOrganization)
+            throws IOException
     {
         List<Repository> repos = new ArrayList<>();
         for (JsonObject node : getPublicRepoNodes(userId, isOrganization)) {
@@ -69,7 +74,8 @@ public class GitHubClient
                 String language = node.isNull("primaryLanguage") ? null : node.getJsonObject("primaryLanguage").getString("name");
 
                 repos.add(new Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language));
-            } catch (ClassCastException e) {
+            }
+            catch (ClassCastException e) {
                 LOG.debug("node: " + node.toString());
                 throw e;
             }
@@ -77,12 +83,13 @@ public class GitHubClient
         return repos;
     }
 
-    private JsonObject graphql(String query) throws IOException
+    private JsonObject graphql(String query)
+            throws IOException
     {
         String payload = Json.createObjectBuilder()
-            .add("query", query)
-            .add("variables", "{}")
-            .build().toString();
+                .add("query", query)
+                .add("variables", "{}")
+                .build().toString();
 
         HttpRequest request = requestFactory.buildPostRequest(
                 new GenericUrl(GRAPHQL_ENDPOINT),
@@ -101,7 +108,8 @@ public class GitHubClient
         return responseObject;
     }
 
-    private List<JsonObject> getPublicRepoNodes(Integer userId, boolean isOrganization) throws IOException
+    private List<JsonObject> getPublicRepoNodes(Integer userId, boolean isOrganization)
+            throws IOException
     {
         String cursor = null;
         List<JsonObject> nodes = new ArrayList<>();
@@ -113,35 +121,35 @@ public class GitHubClient
             }
             String query =
                     "query {" +
-                    "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
-                    "\n  ... on " + (isOrganization ? "Organization" : "User") + " {" +
-                    "\n    repositories(first:" + PAGE_SIZE.toString() + after + " privacy:PUBLIC affiliations:OWNER) {" +
-                    "\n      edges {" +
-                    "\n        cursor" +
-                    "\n        node {" +
-                    "\n          ... on Repository {" +
-                    "\n            id" +
-                    "\n            owner {" +
-                    "\n              id" +
-                    "\n            }" +
-                    "\n            name" +
-                    "\n            nameWithOwner" +
-                    "\n            description" +
-                    "\n            isFork" +
-                    "\n            homepageUrl" +
-                    "\n            stargazers {" +
-                    "\n              totalCount" +
-                    "\n            }" +
-                    "\n            primaryLanguage {" +
-                    "\n              name" +
-                    "\n            }" +
-                    "\n          }" +
-                    "\n        }" +
-                    "\n      }" +
-                    "\n    }" +
-                    "\n  }" +
-                    "\n}" +
-                    "}";
+                            "\nnode(id:\"" + encodeUserId(userId) + "\") {" +
+                            "\n  ... on " + (isOrganization ? "Organization" : "User") + " {" +
+                            "\n    repositories(first:" + PAGE_SIZE.toString() + after + " privacy:PUBLIC affiliations:OWNER) {" +
+                            "\n      edges {" +
+                            "\n        cursor" +
+                            "\n        node {" +
+                            "\n          ... on Repository {" +
+                            "\n            id" +
+                            "\n            owner {" +
+                            "\n              id" +
+                            "\n            }" +
+                            "\n            name" +
+                            "\n            nameWithOwner" +
+                            "\n            description" +
+                            "\n            isFork" +
+                            "\n            homepageUrl" +
+                            "\n            stargazers {" +
+                            "\n              totalCount" +
+                            "\n            }" +
+                            "\n            primaryLanguage {" +
+                            "\n              name" +
+                            "\n            }" +
+                            "\n          }" +
+                            "\n        }" +
+                            "\n      }" +
+                            "\n    }" +
+                            "\n  }" +
+                            "\n}" +
+                            "}";
             JsonObject responseObject = graphql(query);
             handleUserNodeErrors(responseObject);
 
@@ -156,7 +164,8 @@ public class GitHubClient
 
             if (edges.size() == PAGE_SIZE) {
                 cursor = edges.get(PAGE_SIZE - 1).getString("cursor");
-            } else {
+            }
+            else {
                 break;
             }
         }
@@ -213,7 +222,8 @@ public class GitHubClient
         }
     }
 
-    public class NodeNotFoundException extends RuntimeException
+    public class NodeNotFoundException
+            extends RuntimeException
     {
         public NodeNotFoundException(String message)
         {
@@ -221,7 +231,8 @@ public class GitHubClient
         }
     }
 
-    public class UserNotFoundException extends RuntimeException
+    public class UserNotFoundException
+            extends RuntimeException
     {
         public UserNotFoundException(String message)
         {
@@ -229,7 +240,8 @@ public class GitHubClient
         }
     }
 
-    public class GraphQLUnhandledException extends RuntimeException
+    public class GraphQLUnhandledException
+            extends RuntimeException
     {
         public GraphQLUnhandledException(String message)
         {

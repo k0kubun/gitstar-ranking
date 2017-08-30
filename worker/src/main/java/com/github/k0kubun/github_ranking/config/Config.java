@@ -1,6 +1,7 @@
 package com.github.k0kubun.github_ranking.config;
 
 import com.github.k0kubun.github_ranking.config.QueueConfig;
+
 import java.util.Map;
 
 public class Config

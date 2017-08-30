@@ -1,9 +1,11 @@
 package com.github.k0kubun.github_ranking.dao.repository;
 
 import com.github.k0kubun.github_ranking.model.Repository;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
@@ -17,15 +19,15 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 public interface RepositoryDao
 {
     @SqlQuery("select id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language " +
-              "from repositories where id = :id")
+            "from repositories where id = :id")
     @Mapper(RepositoryMapper.class)
     Repository find(@Bind("id") Integer id);
 
     @SqlBatch("insert into repositories " +
-              "(id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language, created_at, updated_at, fetched_at) " +
-              "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(), current_timestamp(), current_timestamp()) " +
-              "on duplicate key update " +
-              "owner_id=values(owner_id), name=values(name), full_name=values(full_name), description=values(description), homepage=values(homepage), stargazers_count=values(stargazers_count), language=values(language), updated_at=values(updated_at), fetched_at=values(fetched_at)")
+            "(id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language, created_at, updated_at, fetched_at) " +
+            "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(), current_timestamp(), current_timestamp()) " +
+            "on duplicate key update " +
+            "owner_id=values(owner_id), name=values(name), full_name=values(full_name), description=values(description), homepage=values(homepage), stargazers_count=values(stargazers_count), language=values(language), updated_at=values(updated_at), fetched_at=values(fetched_at)")
     @BatchChunkSize(100)
     void bulkInsert(@BindBean List<Repository> repos);
 
@@ -34,7 +36,7 @@ public interface RepositoryDao
     List<Repository> starsDescFirstRepos(@Bind("limit") Integer limit);
 
     @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) < (:stargazersCount, :id) " +
-              "order by stargazers_count desc, id desc limit :limit")
+            "order by stargazers_count desc, id desc limit :limit")
     @Mapper(RepositoryStarMapper.class)
     List<Repository> starsDescReposAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Long id, @Bind("limit") Integer limit);
 
@@ -47,19 +49,23 @@ public interface RepositoryDao
     @SqlUpdate("delete from repositories where owner_id = :userId")
     long deleteAllOwnedBy(@Bind("userId") Integer userId);
 
-    class RepositoryStarMapper implements ResultSetMapper<Repository>
+    class RepositoryStarMapper
+            implements ResultSetMapper<Repository>
     {
         @Override
-        public Repository map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public Repository map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
         {
             return new Repository(r.getLong("id"), r.getInt("stargazers_count"));
         }
     }
 
-    class RepositoryMapper implements ResultSetMapper<Repository>
+    class RepositoryMapper
+            implements ResultSetMapper<Repository>
     {
         @Override
-        public Repository map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public Repository map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
         {
             return new Repository(
                     r.getLong("id"),

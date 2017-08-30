@@ -1,7 +1,9 @@
 package com.github.k0kubun.github_ranking.dao.repository;
 
 import com.github.k0kubun.github_ranking.model.OrganizationRank;
+
 import java.util.List;
+
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
@@ -14,7 +16,7 @@ public interface OrganizationRankDao
     long deleteBetween(@Bind("min") int min, @Bind("max") int max);
 
     @SqlBatch("insert into organization_ranks (stargazers_count, rank, created_at, updated_at) " +
-              "values (:stargazersCount, :rank, current_timestamp(), current_timestamp())")
+            "values (:stargazersCount, :rank, current_timestamp(), current_timestamp())")
     @BatchChunkSize(5000)
     void bulkInsert(@BindBean List<OrganizationRank> orgRanks);
 }

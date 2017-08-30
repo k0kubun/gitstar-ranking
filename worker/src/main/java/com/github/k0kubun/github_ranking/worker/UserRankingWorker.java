@@ -5,16 +5,19 @@ import com.github.k0kubun.github_ranking.dao.repository.UserDao;
 import com.github.k0kubun.github_ranking.dao.repository.UserRankDao;
 import com.github.k0kubun.github_ranking.model.User;
 import com.github.k0kubun.github_ranking.model.UserRank;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserRankingWorker extends Worker
+public class UserRankingWorker
+        extends Worker
 {
     private static final int ITERATE_MIN_STARS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(UserRankingWorker.class);
@@ -30,7 +33,8 @@ public class UserRankingWorker extends Worker
     }
 
     @Override
-    public void perform() throws Exception
+    public void perform()
+            throws Exception
     {
         while (userRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
@@ -67,9 +71,11 @@ public class UserRankingWorker extends Worker
                 if (currentRank == null) {
                     currentRank = new UserRank(user.getStargazersCount(), 1);
                     currentRankNum = 1;
-                } else if (currentRank.getStargazersCount() == user.getStargazersCount()) {
+                }
+                else if (currentRank.getStargazersCount() == user.getStargazersCount()) {
                     currentRankNum++;
-                } else {
+                }
+                else {
                     commitPendingRanks.add(currentRank);
                     currentRank = new UserRank(user.getStargazersCount(), currentRank.getRank() + currentRankNum);
                     currentRankNum = 1;
@@ -100,9 +106,9 @@ public class UserRankingWorker extends Worker
 
         int lastRank = lastUserRank.getRank();
         for (int lastStars = lastUserRank.getStargazersCount(); lastStars > 0; lastStars--) {
-            LOG.info("UserRankingWorker for " + Integer.valueOf(lastStars-1).toString());
+            LOG.info("UserRankingWorker for " + Integer.valueOf(lastStars - 1).toString());
             int count = handle.attach(UserDao.class).countUsersHavingStars(lastStars);
-            userRanks.add(new UserRank(lastStars-1, lastRank + count));
+            userRanks.add(new UserRank(lastStars - 1, lastRank + count));
             lastRank += count;
         }
         commitRanks(handle, userRanks);
@@ -127,7 +133,7 @@ public class UserRankingWorker extends Worker
 
     private String calcProgress(int child, int parent)
     {
-        return String.format("%.3f%%", (float)child / (float)parent);
+        return String.format("%.3f%%", (float) child / (float) parent);
     }
 
     // This class does cursor-based-pagination for users order by stargazers_count DESC.
@@ -151,7 +157,8 @@ public class UserRankingWorker extends Worker
             List<User> users;
             if (lastMinId == null && lastMinStars == null) {
                 users = userDao.starsDescFirstUsers(PAGE_SIZE);
-            } else {
+            }
+            else {
                 users = userDao.starsDescUsersAfter(lastMinStars, lastMinId, PAGE_SIZE);
             }
             if (users.isEmpty()) {

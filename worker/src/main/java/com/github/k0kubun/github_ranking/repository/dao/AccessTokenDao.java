@@ -1,8 +1,10 @@
 package com.github.k0kubun.github_ranking.dao.repository;
 
 import com.github.k0kubun.github_ranking.model.AccessToken;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -19,10 +21,12 @@ public interface AccessTokenDao
     @Mapper(AccessTokenMapper.class)
     AccessToken findByUserId(@Bind("userId") Integer userId);
 
-    class AccessTokenMapper implements ResultSetMapper<AccessToken>
+    class AccessTokenMapper
+            implements ResultSetMapper<AccessToken>
     {
         @Override
-        public AccessToken map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public AccessToken map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
         {
             return new AccessToken(
                     r.getString("token")

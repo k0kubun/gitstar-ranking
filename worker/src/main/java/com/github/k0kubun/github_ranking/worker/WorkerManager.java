@@ -1,6 +1,7 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -9,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +60,14 @@ public class WorkerManager
                 future.get(60, TimeUnit.SECONDS);
                 i++;
                 LOG.info("Stopped worker (" + i + "/" + futures.size() + ")");
-            } catch (TimeoutException e) {
+            }
+            catch (TimeoutException e) {
                 LOG.error("Timed out to stop worker!: " + e.getMessage());
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 LOG.error("Interrupted on stopping worker!: " + e.getMessage());
-            } catch (ExecutionException e) {
+            }
+            catch (ExecutionException e) {
                 LOG.error("Execution failed on stopping worker!: " + e.getMessage());
             }
         }

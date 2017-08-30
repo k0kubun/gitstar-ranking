@@ -11,6 +11,7 @@ import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import com.github.k0kubun.github_ranking.model.User;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -18,14 +19,17 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import javax.sql.DataSource;
+
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
-public class UpdateUserWorker extends Worker
+public class UpdateUserWorker
+        extends Worker
 {
     private static final Integer TIMEOUT_MINUTES = 1;
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
@@ -43,7 +47,8 @@ public class UpdateUserWorker extends Worker
 
     // Dequeue a record from update_user_jobs and call updateUser().
     @Override
-    public void perform() throws Exception
+    public void perform()
+            throws Exception
     {
         try (Handle handle = dbi.open()) {
             UpdateUserJobDao dao = handle.attach(UpdateUserJobDao.class);
@@ -55,7 +60,8 @@ public class UpdateUserWorker extends Worker
                     return;
                 }
                 TimeUnit.SECONDS.sleep(1);
-            };
+            }
+            ;
 
             // Succeeded to acquire a job. Fetch job to execute.
             UpdateUserJob job = dao.fetchByTimeout(timeoutAt);
@@ -68,10 +74,12 @@ public class UpdateUserWorker extends Worker
                 LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
                 updateUser(handle, job.getUserId(), job.getTokenUserId());
                 LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
                 e.printStackTrace();
-            } finally {
+            }
+            finally {
                 dao.delete(job.getId());
             }
         }
@@ -88,7 +96,8 @@ public class UpdateUserWorker extends Worker
                 }
             }
             return dao.acquireUntil(timeoutAt);
-        } finally {
+        }
+        finally {
             if (locked) {
                 dao.releaseLock();
             }
@@ -104,7 +113,8 @@ public class UpdateUserWorker extends Worker
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    private void updateUser(Handle handle, Integer userId, Integer tokenUserId) throws IOException
+    private void updateUser(Handle handle, Integer userId, Integer tokenUserId)
+            throws IOException
     {
         LOG.debug("before: clientBuilder.buildForUser");
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
@@ -136,7 +146,8 @@ public class UpdateUserWorker extends Worker
                 LOG.debug("after: updateStars");
             });
             LOG.info("imported repos: " + repos.size());
-        } catch (GitHubClient.UserNotFoundException e) {
+        }
+        catch (GitHubClient.UserNotFoundException e) {
             LOG.error("UserNotFoundException error: " + e.getMessage());
             LOG.info("delete user: " + userId.toString());
             handle.useTransaction((conn, status) -> {

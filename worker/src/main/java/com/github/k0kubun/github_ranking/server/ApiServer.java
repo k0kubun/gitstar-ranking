@@ -3,8 +3,10 @@ package com.github.k0kubun.github_ranking.server;
 import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.config.QueueConfig;
 import com.treasuredata.underwrap.UnderwrapServer;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.sql.DataSource;
 
 public class ApiServer

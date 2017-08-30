@@ -2,14 +2,17 @@ package com.github.k0kubun.github_ranking.api;
 
 import com.github.k0kubun.github_ranking.config.QueueConfig;
 import com.github.k0kubun.github_ranking.model.ApiResponse;
+
 import java.sql.Time;
 import java.util.concurrent.BlockingQueue;
+
 import javax.sql.DataSource;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +59,8 @@ public class RankingResource
         if (size == 0) {
             try {
                 queue.put(true);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 LOG.error("API queueing interrupted: " + e.getMessage());
             }
         }

@@ -5,16 +5,19 @@ import com.github.k0kubun.github_ranking.dao.repository.RepositoryDao;
 import com.github.k0kubun.github_ranking.dao.repository.RepositoryRankDao;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.RepositoryRank;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RepositoryRankingWorker extends Worker
+public class RepositoryRankingWorker
+        extends Worker
 {
     private static final int ITERATE_MIN_STARS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryRankingWorker.class);
@@ -30,7 +33,8 @@ public class RepositoryRankingWorker extends Worker
     }
 
     @Override
-    public void perform() throws Exception
+    public void perform()
+            throws Exception
     {
         while (repoRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
@@ -67,9 +71,11 @@ public class RepositoryRankingWorker extends Worker
                 if (currentRank == null) {
                     currentRank = new RepositoryRank(repo.getStargazersCount(), 1);
                     currentRankNum = 1;
-                } else if (currentRank.getStargazersCount() == repo.getStargazersCount()) {
+                }
+                else if (currentRank.getStargazersCount() == repo.getStargazersCount()) {
                     currentRankNum++;
-                } else {
+                }
+                else {
                     commitPendingRanks.add(currentRank);
                     currentRank = new RepositoryRank(repo.getStargazersCount(), currentRank.getRank() + currentRankNum);
                     currentRankNum = 1;
@@ -100,9 +106,9 @@ public class RepositoryRankingWorker extends Worker
 
         int lastRank = lastRepoRank.getRank();
         for (int lastStars = lastRepoRank.getStargazersCount(); lastStars > 0; lastStars--) {
-            LOG.info("RepositoryRankingWorker for " + Integer.valueOf(lastStars-1).toString());
+            LOG.info("RepositoryRankingWorker for " + Integer.valueOf(lastStars - 1).toString());
             int count = handle.attach(RepositoryDao.class).countReposHavingStars(lastStars);
-            repoRanks.add(new RepositoryRank(lastStars-1, lastRank + count));
+            repoRanks.add(new RepositoryRank(lastStars - 1, lastRank + count));
             lastRank += count;
         }
         commitRanks(handle, repoRanks);
@@ -127,7 +133,7 @@ public class RepositoryRankingWorker extends Worker
 
     private String calcProgress(int child, int parent)
     {
-        return String.format("%.3f%%", (float)child / (float)parent);
+        return String.format("%.3f%%", (float) child / (float) parent);
     }
 
     // This class does cursor-based-pagination for repositories order by stargazers_count DESC.
@@ -151,7 +157,8 @@ public class RepositoryRankingWorker extends Worker
             List<Repository> repos;
             if (lastMinId == null && lastMinStars == null) {
                 repos = repoDao.starsDescFirstRepos(PAGE_SIZE);
-            } else {
+            }
+            else {
                 repos = repoDao.starsDescReposAfter(lastMinStars, lastMinId, PAGE_SIZE);
             }
             if (repos.isEmpty()) {

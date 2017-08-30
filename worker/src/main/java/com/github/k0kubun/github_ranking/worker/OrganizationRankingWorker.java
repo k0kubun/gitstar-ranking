@@ -5,16 +5,19 @@ import com.github.k0kubun.github_ranking.dao.repository.OrganizationDao;
 import com.github.k0kubun.github_ranking.dao.repository.OrganizationRankDao;
 import com.github.k0kubun.github_ranking.model.Organization;
 import com.github.k0kubun.github_ranking.model.OrganizationRank;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OrganizationRankingWorker extends Worker
+public class OrganizationRankingWorker
+        extends Worker
 {
     private static final int ITERATE_MIN_STARS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(OrganizationRankingWorker.class);
@@ -30,7 +33,8 @@ public class OrganizationRankingWorker extends Worker
     }
 
     @Override
-    public void perform() throws Exception
+    public void perform()
+            throws Exception
     {
         while (orgRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
@@ -67,9 +71,11 @@ public class OrganizationRankingWorker extends Worker
                 if (currentRank == null) {
                     currentRank = new OrganizationRank(org.getStargazersCount(), 1);
                     currentRankNum = 1;
-                } else if (currentRank.getStargazersCount() == org.getStargazersCount()) {
+                }
+                else if (currentRank.getStargazersCount() == org.getStargazersCount()) {
                     currentRankNum++;
-                } else {
+                }
+                else {
                     commitPendingRanks.add(currentRank);
                     currentRank = new OrganizationRank(org.getStargazersCount(), currentRank.getRank() + currentRankNum);
                     currentRankNum = 1;
@@ -100,9 +106,9 @@ public class OrganizationRankingWorker extends Worker
 
         int lastRank = lastOrgRank.getRank();
         for (int lastStars = lastOrgRank.getStargazersCount(); lastStars > 0; lastStars--) {
-            LOG.info("OrganizationRankingWorker for " + Integer.valueOf(lastStars-1).toString());
+            LOG.info("OrganizationRankingWorker for " + Integer.valueOf(lastStars - 1).toString());
             int count = handle.attach(OrganizationDao.class).countOrganizationsHavingStars(lastStars);
-            orgRanks.add(new OrganizationRank(lastStars-1, lastRank + count));
+            orgRanks.add(new OrganizationRank(lastStars - 1, lastRank + count));
             lastRank += count;
         }
         commitRanks(handle, orgRanks);
@@ -127,7 +133,7 @@ public class OrganizationRankingWorker extends Worker
 
     private String calcProgress(int child, int parent)
     {
-        return String.format("%.3f%%", (float)child / (float)parent);
+        return String.format("%.3f%%", (float) child / (float) parent);
     }
 
     // This class does cursor-based-pagination for organizations order by stargazers_count DESC.
@@ -151,7 +157,8 @@ public class OrganizationRankingWorker extends Worker
             List<Organization> orgs;
             if (lastMinId == null && lastMinStars == null) {
                 orgs = orgDao.starsDescFirstOrgs(PAGE_SIZE);
-            } else {
+            }
+            else {
                 orgs = orgDao.starsDescOrgsAfter(lastMinStars, lastMinId, PAGE_SIZE);
             }
             if (orgs.isEmpty()) {

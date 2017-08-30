@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.lang.UnsupportedOperationException;
 import java.util.concurrent.Callable;
 
-public abstract class Worker implements Callable<Void>
+public abstract class Worker
+        implements Callable<Void>
 {
     // Subclass must prepare to shut down if this is true.
     public boolean isStopped;
@@ -20,7 +21,8 @@ public abstract class Worker implements Callable<Void>
         while (!isStopped) {
             try {
                 perform();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 handleException(e);
             }
         }
@@ -34,7 +36,8 @@ public abstract class Worker implements Callable<Void>
     }
 
     // Perform one iteration of worker loop. This must be overridden in subclass.
-    public void perform() throws Exception
+    public void perform()
+            throws Exception
     {
         throw new UnsupportedOperationException("run() method was not overridden");
     }

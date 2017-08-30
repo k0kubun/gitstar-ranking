@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class ApiResponse<T>
 {
-    public enum Type {
+    public enum Type
+    {
         BOOLEAN,
         INTEGER;
 

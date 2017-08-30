@@ -1,9 +1,11 @@
 package com.github.k0kubun.github_ranking.dao.repository;
 
 import com.github.k0kubun.github_ranking.model.User;
+
 import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -29,7 +31,7 @@ public interface UserDao
     List<User> starsDescFirstUsers(@Bind("limit") Integer limit);
 
     @SqlQuery("select id, type, stargazers_count from users where type = 'User' and " +
-              "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
+            "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
 
@@ -42,10 +44,12 @@ public interface UserDao
     @SqlUpdate("delete from users where id = :id")
     long delete(@Bind("id") Integer id);
 
-    class FindUserMapper implements ResultSetMapper<User>
+    class FindUserMapper
+            implements ResultSetMapper<User>
     {
         @Override
-        public User map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public User map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
         {
             User user = new User(r.getInt("id"), r.getString("type"));
             user.setLogin(r.getString("login"));
@@ -53,10 +57,12 @@ public interface UserDao
         }
     }
 
-    class UserStarMapper implements ResultSetMapper<User>
+    class UserStarMapper
+            implements ResultSetMapper<User>
     {
         @Override
-        public User map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public User map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
         {
             User user = new User(r.getInt("id"), r.getString("type"));
             user.setStargazersCount(r.getInt("stargazers_count"));

@@ -2,9 +2,12 @@ package com.github.k0kubun.github_ranking.github;
 
 import com.github.k0kubun.github_ranking.dao.repository.AccessTokenDao;
 import com.github.k0kubun.github_ranking.model.AccessToken;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.sql.DataSource;
+
 import org.skife.jdbi.v2.DBI;
 
 // This will have the logic to throttle GitHub API tokens.

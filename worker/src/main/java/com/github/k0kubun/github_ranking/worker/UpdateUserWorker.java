@@ -1,10 +1,10 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.dao.AccessTokenDao;
-import com.github.k0kubun.github_ranking.dao.RepositoryDao;
-import com.github.k0kubun.github_ranking.dao.UpdateUserJobDao;
-import com.github.k0kubun.github_ranking.dao.UserDao;
+import com.github.k0kubun.github_ranking.dao.repository.AccessTokenDao;
+import com.github.k0kubun.github_ranking.dao.repository.RepositoryDao;
+import com.github.k0kubun.github_ranking.dao.repository.UpdateUserJobDao;
+import com.github.k0kubun.github_ranking.dao.repository.UserDao;
 import com.github.k0kubun.github_ranking.github.GitHubClient;
 import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
 import com.github.k0kubun.github_ranking.model.AccessToken;

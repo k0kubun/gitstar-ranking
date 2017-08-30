@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.dao;
+package com.github.k0kubun.github_ranking.dao.repository;
 
 import com.github.k0kubun.github_ranking.model.OrganizationRank;
 import java.util.List;

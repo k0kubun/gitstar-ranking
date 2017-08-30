@@ -1,8 +1,8 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.dao.UserDao;
-import com.github.k0kubun.github_ranking.dao.UserRankDao;
+import com.github.k0kubun.github_ranking.dao.repository.UserDao;
+import com.github.k0kubun.github_ranking.dao.repository.UserRankDao;
 import com.github.k0kubun.github_ranking.model.User;
 import com.github.k0kubun.github_ranking.model.UserRank;
 import java.util.ArrayList;

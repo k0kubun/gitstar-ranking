@@ -1,6 +1,6 @@
 package com.github.k0kubun.github_ranking.github;
 
-import com.github.k0kubun.github_ranking.dao.AccessTokenDao;
+import com.github.k0kubun.github_ranking.dao.repository.AccessTokenDao;
 import com.github.k0kubun.github_ranking.model.AccessToken;
 import java.util.ArrayList;
 import java.util.List;

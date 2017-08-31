@@ -73,9 +73,10 @@ public class UpdateUserWorker
             // TODO: Log elapsed time
             try {
                 lock.withUserUpdate(job.getUserId(), () -> {
-                    LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-                    updateUser(handle, job.getUserId(), job.getTokenUserId());
-                    LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
+                    User user = handle.attach(UserDao.class).find(job.getUserId());
+                    LOG.info("started to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+                    updateUser(handle, user, job.getTokenUserId());
+                    LOG.info("finished to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
                 });
             }
             catch (Exception e) {
@@ -103,33 +104,34 @@ public class UpdateUserWorker
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    private void updateUser(Handle handle, Integer userId, Integer tokenUserId)
+    public void updateUser(Handle handle, User user, Integer tokenUserId)
             throws IOException
     {
+        Integer userId = user.getId();
+        String login = user.getLogin();
+
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
-        LOG.debug("finished: clientBuilder.buildForUser");
+        LOG.debug("[" + login + "] finished: clientBuilder.buildForUser");
 
         try {
-            User user = handle.attach(UserDao.class).find(userId);
-            LOG.debug("finished: find User");
+            LOG.debug("[" + login + "] finished: find User");
 
             if (!user.isOrganization()) {
-                String login = client.getLogin(userId);
-                handle.attach(UserDao.class).updateLogin(userId, login);
-                LOG.debug("finished: update Login");
+                handle.attach(UserDao.class).updateLogin(userId, client.getLogin(userId));
+                LOG.debug("[" + login + "] finished: update Login");
             }
 
             List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
-            LOG.debug("finished: getPublicRepos");
+            LOG.debug("[" + login + "] finished: getPublicRepos");
 
             handle.useTransaction((conn, status) -> {
                 //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
-                LOG.debug("finished: bulkInsert");
+                LOG.debug("[" + login + "] finished: bulkInsert");
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
-                LOG.debug("finished: updateStars");
+                LOG.debug("[" + login + "] finished: updateStars");
             });
-            LOG.info("imported repos: " + repos.size());
+            LOG.info("[" + login + "] imported repos: " + repos.size());
         }
         catch (GitHubClient.UserNotFoundException e) {
             LOG.error("UserNotFoundException error: " + e.getMessage());

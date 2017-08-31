@@ -6,9 +6,9 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
 public interface LockDao
 {
-    @SqlQuery("select get_lock('update_user_jobs', :timeout)")
-    long getLock(@Bind("timeout") long timeout);
+    @SqlQuery("select get_lock(:key, :timeout)")
+    long getLock(@Bind("key") String key, @Bind("timeout") long timeout);
 
-    @SqlUpdate("do release_lock('update_user_jobs')")
-    long releaseLock();
+    @SqlUpdate("do release_lock(:key)")
+    long releaseLock(@Bind("key") String key);
 }

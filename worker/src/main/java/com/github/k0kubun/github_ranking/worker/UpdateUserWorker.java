@@ -72,9 +72,11 @@ public class UpdateUserWorker
 
             // TODO: Log elapsed time
             try {
-                LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-                updateUser(handle, job.getUserId(), job.getTokenUserId());
-                LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
+                lock.withUserUpdate(job.getUserId(), () -> {
+                    LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
+                    updateUser(handle, job.getUserId(), job.getTokenUserId());
+                    LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
+                });
             }
             catch (Exception e) {
                 LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
@@ -89,7 +91,7 @@ public class UpdateUserWorker
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
     private long acquireUntil(DatabaseLock lock, Timestamp timeoutAt)
     {
-        return lock.withUpdateUserJob(dao -> dao.acquireUntil(timeoutAt));
+        return lock.withUpdateUserJobs(dao -> dao.acquireUntil(timeoutAt));
     }
 
     private Timestamp nextTimeout()

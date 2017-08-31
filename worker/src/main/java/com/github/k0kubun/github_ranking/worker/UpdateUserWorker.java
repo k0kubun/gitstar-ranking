@@ -106,34 +106,28 @@ public class UpdateUserWorker
     private void updateUser(Handle handle, Integer userId, Integer tokenUserId)
             throws IOException
     {
-        LOG.debug("before: clientBuilder.buildForUser");
         GitHubClient client = clientBuilder.buildForUser(tokenUserId);
-        LOG.debug("after: clientBuilder.buildForUser");
+        LOG.debug("finished: clientBuilder.buildForUser");
 
         try {
-            LOG.debug("before: find User");
             User user = handle.attach(UserDao.class).find(userId);
-            LOG.debug("after: find User");
+            LOG.debug("finished: find User");
 
             if (!user.isOrganization()) {
                 String login = client.getLogin(userId);
-                LOG.debug("before: update Login");
                 handle.attach(UserDao.class).updateLogin(userId, login);
-                LOG.debug("after: update Login");
+                LOG.debug("finished: update Login");
             }
 
-            LOG.debug("before: getPublicRepos");
             List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
-            LOG.debug("after: getPublicRepos");
+            LOG.debug("finished: getPublicRepos");
 
             handle.useTransaction((conn, status) -> {
                 //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
-                LOG.debug("before: bulkInsert");
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
-                LOG.debug("after: bulkInsert");
-                LOG.debug("before: updateStars");
+                LOG.debug("finished: bulkInsert");
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
-                LOG.debug("after: updateStars");
+                LOG.debug("finished: updateStars");
             });
             LOG.info("imported repos: " + repos.size());
         }

@@ -1,32 +1,17 @@
 package com.github.k0kubun.github_ranking.worker;
 
-import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.github.GitHubClient;
-import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
-import com.github.k0kubun.github_ranking.model.AccessToken;
-import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import com.github.k0kubun.github_ranking.model.User;
 import com.github.k0kubun.github_ranking.repository.DatabaseLock;
-import com.github.k0kubun.github_ranking.repository.dao.AccessTokenDao;
-import com.github.k0kubun.github_ranking.repository.dao.RepositoryDao;
 import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 
-import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateStarredUserWorker
@@ -35,5 +20,30 @@ public class UpdateStarredUserWorker
     public UpdateStarredUserWorker(DataSource dataSource)
     {
         super(dataSource);
+    }
+
+    // Dequeue a record from update_user_jobs and call updateUser().
+    @Override
+    public void perform()
+            throws Exception
+    {
+        try (Handle handle = dbi.open()) {
+            //DatabaseLock lock = new DatabaseLock(handle, this);
+
+            // Succeeded to acquire a job. Fetch job to execute.
+
+            //try {
+            //    lock.withUserUpdate(job.getUserId(), () -> {
+            //        User user = handle.attach(UserDao.class).find(job.getUserId());
+            //        LOG.info("started to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+            //        updateUser(handle, user, job.getTokenUserId());
+            //        LOG.info("finished to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+            //    });
+            //}
+            //catch (Exception e) {
+            //    LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+            //    e.printStackTrace();
+            //}
+        }
     }
 }

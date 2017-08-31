@@ -28,7 +28,6 @@ import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker
         extends Worker
 {
@@ -36,7 +35,7 @@ public class UpdateUserWorker
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
     private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
-    private final DBI dbi;
+    public final DBI dbi;
     private final GitHubClientBuilder clientBuilder;
 
     public UpdateUserWorker(DataSource dataSource)
@@ -74,9 +73,9 @@ public class UpdateUserWorker
             try {
                 lock.withUserUpdate(job.getUserId(), () -> {
                     User user = handle.attach(UserDao.class).find(job.getUserId());
-                    LOG.info("started to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+                    LOG.info("UpdateUserWorker started: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
                     updateUser(handle, user, job.getTokenUserId());
-                    LOG.info("finished to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+                    LOG.info("UpdateUserWorker finished: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
                 });
             }
             catch (Exception e) {
@@ -87,17 +86,6 @@ public class UpdateUserWorker
                 dao.delete(job.getId());
             }
         }
-    }
-
-    // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
-    private long acquireUntil(DatabaseLock lock, Timestamp timeoutAt)
-    {
-        return lock.withUpdateUserJobs(dao -> dao.acquireUntil(timeoutAt));
-    }
-
-    private Timestamp nextTimeout()
-    {
-        return Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(TIMEOUT_MINUTES));
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
@@ -141,6 +129,17 @@ public class UpdateUserWorker
                 conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId);
             });
         }
+    }
+
+    // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
+    private long acquireUntil(DatabaseLock lock, Timestamp timeoutAt)
+    {
+        return lock.withUpdateUserJobs(dao -> dao.acquireUntil(timeoutAt));
+    }
+
+    private Timestamp nextTimeout()
+    {
+        return Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(TIMEOUT_MINUTES));
     }
 
     private int calcTotalStars(List<Repository> repos)

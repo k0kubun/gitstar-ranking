@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class UpdateStarredOrganizationWorker
         extends UpdateUserWorker
 {
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateStarredUserWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateStarredOrganizationWorker.class);
 
     public UpdateStarredOrganizationWorker(DataSource dataSource)
     {

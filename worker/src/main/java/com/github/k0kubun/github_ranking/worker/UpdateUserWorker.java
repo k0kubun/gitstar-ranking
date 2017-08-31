@@ -36,7 +36,7 @@ public class UpdateUserWorker
     private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
     public final DBI dbi;
-    private final GitHubClientBuilder clientBuilder;
+    public final GitHubClientBuilder clientBuilder;
 
     public UpdateUserWorker(DataSource dataSource)
     {
@@ -74,12 +74,13 @@ public class UpdateUserWorker
                 lock.withUserUpdate(job.getUserId(), () -> {
                     User user = handle.attach(UserDao.class).find(job.getUserId());
                     LOG.info("UpdateUserWorker started: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
-                    updateUser(handle, user, job.getTokenUserId());
+                    GitHubClient client = clientBuilder.buildForUser(job.getTokenUserId());
+                    updateUser(handle, user, client);
                     LOG.info("UpdateUserWorker finished: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
                 });
             }
             catch (Exception e) {
-                LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+                LOG.error("Error in UpdateUserWorker! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
                 e.printStackTrace();
             }
             finally {
@@ -92,14 +93,11 @@ public class UpdateUserWorker
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    public void updateUser(Handle handle, User user, Integer tokenUserId)
+    public void updateUser(Handle handle, User user, GitHubClient client)
             throws IOException
     {
         Integer userId = user.getId();
         String login = user.getLogin();
-
-        GitHubClient client = clientBuilder.buildForUser(tokenUserId);
-        LOG.debug("[" + login + "] finished: clientBuilder.buildForUser");
 
         try {
             LOG.debug("[" + login + "] finished: find User");

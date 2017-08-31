@@ -1,22 +1,29 @@
 package com.github.k0kubun.github_ranking.worker;
 
+import com.github.k0kubun.github_ranking.github.GitHubClient;
 import com.github.k0kubun.github_ranking.model.UpdateUserJob;
 import com.github.k0kubun.github_ranking.model.User;
 import com.github.k0kubun.github_ranking.repository.DatabaseLock;
+import com.github.k0kubun.github_ranking.repository.PaginatedUsers;
 import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
 import org.skife.jdbi.v2.Handle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateStarredUserWorker
         extends UpdateUserWorker
 {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateStarredUserWorker.class);
+
     public UpdateStarredUserWorker(DataSource dataSource)
     {
         super(dataSource);
@@ -28,22 +35,33 @@ public class UpdateStarredUserWorker
             throws Exception
     {
         try (Handle handle = dbi.open()) {
-            //DatabaseLock lock = new DatabaseLock(handle, this);
+            DatabaseLock lock = new DatabaseLock(handle, this);
+            PaginatedUsers paginatedUsers = new PaginatedUsers(handle);
 
-            // Succeeded to acquire a job. Fetch job to execute.
+            List<User> users;
+            while (!(users = paginatedUsers.nextUsers()).isEmpty()) {
+                for (User user : users) {
+                    if (isStopped) {
+                        return;
+                    }
 
-            //try {
-            //    lock.withUserUpdate(job.getUserId(), () -> {
-            //        User user = handle.attach(UserDao.class).find(job.getUserId());
-            //        LOG.info("started to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
-            //        updateUser(handle, user, job.getTokenUserId());
-            //        LOG.info("finished to updateUser: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
-            //    });
-            //}
-            //catch (Exception e) {
-            //    LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
-            //    e.printStackTrace();
-            //}
+                    // TODO: skip if already updated
+
+                    try {
+                        lock.withUserUpdate(user.getId(), () -> {
+                            LOG.info("UpdateStarredUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                            // TODO: Handle `isStopped` properly
+                            GitHubClient client = clientBuilder.buildFromEnabled();
+                            updateUser(handle, user, client);
+                            LOG.info("UpdateStarredUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        });
+                    }
+                    catch (Exception e) {
+                        LOG.error("Error in UpdateStarredUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

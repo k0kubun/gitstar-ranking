@@ -83,6 +83,19 @@ public class GitHubClient
         return repos;
     }
 
+    public int getRateLimitRemaining()
+    {
+        try {
+            JsonObject responseObject = graphql("query { rateLimit { remaining } }");
+            // TODO: handle error object
+            return responseObject.getJsonObject("data").getJsonObject("rateLimit").getInt("remaining");
+        }
+        catch (IOException e) {
+            // TODO : log this
+            return 0;
+        }
+    }
+
     private JsonObject graphql(String query)
             throws IOException
     {

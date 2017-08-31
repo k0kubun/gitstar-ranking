@@ -42,7 +42,11 @@ public class GitHubClientBuilder
             AccessToken token = rotateToken();
             GitHubClient client = new GitHubClient(token.getToken());
             int remaining = client.getRateLimitRemaining();
-            if (remaining > RATE_LIMIT_ENABLED_THRESHOLD) {
+            if (remaining == 0) {
+                LOG.info("delete token: " + token.getToken() + " (" + Integer.valueOf(remaining).toString() + ")");
+                tokens.remove(token);
+            }
+            else if (remaining > RATE_LIMIT_ENABLED_THRESHOLD) {
                 LOG.info("found token: " + token.getToken() + " (" + Integer.valueOf(remaining).toString() + ")");
                 return client;
             }

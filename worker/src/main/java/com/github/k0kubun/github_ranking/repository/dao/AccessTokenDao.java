@@ -4,6 +4,7 @@ import com.github.k0kubun.github_ranking.model.AccessToken;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -20,6 +21,11 @@ public interface AccessTokenDao
     @SqlQuery("select token from access_tokens where user_id = :userId")
     @Mapper(AccessTokenMapper.class)
     AccessToken findByUserId(@Bind("userId") Integer userId);
+
+    // TODO: paginate
+    @SqlQuery("select token from access_tokens where enabled = true limit 1000")
+    @Mapper(AccessTokenMapper.class)
+    List<AccessToken> allEnabledTokens();
 
     class AccessTokenMapper
             implements ResultSetMapper<AccessToken>

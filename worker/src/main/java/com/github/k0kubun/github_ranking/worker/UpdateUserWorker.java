@@ -28,7 +28,6 @@ import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// This job must finish within TIMEOUT_MINUTES (1 min). Otherwise it will be infinitely retried.
 public class UpdateUserWorker
         extends Worker
 {
@@ -36,8 +35,8 @@ public class UpdateUserWorker
     private static final Integer POLLING_INTERVAL_SECONDS = 1;
     private static final Logger LOG = LoggerFactory.getLogger(UpdateUserWorker.class);
 
-    private final DBI dbi;
-    private final GitHubClientBuilder clientBuilder;
+    public final DBI dbi;
+    public final GitHubClientBuilder clientBuilder;
 
     public UpdateUserWorker(DataSource dataSource)
     {
@@ -73,18 +72,60 @@ public class UpdateUserWorker
             // TODO: Log elapsed time
             try {
                 lock.withUserUpdate(job.getUserId(), () -> {
-                    LOG.info("started to updateUser: (userId = " + job.getUserId() + ")");
-                    updateUser(handle, job.getUserId(), job.getTokenUserId());
-                    LOG.info("finished to updateUser: (userId = " + job.getUserId() + ")");
+                    User user = handle.attach(UserDao.class).find(job.getUserId());
+                    LOG.info("UpdateUserWorker started: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+                    GitHubClient client = clientBuilder.buildForUser(job.getTokenUserId());
+                    updateUser(handle, user, client);
+                    LOG.info("UpdateUserWorker finished: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
                 });
             }
             catch (Exception e) {
-                LOG.error("Failed to updateUser! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+                LOG.error("Error in UpdateUserWorker! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
                 e.printStackTrace();
             }
             finally {
                 dao.delete(job.getId());
             }
+        }
+    }
+
+    // Main part of this class. Given enqueued userId, it updates a user and his repositories.
+    // * Sync information of all repositories owned by specified user.
+    // * Update fetched_at and updated_at, and set total stars to user.
+    // TODO: Requeue if GitHub API limit exceeded
+    public void updateUser(Handle handle, User user, GitHubClient client)
+            throws IOException
+    {
+        Integer userId = user.getId();
+        String login = user.getLogin();
+
+        try {
+            LOG.debug("[" + login + "] finished: find User");
+
+            if (!user.isOrganization()) {
+                handle.attach(UserDao.class).updateLogin(userId, client.getLogin(userId));
+                LOG.debug("[" + login + "] finished: update Login");
+            }
+
+            List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
+            LOG.debug("[" + login + "] finished: getPublicRepos");
+
+            handle.useTransaction((conn, status) -> {
+                //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
+                conn.attach(RepositoryDao.class).bulkInsert(repos);
+                LOG.debug("[" + login + "] finished: bulkInsert");
+                conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
+                LOG.debug("[" + login + "] finished: updateStars");
+            });
+            LOG.info("[" + login + "] imported repos: " + repos.size());
+        }
+        catch (GitHubClient.UserNotFoundException e) {
+            LOG.error("UserNotFoundException error: " + e.getMessage());
+            LOG.info("delete user: " + userId.toString());
+            handle.useTransaction((conn, status) -> {
+                conn.attach(UserDao.class).delete(userId);
+                conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId);
+            });
         }
     }
 
@@ -97,48 +138,6 @@ public class UpdateUserWorker
     private Timestamp nextTimeout()
     {
         return Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(TIMEOUT_MINUTES));
-    }
-
-    // Main part of this class. Given enqueued userId, it updates a user and his repositories.
-    // * Sync information of all repositories owned by specified user.
-    // * Update fetched_at and updated_at, and set total stars to user.
-    // TODO: Requeue if GitHub API limit exceeded
-    private void updateUser(Handle handle, Integer userId, Integer tokenUserId)
-            throws IOException
-    {
-        GitHubClient client = clientBuilder.buildForUser(tokenUserId);
-        LOG.debug("finished: clientBuilder.buildForUser");
-
-        try {
-            User user = handle.attach(UserDao.class).find(userId);
-            LOG.debug("finished: find User");
-
-            if (!user.isOrganization()) {
-                String login = client.getLogin(userId);
-                handle.attach(UserDao.class).updateLogin(userId, login);
-                LOG.debug("finished: update Login");
-            }
-
-            List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
-            LOG.debug("finished: getPublicRepos");
-
-            handle.useTransaction((conn, status) -> {
-                //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
-                conn.attach(RepositoryDao.class).bulkInsert(repos);
-                LOG.debug("finished: bulkInsert");
-                conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
-                LOG.debug("finished: updateStars");
-            });
-            LOG.info("imported repos: " + repos.size());
-        }
-        catch (GitHubClient.UserNotFoundException e) {
-            LOG.error("UserNotFoundException error: " + e.getMessage());
-            LOG.info("delete user: " + userId.toString());
-            handle.useTransaction((conn, status) -> {
-                conn.attach(UserDao.class).delete(userId);
-                conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId);
-            });
-        }
     }
 
     private int calcTotalStars(List<Repository> repos)

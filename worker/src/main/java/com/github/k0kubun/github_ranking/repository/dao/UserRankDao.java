@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.dao.repository;
+package com.github.k0kubun.github_ranking.repository.dao;
 
 import com.github.k0kubun.github_ranking.model.UserRank;
 

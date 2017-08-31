@@ -1,8 +1,8 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.dao.repository.RepositoryDao;
-import com.github.k0kubun.github_ranking.dao.repository.RepositoryRankDao;
+import com.github.k0kubun.github_ranking.repository.dao.RepositoryDao;
+import com.github.k0kubun.github_ranking.repository.dao.RepositoryRankDao;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.RepositoryRank;
 

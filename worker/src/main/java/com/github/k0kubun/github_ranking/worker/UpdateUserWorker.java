@@ -1,10 +1,11 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.dao.repository.AccessTokenDao;
-import com.github.k0kubun.github_ranking.dao.repository.RepositoryDao;
-import com.github.k0kubun.github_ranking.dao.repository.UpdateUserJobDao;
-import com.github.k0kubun.github_ranking.dao.repository.UserDao;
+import com.github.k0kubun.github_ranking.repository.dao.AccessTokenDao;
+import com.github.k0kubun.github_ranking.repository.dao.DatabaseLock;
+import com.github.k0kubun.github_ranking.repository.dao.RepositoryDao;
+import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
+import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 import com.github.k0kubun.github_ranking.github.GitHubClient;
 import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
 import com.github.k0kubun.github_ranking.model.AccessToken;
@@ -51,19 +52,19 @@ public class UpdateUserWorker
             throws Exception
     {
         try (Handle handle = dbi.open()) {
-            UpdateUserJobDao dao = handle.attach(UpdateUserJobDao.class);
+            DatabaseLock lock = new DatabaseLock(handle, this);
 
             // Poll until it succeeds to acquire a job...
             Timestamp timeoutAt;
-            while (acquireUntil(dao, timeoutAt = nextTimeout()) == 0) {
+            while (acquireUntil(lock, timeoutAt = nextTimeout()) == 0) {
                 if (isStopped) {
                     return;
                 }
                 TimeUnit.SECONDS.sleep(1);
             }
-            ;
 
             // Succeeded to acquire a job. Fetch job to execute.
+            UpdateUserJobDao dao = handle.attach(UpdateUserJobDao.class);
             UpdateUserJob job = dao.fetchByTimeout(timeoutAt);
             if (job == null) {
                 throw new RuntimeException("Failed to fetch a job (timeoutAt = " + timeoutAt + ")");
@@ -86,22 +87,9 @@ public class UpdateUserWorker
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
-    private long acquireUntil(UpdateUserJobDao dao, Timestamp timeoutAt)
+    private long acquireUntil(DatabaseLock lock, Timestamp timeoutAt)
     {
-        boolean locked = false;
-        try {
-            while (!(locked = (dao.getLock(10) == 1))) {
-                if (isStopped) {
-                    return 0;
-                }
-            }
-            return dao.acquireUntil(timeoutAt);
-        }
-        finally {
-            if (locked) {
-                dao.releaseLock();
-            }
-        }
+        return lock.withUpdateUserJob(dao -> dao.acquireUntil(timeoutAt));
     }
 
     private Timestamp nextTimeout()

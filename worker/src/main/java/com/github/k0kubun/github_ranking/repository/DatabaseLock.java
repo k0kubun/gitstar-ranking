@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.repository.dao;
+package com.github.k0kubun.github_ranking.repository;
 
 import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.worker.Worker;

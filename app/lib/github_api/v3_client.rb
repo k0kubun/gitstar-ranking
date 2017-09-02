@@ -13,7 +13,7 @@ class GithubApi::V3Client
   # @param [String] user_login - "login" field of user
   # @return [Boolean]
   def organization_member?(organization_login, user_login)
-    resp = get("/orgs/#{organization_login}/members/#{user_login}")
+    resp = get("/orgs/#{organization_login}/public_members/#{user_login}")
     resp.code == '204'
   end
 

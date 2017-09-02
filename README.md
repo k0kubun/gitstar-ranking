@@ -2,7 +2,7 @@
 
 GitHub star ranking for users, organizations and repositories.
 
-https://github-ranking.com
+https://gitstar-ranking.com
 
 ## Build Status
 

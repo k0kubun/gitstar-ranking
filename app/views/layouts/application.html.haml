@@ -4,8 +4,8 @@
     %title= content_for(:title) || page_title
     %link{ rel: 'shortcut icon', href: '/favicon.ico' }
     %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
-    %meta{ name: 'description', content: content_for?(:description) ? yield(:description) : 'GitHub Ranking is a ranking for all GitHub users. You can see top 1000 users, organizations and repositories. Find your favorite user. See what is your rank.' }
-    %meta{ name: 'keywords', content: 'GitHub, Star, Ranking' }
+    %meta{ name: 'description', content: content_for?(:description) ? yield(:description) : 'Gitstar Ranking is a GitHub star ranking. You can see top 1000 users, organizations and repositories. Find your favorite user. See what is your rank.' }
+    %meta{ name: 'keywords', content: 'GitHub, Star, Gitstar, Ranking' }
     - if content_for?(:canonical)
       %link{ rel: 'canonical', href: yield(:canonical) }
     - if content_for?(:head)
@@ -25,4 +25,4 @@
       %footer
         .row
           .col-lg-12
-            %p Released by #{link_to '@k0kubun', 'https://github.com/k0kubun'} in December 2014. Fork me on #{link_to 'GitHub', 'https://github.com/k0kubun/githubranking'}.
+            %p Released by #{link_to '@k0kubun', 'https://github.com/k0kubun'} in December 2014. Fork me on #{link_to 'GitHub', 'https://github.com/k0kubun/gitstar-ranking'}.

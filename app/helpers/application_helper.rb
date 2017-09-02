@@ -1,7 +1,7 @@
 module ApplicationHelper
   include PaginationHelper
 
-  PAGE_TITLE  = 'GitHub Ranking'
+  PAGE_TITLE  = 'Gitstar Ranking'
   GITHUB_HOST = 'https://github.com'
   COLOR_CLASS = {
     notice: :success,

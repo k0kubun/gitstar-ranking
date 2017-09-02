@@ -1,6 +1,7 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class WorkerManager
                 new ThreadFactoryBuilder()
                         .setNameFormat("github-ranking-worker-%d")
                         .setUncaughtExceptionHandler((t, e) -> {
+                            Sentry.capture(e);
                             LOG.error("Uncaught exception at worker: " + e.getMessage());
                         }).build());
 
@@ -62,12 +64,15 @@ public class WorkerManager
                 LOG.info("Stopped worker (" + i + "/" + futures.size() + ")");
             }
             catch (TimeoutException e) {
+                Sentry.capture(e);
                 LOG.error("Timed out to stop worker!: " + e.getMessage());
             }
             catch (InterruptedException e) {
+                Sentry.capture(e);
                 LOG.error("Interrupted on stopping worker!: " + e.getMessage());
             }
             catch (ExecutionException e) {
+                Sentry.capture(e);
                 LOG.error("Execution failed on stopping worker!: " + e.getMessage());
             }
         }

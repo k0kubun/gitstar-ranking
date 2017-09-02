@@ -7,6 +7,7 @@ import com.github.k0kubun.github_ranking.repository.DatabaseLock;
 import com.github.k0kubun.github_ranking.repository.PaginatedUsers;
 import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
+import io.sentry.Sentry;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -57,6 +58,7 @@ public class UpdateStarredUserWorker
                         });
                     }
                     catch (Exception e) {
+                        Sentry.capture(e);
                         LOG.error("Error in UpdateStarredUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
                         e.printStackTrace();
                     }

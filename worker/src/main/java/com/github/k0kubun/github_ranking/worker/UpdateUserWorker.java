@@ -12,6 +12,7 @@ import com.github.k0kubun.github_ranking.repository.dao.AccessTokenDao;
 import com.github.k0kubun.github_ranking.repository.dao.RepositoryDao;
 import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
+import io.sentry.Sentry;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -80,6 +81,7 @@ public class UpdateUserWorker
                 });
             }
             catch (Exception e) {
+                Sentry.capture(e);
                 LOG.error("Error in UpdateUserWorker! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
                 e.printStackTrace();
             }
@@ -120,6 +122,7 @@ public class UpdateUserWorker
             LOG.info("[" + login + "] imported repos: " + repos.size());
         }
         catch (GitHubClient.UserNotFoundException e) {
+            Sentry.capture(e);
             LOG.error("UserNotFoundException error: " + e.getMessage());
             LOG.info("delete user: " + userId.toString());
             handle.useTransaction((conn, status) -> {

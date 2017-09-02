@@ -61,6 +61,7 @@ public class RankingResource
                 queue.put(true);
             }
             catch (InterruptedException e) {
+                Sentry.capture(e);
                 LOG.error("API queueing interrupted: " + e.getMessage());
             }
         }

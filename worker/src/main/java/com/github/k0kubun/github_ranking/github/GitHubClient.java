@@ -9,6 +9,7 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import io.sentry.Sentry;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -76,6 +77,7 @@ public class GitHubClient
                 repos.add(new Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language));
             }
             catch (ClassCastException e) {
+                Sentry.capture(e);
                 LOG.debug("node: " + node.toString());
                 throw e;
             }
@@ -91,7 +93,7 @@ public class GitHubClient
             return responseObject.getJsonObject("data").getJsonObject("rateLimit").getInt("remaining");
         }
         catch (IOException e) {
-            // TODO : log this
+            Sentry.capture(e);
             return 0;
         }
     }

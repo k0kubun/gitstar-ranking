@@ -1,12 +1,19 @@
 package com.github.k0kubun.github_ranking.worker;
 
+import io.sentry.Sentry;
+
 import java.io.IOException;
 import java.lang.UnsupportedOperationException;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class Worker
         implements Callable<Void>
 {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateStarredUserWorker.class);
+
     // Subclass must prepare to shut down if this is true.
     public boolean isStopped;
 
@@ -44,6 +51,7 @@ public abstract class Worker
 
     private void handleException(Exception e)
     {
-        System.err.println("Unhandled exception!: " + e.getMessage());
+        Sentry.capture(e);
+        LOG.error("Unhandled exception!: " + e.getMessage());
     }
 }

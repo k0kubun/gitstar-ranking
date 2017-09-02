@@ -12,6 +12,7 @@ dependencies {
     compile 'com.google.http-client:google-http-client:1.22.0'
     compile 'com.treasuredata:underwrap:0.1.4'
     compile 'com.zaxxer:HikariCP:2.6.3'
+    compile 'io.sentry:sentry:1.5.2'
     compile 'javax.json:javax.json-api:1.1'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile 'mysql:mysql-connector-java:6.0.6'

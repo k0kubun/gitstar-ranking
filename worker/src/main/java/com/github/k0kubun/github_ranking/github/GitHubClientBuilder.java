@@ -3,6 +3,7 @@ package com.github.k0kubun.github_ranking.github;
 import com.github.k0kubun.github_ranking.model.AccessToken;
 import com.github.k0kubun.github_ranking.repository.dao.AccessTokenDao;
 import com.github.k0kubun.github_ranking.worker.Worker;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,6 @@ public class GitHubClientBuilder
     public GitHubClient buildFromEnabled()
     {
         while (true) {
-            // TODO: log
             AccessToken token = rotateToken();
             GitHubClient client = new GitHubClient(token.getToken());
             int remaining = client.getRateLimitRemaining();
@@ -56,6 +56,7 @@ public class GitHubClientBuilder
                     TimeUnit.SECONDS.sleep(10);
                 }
                 catch (InterruptedException e) {
+                    Sentry.capture(e);
                     LOG.info("interrupt");
                 }
             }

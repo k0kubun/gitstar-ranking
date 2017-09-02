@@ -12,6 +12,7 @@ import com.github.k0kubun.github_ranking.worker.UserRankingWorker;
 import com.github.k0kubun.github_ranking.worker.Worker;
 import com.github.k0kubun.github_ranking.worker.WorkerManager;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.sentry.Sentry;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +36,8 @@ public class Main
 
     public static void main(String[] args)
     {
+        Sentry.init(System.getenv().get("SENTRY_DSN"));
+
         ScheduledExecutorService scheduler = buildAndRunScheduler();
 
         WorkerManager workers = buildWorkers(config);
@@ -55,8 +58,8 @@ public class Main
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat("scheduler-%d")
                 .setUncaughtExceptionHandler((t, e) -> {
+                    Sentry.capture(e);
                     LOG.error("Uncaught exception at scheduler: " + e.getMessage());
-                    e.printStackTrace();
                 })
                 .build();
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
@@ -75,6 +78,7 @@ public class Main
                 queue.put(true);
             }
             catch (InterruptedException e) {
+                Sentry.capture(e);
                 LOG.error("Scheduling interrupted: " + e.getMessage());
             }
         }
@@ -109,6 +113,7 @@ public class Main
             }
         }
         catch (InterruptedException e) {
+            Sentry.capture(e);
             LOG.error("Scheduler shutdown interrupted: " + e.getMessage());
             executor.shutdownNow();
             Thread.currentThread().interrupt();

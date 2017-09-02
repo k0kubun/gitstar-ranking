@@ -1,4 +1,4 @@
-# GitHub Ranking
+# Gitstar Ranking
 
 GitHub star ranking for users, organizations and repositories.
 

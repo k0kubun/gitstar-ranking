@@ -39,7 +39,7 @@ public class Main
         Sentry.init(System.getenv().get("SENTRY_DSN"));
 
         try {
-            throw new RuntimeException("test exception");
+            throw new RuntimeException("test exception2");
         }
         catch (RuntimeException e) {
             Sentry.capture(e);

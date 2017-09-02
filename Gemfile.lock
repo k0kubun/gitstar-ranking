@@ -259,6 +259,8 @@ GEM
       sprockets (> 2.11)
       sprockets-rails
       tilt
+    sentry-raven (2.6.3)
+      faraday (>= 0.7.6, < 1.0)
     silencer (1.0.1)
     slop (3.6.0)
     spring (2.0.2)
@@ -331,6 +333,7 @@ DEPENDENCIES
   ridgepoler-rails
   rspec-rails
   sassc-rails
+  sentry-raven
   silencer
   spring
   spring-commands-rspec

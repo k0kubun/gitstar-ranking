@@ -8,7 +8,7 @@ https://github-ranking.com
 
 | Server | Worker |
 |:-------|:-------|
-| [![Build Status](https://travis-ci.org/k0kubun/github-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/github-ranking) | [![wercker status](https://app.wercker.com/status/ce0c5e8138d8a2aef9eb7b0466ae98b8/s/master "wercker status")](https://app.wercker.com/project/byKey/ce0c5e8138d8a2aef9eb7b0466ae98b8) |
+| [![Build Status](https://travis-ci.org/k0kubun/gitstar-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/gitstar-ranking) | [![wercker status](https://app.wercker.com/status/4f1170bbabcfa8b28e379746dff4e167/s/master "wercker status")](https://app.wercker.com/project/byKey/4f1170bbabcfa8b28e379746dff4e167) |
 
 ## Screen Shot
 

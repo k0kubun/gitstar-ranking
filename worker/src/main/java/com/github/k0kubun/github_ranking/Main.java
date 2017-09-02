@@ -38,13 +38,6 @@ public class Main
     {
         Sentry.init(System.getenv().get("SENTRY_DSN"));
 
-        try {
-            throw new RuntimeException("test exception2");
-        }
-        catch (RuntimeException e) {
-            Sentry.capture(e);
-        }
-
         ScheduledExecutorService scheduler = buildAndRunScheduler();
 
         WorkerManager workers = buildWorkers(config);
@@ -52,6 +45,13 @@ public class Main
 
         ApiServer server = new ApiServer(ApiApplication.class, config);
         server.start();
+
+        try {
+            throw new Exception("exception");
+        }
+        catch (Exception e) {
+            Sentry.capture(e);
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shutdownAndAwaitTermination(scheduler);

@@ -2,21 +2,21 @@
   .col-lg-12
     = render_flash :notice
 
-    %h2 Do you allow "GitHub Ranking" to use your access token to update ranking?
+    %h2 Do you allow "Gitstar Ranking" to use your access token to update ranking?
     %p
-      GitHub Ranking's data is maintained by requesting GitHub API using user's access tokens.
-      So we need your access token to keep GitHub Ranking up-to-date.
+      Gitstar Ranking's data is maintained by requesting GitHub API using user's access tokens.
+      So we need your access token to keep Gitstar Ranking up-to-date.
     %p
-      If you answer "Yes" to this, GitHub Ranking may use your access token to update other users' outdated data
+      If you answer "Yes" to this, Gitstar Ranking may use your access token to update other users' outdated data
       if and only if your access token's API limit is remaining over 60%.
-      When 40% of API rate limit is already used by GitHub Ranking or other services,
-      GitHub Ranking won't use your access token to update other users' data.
+      When 40% of API rate limit is already used by Gitstar Ranking or other services,
+      Gitstar Ranking won't use your access token to update other users' data.
       So your access token won't be exhausted for other users even if you answer "Yes".
     %p
       If you answer "No" to this or until you answer to this,
-      GitHub Ranking will use your access token only when it updates your data.
+      Gitstar Ranking will use your access token only when it updates your data.
     %p
-      = link_to 'Yes, I allow GitHub Ranking to update data with my access token', enable_settings_access_tokens_path, method: :post,
+      = link_to 'Yes, I allow Gitstar Ranking to update data with my access token', enable_settings_access_tokens_path, method: :post,
         class: 'btn btn-primary'
       = link_to 'No, I use my access token only for me', disable_settings_access_tokens_path, method: :post,
         class: 'btn btn-default'

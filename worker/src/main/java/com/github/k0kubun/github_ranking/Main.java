@@ -46,13 +46,6 @@ public class Main
         ApiServer server = new ApiServer(ApiApplication.class, config);
         server.start();
 
-        try {
-            throw new Exception("exception");
-        }
-        catch (Exception e) {
-            Sentry.capture(e);
-        }
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shutdownAndAwaitTermination(scheduler);
             server.stop();

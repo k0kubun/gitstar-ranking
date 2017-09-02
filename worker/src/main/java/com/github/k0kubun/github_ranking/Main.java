@@ -38,6 +38,13 @@ public class Main
     {
         Sentry.init(System.getenv().get("SENTRY_DSN"));
 
+        try {
+            throw new RuntimeException("test exception");
+        }
+        catch (RuntimeException e) {
+            Sentry.capture(e);
+        }
+
         ScheduledExecutorService scheduler = buildAndRunScheduler();
 
         WorkerManager workers = buildWorkers(config);

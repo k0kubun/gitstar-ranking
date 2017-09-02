@@ -2,6 +2,7 @@ package com.github.k0kubun.github_ranking.api;
 
 import com.github.k0kubun.github_ranking.config.QueueConfig;
 import com.github.k0kubun.github_ranking.model.ApiResponse;
+import io.sentry.Sentry;
 
 import java.sql.Time;
 import java.util.concurrent.BlockingQueue;

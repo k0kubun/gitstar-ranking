@@ -14,11 +14,9 @@ class RepositoriesController < ApplicationController
     @user = User.find_by!(login: params[:user_login])
     @repo = Repository.find_by!(full_name: "#{params[:user_login]}/#{params[:name]}")
 
-    # Workaround for path like daneden/animate.css
-    if request.format == :css
-      request.format = :html
-      respond_to(&:html)
-    end
+    # Workaround for path like *.js or *.css
+    request.format = :html
+    respond_to(&:html)
   rescue ActiveRecord::RecordNotFound => e
     location = check_github_redirection
     raise e if location.blank?

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'repositories', type: :request do
   describe '#show' do
-    it 'shows path with extension' do
+    it 'renders .css path with proper Content-Type' do
       repo = FactoryGirl.create(
         :repository,
         name: 'animate.css',
@@ -11,6 +11,19 @@ RSpec.describe 'repositories', type: :request do
       )
       get "/#{repo.full_name}"
       expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to match(%r[\Atext/html;])
+    end
+
+    it 'renders .jss path with proper Content-Type' do
+      repo = FactoryGirl.create(
+        :repository,
+        name: 'angular.js',
+        full_name: 'angular/angular.js',
+        owner: FactoryGirl.create(:user, login: 'angular')
+      )
+      get "/#{repo.full_name}"
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to match(%r[\Atext/html;])
     end
   end
 end

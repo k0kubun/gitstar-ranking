@@ -27,12 +27,12 @@ public interface UserDao
     long updateStars(@Bind("id") Integer id, @Bind("stargazersCount") Integer stargazersCount);
 
     @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
-    @Mapper(UserMapper.class)
+    @Mapper(UserStarMapper.class)
     List<User> starsDescFirstUsers(@Bind("limit") Integer limit);
 
     @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' and " +
             "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
-    @Mapper(UserMapper.class)
+    @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
 
     @SqlQuery("select count(1) from users where type = 'User'")
@@ -53,6 +53,20 @@ public interface UserDao
         {
             User user = new User(r.getInt("id"), r.getString("type"));
             user.setLogin(r.getString("login"));
+            return user;
+        }
+    }
+
+    class UserStarMapper
+            implements ResultSetMapper<User>
+    {
+        @Override
+        public User map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
+        {
+            User user = new User(r.getInt("id"), r.getString("type"));
+            user.setLogin(r.getString("login"));
+            user.setStargazersCount(r.getInt("stargazers_count"));
             return user;
         }
     }

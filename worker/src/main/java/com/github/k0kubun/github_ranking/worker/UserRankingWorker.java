@@ -117,12 +117,16 @@ public class UserRankingWorker
 
     private void commitRanks(Handle handle, List<UserRank> userRanks)
     {
+        // TODO: test this
         // `userRanks` is listed in stargazers_count DESC
         Integer minStars = lastOf(userRanks).getStargazersCount();
+        Integer highestRank = lastOf(userRanks).getRank();
         Integer maxStars = userRanks.get(0).getStargazersCount();
+        Integer lowestRank = userRanks.get(0).getRank();
 
         handle.useTransaction((conn, status) -> {
-            conn.attach(UserRankDao.class).deleteBetween(minStars, maxStars);
+            conn.attach(UserRankDao.class).deleteStarsBetween(minStars, maxStars);
+            conn.attach(UserRankDao.class).deleteRankBetween(highestRank, lowestRank);
             conn.attach(UserRankDao.class).bulkInsert(userRanks);
         });
     }

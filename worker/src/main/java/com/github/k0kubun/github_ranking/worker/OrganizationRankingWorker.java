@@ -118,11 +118,14 @@ public class OrganizationRankingWorker
     private void commitRanks(Handle handle, List<OrganizationRank> orgRanks)
     {
         // `orgRanks` is listed in stargazers_count DESC
-        Integer minStars = lastOf(orgRanks).getStargazersCount();
         Integer maxStars = orgRanks.get(0).getStargazersCount();
+        Integer highestRank = orgRanks.get(0).getRank();
+        Integer minStars = lastOf(orgRanks).getStargazersCount();
+        Integer lowestRank = lastOf(orgRanks).getRank();
 
         handle.useTransaction((conn, status) -> {
-            conn.attach(OrganizationRankDao.class).deleteBetween(minStars, maxStars);
+            conn.attach(OrganizationRankDao.class).deleteStarsBetween(minStars, maxStars);
+            conn.attach(OrganizationRankDao.class).deleteRankBetween(highestRank, lowestRank);
             conn.attach(OrganizationRankDao.class).bulkInsert(orgRanks);
         });
     }

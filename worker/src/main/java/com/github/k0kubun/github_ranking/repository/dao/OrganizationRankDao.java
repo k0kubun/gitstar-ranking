@@ -13,7 +13,11 @@ import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 public interface OrganizationRankDao
 {
     @SqlUpdate("delete from organization_ranks where stargazers_count between :min and :max")
-    long deleteBetween(@Bind("min") int min, @Bind("max") int max);
+    long deleteStarsBetween(@Bind("min") int min, @Bind("max") int max);
+
+    // Lower rank is larger number
+    @SqlUpdate("delete from organization_ranks where rank between :highest and :lowest")
+    long deleteRankBetween(@Bind("highest") int highest, @Bind("lowest") int lowest);
 
     @SqlBatch("insert into organization_ranks (stargazers_count, rank, created_at, updated_at) " +
             "values (:stargazersCount, :rank, current_timestamp(), current_timestamp())")

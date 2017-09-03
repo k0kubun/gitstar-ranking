@@ -117,11 +117,14 @@ public class RepositoryRankingWorker
     private void commitRanks(Handle handle, List<RepositoryRank> repoRanks)
     {
         // `repoRanks` is listed in stargazers_count DESC
-        Integer minStars = lastOf(repoRanks).getStargazersCount();
         Integer maxStars = repoRanks.get(0).getStargazersCount();
+        Integer highestRank = repoRanks.get(0).getRank();
+        Integer minStars = lastOf(repoRanks).getStargazersCount();
+        Integer lowestRank = lastOf(repoRanks).getRank();
 
         handle.useTransaction((conn, status) -> {
-            conn.attach(RepositoryRankDao.class).deleteBetween(minStars, maxStars);
+            conn.attach(RepositoryRankDao.class).deleteStarsBetween(minStars, maxStars);
+            conn.attach(RepositoryRankDao.class).deleteRankBetween(highestRank, lowestRank);
             conn.attach(RepositoryRankDao.class).bulkInsert(repoRanks);
         });
     }

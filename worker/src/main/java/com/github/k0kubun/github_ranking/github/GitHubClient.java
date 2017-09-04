@@ -20,6 +20,7 @@ import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonStructure;
 import javax.json.JsonValue;
 
@@ -143,26 +144,6 @@ public class GitHubClient
         if (responseObject.containsKey("errors")) {
             LOG.debug("errors with query:\n" + query);
             LOG.debug("response:\n" + responseObject.toString());
-
-            List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
-            for (JsonObject error : errors) { // TODO: Log suppressed errors
-                LOG.debug("error: " + error.toString());
-                if (error.containsKey("type")) {
-                    LOG.debug("contains type");
-                    if (error.getString("type").equals("NOT_FOUND")) {
-                        LOG.debug("equals NOT_FOUND");
-                        if (error.containsKey("path")) {
-                            LOG.debug("contains path");
-                            for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
-                                LOG.debug("path: '" + path.toString() + "'");
-                                if (path.toString().equals("node")) {
-                                    LOG.debug("message: " + error.getString("message"));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
         return responseObject;
     }
@@ -264,8 +245,8 @@ public class GitHubClient
             List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
             for (JsonObject error : errors) { // TODO: Log suppressed errors
                 if (error.containsKey("type") && error.getString("type").equals("NOT_FOUND") && error.containsKey("path")) {
-                    for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
-                        if (path.toString().equals("node")) {
+                    for (JsonString path : error.getJsonArray("path").getValuesAs(JsonString.class)) {
+                        if (path.equals("node")) {
                             throw new UserNotFoundException(error.getString("message"));
                         }
                     }

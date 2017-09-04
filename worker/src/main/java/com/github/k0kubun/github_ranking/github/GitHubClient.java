@@ -242,9 +242,9 @@ public class GitHubClient
         if (responseObject.containsKey("errors")) {
             List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
             for (JsonObject error : errors) { // TODO: Log suppressed errors
-                if (error.containsKey("type") && error.getString("type") == "NOT_FOUND" && error.containsKey("path")) {
+                if (error.containsKey("type") && error.getString("type").equals("NOT_FOUND") && error.containsKey("path")) {
                     for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
-                        if (path.toString() == "node") {
+                        if (path.toString().equals("node")) {
                             throw new UserNotFoundException(error.getString("message"));
                         }
                     }

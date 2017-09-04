@@ -246,6 +246,8 @@ public class GitHubClient
             for (JsonObject error : errors) { // TODO: Log suppressed errors
                 if (error.containsKey("type") && error.getString("type").equals("NOT_FOUND") && error.containsKey("path")) {
                     for (JsonString path : error.getJsonArray("path").getValuesAs(JsonString.class)) {
+                        LOG.debug("path string: " + path.toString());
+                        LOG.debug("path result: " + path.equals("node"));
                         if (path.equals("node")) {
                             throw new UserNotFoundException(error.getString("message"));
                         }

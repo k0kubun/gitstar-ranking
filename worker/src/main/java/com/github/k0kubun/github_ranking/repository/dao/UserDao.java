@@ -29,7 +29,7 @@ public interface UserDao
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
     long updateStars(@Bind("id") Integer id, @Bind("stargazersCount") Integer stargazersCount);
 
-    @SqlQuery("select id from users order id desc limit 1")
+    @SqlQuery("select id from users order by id desc limit 1")
     int lastId();
 
     @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' order by stargazers_count desc, id desc limit :limit")

@@ -2,7 +2,6 @@
 /log/*
 !/log/.keep
 /tmp
-/config/secrets.yml
 /light_blue
 /public/assets
 /solr/development/data/*

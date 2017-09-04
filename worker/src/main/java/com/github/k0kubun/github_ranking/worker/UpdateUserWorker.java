@@ -125,7 +125,6 @@ public class UpdateUserWorker
             LOG.info("[" + login + "] imported repos: " + repos.size());
         }
         catch (GitHubClient.UserNotFoundException e) {
-            Sentry.capture(e);
             LOG.error("UserNotFoundException error: " + e.getMessage());
             LOG.info("delete user: " + userId.toString());
             handle.useTransaction((conn, status) -> {

@@ -94,6 +94,7 @@ public class Main
         DataSource dataSource = config.getDatabaseConfig().getDataSource();
 
         WorkerManager workers = new WorkerManager();
+        workers.add(new NewUserWorker(config));
         for (int i = 0; i < NUM_UPDATE_USER_WORKERS; i++) {
             workers.add(new UpdateUserWorker(dataSource));
         }
@@ -102,7 +103,6 @@ public class Main
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
         workers.add(new RepositoryRankingWorker(config));
-        workers.add(new NewUserWorker(config));
         return workers;
     }
 

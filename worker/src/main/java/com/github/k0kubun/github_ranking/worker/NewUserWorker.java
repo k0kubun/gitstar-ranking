@@ -29,7 +29,7 @@ public class NewUserWorker
     public NewUserWorker(Config config)
     {
         super(config.getDatabaseConfig().getDataSource());
-        newUserQueue = config.getQueueConfig().getUserRankingQueue();
+        newUserQueue = config.getQueueConfig().getNewUserQueue();
     }
 
     @Override

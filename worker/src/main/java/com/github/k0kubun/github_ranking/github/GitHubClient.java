@@ -56,7 +56,13 @@ public class GitHubClient
                         "}"
         );
         handleUserNodeErrors(responseObject);
-        return responseObject.getJsonObject("data").getJsonObject("node").getString("login");
+        JsonObject userNode = responseObject.getJsonObject("data").getJsonObject("node");
+        if (userNode.containsKey("login")) {
+            return userNode.getString("login");
+        }
+        else { // bot user like id=30333062 returns `node {}`
+            throw new UserNotFoundException("user_id = " + userId + " did not have login");
+        }
     }
 
     public List<Repository> getPublicRepos(Integer userId, boolean isOrganization)

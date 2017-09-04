@@ -105,7 +105,10 @@ public class UpdateUserWorker
             LOG.debug("[" + login + "] finished: find User");
 
             if (!user.isOrganization()) {
-                handle.attach(UserDao.class).updateLogin(userId, client.getLogin(userId));
+                String newLogin = client.getLogin(userId);
+                if (newLogin != null) {
+                    handle.attach(UserDao.class).updateLogin(userId, newLogin);
+                }
                 LOG.debug("[" + login + "] finished: update Login");
             }
 

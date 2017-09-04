@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Worker
         implements Callable<Void>
 {
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateStarredUserWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
     // Subclass must prepare to shut down if this is true.
     public boolean isStopped;

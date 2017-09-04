@@ -210,7 +210,7 @@ public class GitHubClient
 
             if (edges.size() == PAGE_SIZE) {
                 cursor = edges.get(PAGE_SIZE - 1).getString("cursor");
-                LOG.debug("Paginate user_id: " + userId.toString() + " with cursor: " + cursor + " size: " + nodes.size().toString());
+                LOG.debug("Paginate user_id: " + userId.toString() + " with cursor: " + cursor + " size: " + nodes.size());
             }
             else {
                 break;

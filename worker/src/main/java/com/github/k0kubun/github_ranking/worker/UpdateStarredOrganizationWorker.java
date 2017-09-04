@@ -47,12 +47,15 @@ public class UpdateStarredOrganizationWorker
                         return;
                     }
 
-                    // TODO: skip if already updated
                     User user = org.toUser();
+                    // Skip if it's recently updated
+                    if (user.isUpdatedWithinDays(5)) {
+                        LOG.info("UpdateStarredOrganizationWorker skipped: (userId = " + user.getId() + ", login = " + user.getLogin() + ", updatedAt = " + user.getUpdatedAt().toString() + ")");
+                    }
+
                     try {
                         lock.withUserUpdate(user.getId(), () -> {
                             LOG.info("UpdateStarredOrganizationWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
-                            // TODO: Handle `isStopped` properly
                             GitHubClient client = clientBuilder.buildFromEnabled();
                             updateUser(handle, user, client);
                             LOG.info("UpdateStarredOrganizationWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");

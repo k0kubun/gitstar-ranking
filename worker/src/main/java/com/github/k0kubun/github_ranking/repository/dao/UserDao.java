@@ -32,11 +32,11 @@ public interface UserDao
     @SqlQuery("select id from users order by id desc limit 1")
     int lastId();
 
-    @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescFirstUsers(@Bind("limit") Integer limit);
 
-    @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' and " +
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
             "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
@@ -79,6 +79,7 @@ public interface UserDao
             User user = new User(r.getInt("id"), r.getString("type"));
             user.setLogin(r.getString("login"));
             user.setStargazersCount(r.getInt("stargazers_count"));
+            user.setUpdatedAt(r.getTimestamp("updated_at"));
             return user;
         }
     }

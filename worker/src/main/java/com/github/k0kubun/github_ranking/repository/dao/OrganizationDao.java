@@ -15,11 +15,11 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 public interface OrganizationDao
 {
-    @SqlQuery("select id, login, type, stargazers_count from users where type = 'Organization' order by stargazers_count desc, id desc limit :limit")
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'Organization' order by stargazers_count desc, id desc limit :limit")
     @Mapper(OrganizationMapper.class)
     List<Organization> starsDescFirstOrgs(@Bind("limit") Integer limit);
 
-    @SqlQuery("select id, login, type, stargazers_count from users where type = 'Organization' and " +
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'Organization' and " +
             "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(OrganizationMapper.class)
     List<Organization> starsDescOrgsAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
@@ -37,7 +37,7 @@ public interface OrganizationDao
         public Organization map(int index, ResultSet r, StatementContext ctx)
                 throws SQLException
         {
-            return new Organization(r.getInt("id"), r.getString("login"), r.getInt("stargazers_count"));
+            return new Organization(r.getInt("id"), r.getString("login"), r.getInt("stargazers_count"), r.getTimestamp("updated_at"));
         }
     }
 }

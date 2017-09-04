@@ -98,8 +98,8 @@ public class Main
         for (int i = 0; i < NUM_UPDATE_USER_WORKERS; i++) {
             workers.add(new UpdateUserWorker(dataSource));
         }
-        //workers.add(new UpdateStarredUserWorker(dataSource));
-        //workers.add(new UpdateStarredOrganizationWorker(dataSource));
+        workers.add(new UpdateStarredUserWorker(dataSource));
+        workers.add(new UpdateStarredOrganizationWorker(dataSource));
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
         workers.add(new RepositoryRankingWorker(config));

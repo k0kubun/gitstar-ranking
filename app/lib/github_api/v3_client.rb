@@ -17,6 +17,12 @@ class GithubApi::V3Client
     resp.code == '204'
   end
 
+  # for testing, not used by app
+  def users(since:)
+    resp = get("/users?since=#{since}")
+    JSON.parse(resp.body)
+  end
+
   private
 
   def get(path)

@@ -6,6 +6,7 @@ public class User
     private final String type;
     private String login;
     private int stargazersCount;
+    private String avatarUrl;
 
     public User(int id, String type)
     {
@@ -36,6 +37,16 @@ public class User
     public void setStargazersCount(Integer stargazersCount)
     {
         this.stargazersCount = stargazersCount;
+    }
+
+    public void setAvatarUrl(String avatarUrl)
+    {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getAvatarUrl()
+    {
+        return avatarUrl;
     }
 
     public boolean isOrganization()

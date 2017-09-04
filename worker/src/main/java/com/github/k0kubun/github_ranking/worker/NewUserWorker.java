@@ -62,11 +62,17 @@ public class NewUserWorker
                     return;
                 }
 
-                lock.withUserUpdate(user.getId(), () -> {
-                    LOG.info("NewUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
-                    updateUser(handle, user, clientBuilder.buildFromEnabled());
-                    LOG.info("NewUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
-                });
+                try {
+                    lock.withUserUpdate(user.getId(), () -> {
+                        LOG.info("NewUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        updateUser(handle, user, clientBuilder.buildFromEnabled());
+                        LOG.info("NewUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                    });
+                }
+                catch (Exception e) {
+                    Sentry.capture(e);
+                    LOG.error("Error in NewUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
+                }
             }
             since = users.get(users.size() - 1).getId();
 

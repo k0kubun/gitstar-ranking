@@ -83,7 +83,6 @@ public class UpdateUserWorker
             catch (Exception e) {
                 Sentry.capture(e);
                 LOG.error("Error in UpdateUserWorker! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
-                e.printStackTrace();
             }
             finally {
                 dao.delete(job.getId());

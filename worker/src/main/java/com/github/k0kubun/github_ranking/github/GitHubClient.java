@@ -248,6 +248,8 @@ public class GitHubClient
                     for (JsonString path : error.getJsonArray("path").getValuesAs(JsonString.class)) {
                         LOG.debug("path string: " + path.toString());
                         LOG.debug("path result: " + path.equals("node"));
+                        LOG.debug("path get string: " + path.getString());
+                        LOG.debug("path get result: " + path.getString().equals("node"));
                         if (path.equals("node")) {
                             throw new UserNotFoundException(error.getString("message"));
                         }

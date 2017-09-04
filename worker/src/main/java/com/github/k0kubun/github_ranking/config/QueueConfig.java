@@ -15,12 +15,14 @@ public class QueueConfig
     private final BlockingQueue<Boolean> userRankingQueue;
     private final BlockingQueue<Boolean> orgRankingQueue;
     private final BlockingQueue<Boolean> repoRankingQueue;
+    private final BlockingQueue<Boolean> newUserQueue;
 
     public QueueConfig()
     {
         userRankingQueue = new LinkedBlockingQueue<>();
         orgRankingQueue = new LinkedBlockingQueue<>();
         repoRankingQueue = new LinkedBlockingQueue<>();
+        newUserQueue = new LinkedBlockingQueue<>();
     }
 
     public BlockingQueue<Boolean> getUserRankingQueue()
@@ -36,5 +38,10 @@ public class QueueConfig
     public BlockingQueue<Boolean> getRepoRankingQueue()
     {
         return repoRankingQueue;
+    }
+
+    public BlockingQueue<Boolean> getNewUserQueue()
+    {
+        return newUserQueue;
     }
 }

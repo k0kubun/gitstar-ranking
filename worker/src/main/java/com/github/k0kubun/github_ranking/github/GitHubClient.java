@@ -30,7 +30,8 @@ public class GitHubClient
 {
     private static final Integer PAGE_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(GitHubClient.class);
-    private static final String GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
+    private static final String API_ENDPOINT = "https://api.github.com";
+    private static final String GRAPHQL_ENDPOINT = API_ENDPOINT + "/graphql";
 
     private final String accessToken;
     private final HttpRequestFactory requestFactory;
@@ -96,6 +97,28 @@ public class GitHubClient
             Sentry.capture(e);
             return 0;
         }
+    }
+
+    public List<User> getUsersSince(int since)
+            throws IOException
+    {
+        HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users?since=" + since));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAuthorization("bearer " + accessToken);
+        request.setHeaders(headers);
+
+        HttpResponse response = request.execute();
+        // TODO: Handle error status code
+        List<JsonObject> userObjects = Json.createReader(new StringReader(response.parseAsString())).readArray().getValuesAs(JsonObject.class);
+        List<User> users = new ArrayList<>();
+        for (JsonObject userObject : userObjects) {
+            User user = new User(userObject.getInt("id"), userObject.getString("type"));
+            user.setLogin(userObject.getString("login"));
+            user.setAvatarUrl(userObject.getString("avatar_url"));
+            users.add(user);
+        }
+        return users;
     }
 
     private JsonObject graphql(String query)

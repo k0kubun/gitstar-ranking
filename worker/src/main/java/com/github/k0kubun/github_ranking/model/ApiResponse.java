@@ -8,7 +8,8 @@ public class ApiResponse<T>
     public enum Type
     {
         BOOLEAN,
-        INTEGER;
+        INTEGER,
+        ARRAY;
 
         @JsonValue
         public String toString()
@@ -18,6 +19,8 @@ public class ApiResponse<T>
                     return "boolean";
                 case INTEGER:
                     return "integer";
+                case ARRAY:
+                    return "array";
                 default:
                     throw new RuntimeException("unhandled ApiResponse.Type in toString()");
             }

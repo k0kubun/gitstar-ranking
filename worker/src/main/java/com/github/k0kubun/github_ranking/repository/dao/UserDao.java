@@ -2,14 +2,17 @@ package com.github.k0kubun.github_ranking.repository.dao;
 
 import com.github.k0kubun.github_ranking.model.User;
 
-import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -26,6 +29,9 @@ public interface UserDao
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
     long updateStars(@Bind("id") Integer id, @Bind("stargazersCount") Integer stargazersCount);
 
+    @SqlQuery("select id from users order id desc limit 1")
+    int lastId();
+
     @SqlQuery("select id, login, type, stargazers_count from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescFirstUsers(@Bind("limit") Integer limit);
@@ -40,6 +46,12 @@ public interface UserDao
 
     @SqlQuery("select count(1) from users where type = 'User' and stargazers_count = :stargazersCount")
     int countUsersHavingStars(@Bind("stargazersCount") int stargazersCount);
+
+    @SqlBatch("insert into users (id, type, login, avatar_url, created_at, updated_at) " +
+            "values (:id, :type, :login, :avatarUrl, current_timestamp(), current_timestamp()) " +
+            "on duplicate key update login=values(login), avatar_url=values(avatar_url), updated_at=values(updated_at)")
+    @BatchChunkSize(100)
+    void bulkInsert(@BindBean List<User> users);
 
     @SqlUpdate("delete from users where id = :id")
     long delete(@Bind("id") Integer id);

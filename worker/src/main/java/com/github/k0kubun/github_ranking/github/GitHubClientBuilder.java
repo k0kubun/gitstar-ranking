@@ -27,7 +27,7 @@ public class GitHubClientBuilder
     public GitHubClientBuilder(DataSource dataSource)
     {
         dbi = new DBI(dataSource);
-        tokens = dbi.onDemand(AccessTokenDao.class).allEnabledTokens();
+        tokens = new ArrayList<>();
     }
 
     public GitHubClient buildForUser(Integer userId)
@@ -63,11 +63,11 @@ public class GitHubClientBuilder
         }
     }
 
-    // TODO: handle no tokens
     private AccessToken rotateToken()
     {
-        AccessToken first = tokens.remove(0);
-        tokens.add(first);
-        return first;
+        if (tokens.isEmpty()) {
+            tokens = dbi.onDemand(AccessTokenDao.class).allEnabledTokens();
+        }
+        return tokens.remove(0); // TODO: handle no tokens
     }
 }

@@ -17,21 +17,21 @@ import javax.ws.rs.core.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/ranks")
+@Path("/jobs")
 @Produces("application/json")
-public class RankingResource
+public class JobResource
 {
-    private static final Logger LOG = LoggerFactory.getLogger(RankingResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobResource.class);
 
     private final QueueConfig queueConfig;
 
-    public RankingResource(@Context QueueConfig queueConfig)
+    public JobResource(@Context QueueConfig queueConfig)
     {
         this.queueConfig = queueConfig;
     }
 
     @POST
-    @Path("/users")
+    @Path("/user_ranks")
     public ApiResponse calcUsers()
     {
         return new ApiResponse<>(ApiResponse.Type.INTEGER,
@@ -39,7 +39,7 @@ public class RankingResource
     }
 
     @POST
-    @Path("/orgs")
+    @Path("/org_ranks")
     public ApiResponse calcOrgs()
     {
         return new ApiResponse<>(ApiResponse.Type.INTEGER,
@@ -47,11 +47,19 @@ public class RankingResource
     }
 
     @POST
-    @Path("/repos")
+    @Path("/repo_ranks")
     public ApiResponse calcRepos()
     {
         return new ApiResponse<>(ApiResponse.Type.INTEGER,
                 scheduleIfEmpty(queueConfig.getRepoRankingQueue()));
+    }
+
+    @POST
+    @Path("/new_users")
+    public ApiResponse newUsers()
+    {
+        return new ApiResponse<>(ApiResponse.Type.INTEGER,
+                scheduleIfEmpty(queueConfig.getNewUserQueue()));
     }
 
     private Integer scheduleIfEmpty(BlockingQueue<Boolean> queue)

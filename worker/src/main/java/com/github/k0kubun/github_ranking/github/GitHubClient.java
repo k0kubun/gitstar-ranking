@@ -141,7 +141,28 @@ public class GitHubClient
         // TODO: Handle error status code
         JsonObject responseObject = Json.createReader(new StringReader(response.parseAsString())).readObject();
         if (responseObject.containsKey("errors")) {
-            LOG.debug("errors with query: " + query);
+            LOG.debug("errors with query:\n" + query);
+            LOG.debug("response:\n" + responseObject.toString());
+
+            List<JsonObject> errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject.class);
+            for (JsonObject error : errors) { // TODO: Log suppressed errors
+                LOG.debug("error: " + error.toString());
+                if (error.containsKey("type")) {
+                    LOG.debug("contains type");
+                    if (error.getString("type").equals("NOT_FOUND")) {
+                        LOG.debug("equals NOT_FOUND");
+                        if (error.containsKey("path")) {
+                            LOG.debug("contains path");
+                            for (JsonValue path : error.getJsonArray("path").getValuesAs(JsonValue.class)) {
+                                LOG.debug("path: '" + path.toString() + "'");
+                                if (path.toString().equals("node")) {
+                                    LOG.debug("message: " + error.getString("message"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         return responseObject;
     }

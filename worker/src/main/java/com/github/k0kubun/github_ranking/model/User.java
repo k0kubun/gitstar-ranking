@@ -29,6 +29,11 @@ public class User
         this.login = login;
     }
 
+    public String getType()
+    {
+        return type;
+    }
+
     public int getStargazersCount()
     {
         return stargazersCount;

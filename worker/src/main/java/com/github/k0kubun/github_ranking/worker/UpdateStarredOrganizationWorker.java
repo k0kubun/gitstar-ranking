@@ -51,6 +51,7 @@ public class UpdateStarredOrganizationWorker
                     // Skip if it's recently updated
                     if (user.isUpdatedWithinDays(5)) {
                         LOG.info("UpdateStarredOrganizationWorker skipped: (userId = " + user.getId() + ", login = " + user.getLogin() + ", updatedAt = " + user.getUpdatedAt().toString() + ")");
+                        continue;
                     }
 
                     try {

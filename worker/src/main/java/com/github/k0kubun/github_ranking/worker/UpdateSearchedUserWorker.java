@@ -1,6 +1,7 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
+import com.github.k0kubun.github_ranking.github.GitHubClient;
 import com.github.k0kubun.github_ranking.repository.DatabaseLock;
 
 import java.io.IOException;
@@ -45,7 +46,8 @@ public class UpdateSearchedUserWorker
     {
         //DatabaseLock lock = new DatabaseLock(handle, this);
 
-        //while (!(users = clientBuilder.buildEnabled().getUsersSince(since)).isEmpty()) {
+        //GitHubClient client = clientBuilder.buildEnabled();
+        //while (!(users = client.getUsersSince(since)).isEmpty()) {
         //    handle.attach(UserDao.class).bulkInsert(users);
         //    for (User user : users) {
         //        if (isStopped) {
@@ -65,14 +67,13 @@ public class UpdateSearchedUserWorker
         //        }
         //    }
         //    since = users.get(users.size() - 1).getId();
-
-        //    // Sleep to decrease GitHub API load
-        //    try {
-        //        TimeUnit.SECONDS.sleep(5);
-        //    }
-        //    catch (InterruptedException e) {
-        //        Sentry.capture(e);
-        //    }
         //}
+    }
+
+    public class PaginatedSearchedUsers
+    {
+        public PaginatedSearchedUsers(Handle handle, GitHubClient client)
+        {
+        }
     }
 }

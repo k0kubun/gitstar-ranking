@@ -75,6 +75,42 @@ public class GitHubClient
         }
     }
 
+    public List<JsonObject> getStarsDescUserEdges(String after)
+            throws IOException
+    {
+        String afterParam = "";
+        if (after != null) {
+            afterParam = " after:\"" + after + "\"";
+        }
+
+        JsonObject responseObject = graphql(
+                "        query {" +
+                        "  search(first:100 type:REPOSITORY query:\"stars:>100\"" + afterParam + ") {" +
+                        "    edges {" +
+                        "      node {" +
+                        "        ... on Repository {" +
+                        "          owner {" +
+                        "            id" +
+                        "            login" +
+                        "            ... on User {" +
+                        "              avatarUrl" +
+                        "            }" +
+                        "            ... on Organization {" +
+                        "              avatarUrl" +
+                        "            }" +
+                        "          }" +
+                        "        }" +
+                        "      }" +
+                        "      cursor" +
+                        "    }" +
+                        "  }" +
+                        "}");
+        if (responseObject.containsKey("errors")) {
+            throw new GraphQLUnhandledException(responseObject.toString());
+        }
+        return responseObject.getJsonObject("data").getJsonObject("search").getJsonArray("edges").getValuesAs(JsonObject.class);
+    }
+
     public List<Repository> getPublicRepos(Integer userId, boolean isOrganization)
             throws IOException
     {

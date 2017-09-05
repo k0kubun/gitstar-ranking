@@ -6,6 +6,7 @@ import com.github.k0kubun.github_ranking.server.ApiServer;
 import com.github.k0kubun.github_ranking.worker.NewUserWorker;
 import com.github.k0kubun.github_ranking.worker.OrganizationRankingWorker;
 import com.github.k0kubun.github_ranking.worker.RepositoryRankingWorker;
+import com.github.k0kubun.github_ranking.worker.UpdateSearchedUserWorker;
 import com.github.k0kubun.github_ranking.worker.UpdateStarredOrganizationWorker;
 import com.github.k0kubun.github_ranking.worker.UpdateStarredUserWorker;
 import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
@@ -73,6 +74,9 @@ public class Main
         // Schedule at most every 1 hour
         scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getNewUserQueue()); }, 1, 1, TimeUnit.HOURS);
 
+        // Schedule at most every 24 hour
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getSearchedUserQueue()); }, 1, 24, TimeUnit.HOURS);
+
         return scheduler;
     }
 
@@ -100,6 +104,7 @@ public class Main
         }
         workers.add(new UpdateStarredUserWorker(dataSource));
         workers.add(new UpdateStarredOrganizationWorker(dataSource));
+        workers.add(new UpdateSearchedUserWorker(config));
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
         workers.add(new RepositoryRankingWorker(config));

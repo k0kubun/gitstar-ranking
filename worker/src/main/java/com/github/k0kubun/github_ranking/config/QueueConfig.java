@@ -16,6 +16,7 @@ public class QueueConfig
     private final BlockingQueue<Boolean> orgRankingQueue;
     private final BlockingQueue<Boolean> repoRankingQueue;
     private final BlockingQueue<Boolean> newUserQueue;
+    private final BlockingQueue<Boolean> searchedUserQueue;
 
     public QueueConfig()
     {
@@ -23,6 +24,7 @@ public class QueueConfig
         orgRankingQueue = new LinkedBlockingQueue<>();
         repoRankingQueue = new LinkedBlockingQueue<>();
         newUserQueue = new LinkedBlockingQueue<>();
+        searchedUserQueue = new LinkedBlockingQueue<>();
     }
 
     public BlockingQueue<Boolean> getUserRankingQueue()
@@ -43,5 +45,10 @@ public class QueueConfig
     public BlockingQueue<Boolean> getNewUserQueue()
     {
         return newUserQueue;
+    }
+
+    public BlockingQueue<Boolean> getSearchedUserQueue()
+    {
+        return searchedUserQueue;
     }
 }

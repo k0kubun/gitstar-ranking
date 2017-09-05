@@ -62,6 +62,14 @@ public class JobResource
                 scheduleIfEmpty(queueConfig.getNewUserQueue()));
     }
 
+    @POST
+    @Path("/searched_users")
+    public ApiResponse searchedUsers()
+    {
+        return new ApiResponse<>(ApiResponse.Type.INTEGER,
+                scheduleIfEmpty(queueConfig.getSearchedUserQueue()));
+    }
+
     private Integer scheduleIfEmpty(BlockingQueue<Boolean> queue)
     {
         int size = queue.size();

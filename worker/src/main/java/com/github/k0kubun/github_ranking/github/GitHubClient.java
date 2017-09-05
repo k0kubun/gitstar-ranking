@@ -8,14 +8,17 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import io.sentry.Sentry;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -29,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class GitHubClient
 {
+    private static final int MAX_RETRY = 3;
     private static final Integer PAGE_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(GitHubClient.class);
     private static final String API_ENDPOINT = "https://api.github.com";
@@ -115,7 +119,7 @@ public class GitHubClient
         headers.setAuthorization("bearer " + accessToken);
         request.setHeaders(headers);
 
-        HttpResponse response = request.execute();
+        HttpResponse response = executeWithRetry(request);
         // TODO: Handle error status code
         List<JsonObject> userObjects = Json.createReader(new StringReader(response.parseAsString())).readArray().getValuesAs(JsonObject.class);
         List<User> users = new ArrayList<>();
@@ -144,7 +148,7 @@ public class GitHubClient
         headers.setAuthorization("bearer " + accessToken);
         request.setHeaders(headers);
 
-        HttpResponse response = request.execute();
+        HttpResponse response = executeWithRetry(request);
         // TODO: Handle error status code
         JsonObject responseObject = Json.createReader(new StringReader(response.parseAsString())).readObject();
         if (responseObject.containsKey("errors")) {
@@ -262,6 +266,40 @@ public class GitHubClient
 
             throw new GraphQLUnhandledException(responseObject.toString());
         }
+    }
+
+    private HttpResponse executeWithRetry(HttpRequest request)
+            throws IOException
+    {
+        for (int i = 0; i < MAX_RETRY; i++) {
+            try {
+                return request.execute();
+            }
+            catch (HttpResponseException e) {
+                if (e.getStatusCode() == 502) {
+                    LOG.debug("retrying 502: " + e.getMessage() + ", i=" + i);
+                    try {
+                        TimeUnit.SECONDS.sleep(i * i); // exponential retry
+                    }
+                    catch (InterruptedException ie) {
+                        Sentry.capture(ie);
+                    }
+                }
+                else {
+                    throw e;
+                }
+            }
+            catch (SocketTimeoutException e) {
+                LOG.debug("retrying socket timeout: " + e.getMessage() + ", i=" + i);
+                try {
+                    TimeUnit.SECONDS.sleep(i * i); // exponential retry
+                }
+                catch (InterruptedException ie) {
+                    Sentry.capture(ie);
+                }
+            }
+        }
+        return request.execute();
     }
 
     public class NodeNotFoundException

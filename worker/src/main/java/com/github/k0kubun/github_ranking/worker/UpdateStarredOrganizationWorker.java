@@ -57,7 +57,7 @@ public class UpdateStarredOrganizationWorker
                     try {
                         lock.withUserUpdate(user.getId(), () -> {
                             LOG.info("UpdateStarredOrganizationWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
-                            GitHubClient client = clientBuilder.buildFromEnabled();
+                            GitHubClient client = clientBuilder.buildEnabled();
                             updateUser(handle, user, client);
                             LOG.info("UpdateStarredOrganizationWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
                         });

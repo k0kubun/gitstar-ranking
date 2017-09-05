@@ -45,7 +45,7 @@ public class UpdateSearchedUserWorker
     {
         //DatabaseLock lock = new DatabaseLock(handle, this);
 
-        //while (!(users = clientBuilder.buildFromEnabled().getUsersSince(since)).isEmpty()) {
+        //while (!(users = clientBuilder.buildEnabled().getUsersSince(since)).isEmpty()) {
         //    handle.attach(UserDao.class).bulkInsert(users);
         //    for (User user : users) {
         //        if (isStopped) {
@@ -55,7 +55,7 @@ public class UpdateSearchedUserWorker
         //        try {
         //            lock.withUserUpdate(user.getId(), () -> {
         //                LOG.info("NewUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
-        //                updateUser(handle, user, clientBuilder.buildFromEnabled());
+        //                updateUser(handle, user, clientBuilder.buildEnabled());
         //                LOG.info("NewUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
         //            });
         //        }

@@ -36,38 +36,8 @@ public class GitHubClientBuilder
         return new GitHubClient(token.getToken());
     }
 
-    public GitHubClient buildFromEnabled()
+    public GitHubClient buildEnabled()
     {
-        while (true) {
-            AccessToken token = rotateToken();
-            GitHubClient client = new GitHubClient(token.getToken());
-            int remaining = client.getRateLimitRemaining();
-            if (remaining == 0) {
-                LOG.info("delete token: " + token.getToken() + " (" + Integer.valueOf(remaining).toString() + ")");
-                tokens.remove(token);
-            }
-            else if (remaining > RATE_LIMIT_ENABLED_THRESHOLD) {
-                LOG.info("found token: " + token.getToken() + " (" + Integer.valueOf(remaining).toString() + ")");
-                return client;
-            }
-            else {
-                LOG.info("failed token: " + token.getToken() + " (" + Integer.valueOf(remaining).toString() + ")");
-                try {
-                    TimeUnit.SECONDS.sleep(10);
-                }
-                catch (InterruptedException e) {
-                    Sentry.capture(e);
-                    LOG.info("interrupt");
-                }
-            }
-        }
-    }
-
-    private AccessToken rotateToken()
-    {
-        if (tokens.isEmpty()) {
-            tokens = dbi.onDemand(AccessTokenDao.class).allEnabledTokens();
-        }
-        return tokens.remove(0); // TODO: handle no tokens
+        return new GitHubClient(new EnabledTokenFactory(dbi));
     }
 }

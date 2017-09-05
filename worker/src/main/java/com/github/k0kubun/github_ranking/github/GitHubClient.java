@@ -1,5 +1,6 @@
 package com.github.k0kubun.github_ranking.github;
 
+import com.github.k0kubun.github_ranking.github.AccessTokenFactory;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.User;
 import com.google.api.client.http.ByteArrayContent;
@@ -38,13 +39,18 @@ public class GitHubClient
     private static final String API_ENDPOINT = "https://api.github.com";
     private static final String GRAPHQL_ENDPOINT = API_ENDPOINT + "/graphql";
 
-    private final String accessToken;
+    private final AccessTokenFactory tokenFactory;
     private final HttpRequestFactory requestFactory;
 
-    public GitHubClient(String accessToken)
+    public GitHubClient(AccessTokenFactory tokenFactory)
     {
-        this.accessToken = accessToken;
+        this.tokenFactory = tokenFactory;
         requestFactory = new NetHttpTransport().createRequestFactory();
+    }
+
+    public GitHubClient(String token)
+    {
+        this(new StaticTokenFactory(token));
     }
 
     public String getLogin(Integer userId)
@@ -116,7 +122,7 @@ public class GitHubClient
         HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users?since=" + since));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setAuthorization("bearer " + accessToken);
+        headers.setAuthorization("bearer " + tokenFactory.getToken());
         request.setHeaders(headers);
 
         HttpResponse response = executeWithRetry(request);
@@ -145,7 +151,7 @@ public class GitHubClient
                 ByteArrayContent.fromString("application/json", payload));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setAuthorization("bearer " + accessToken);
+        headers.setAuthorization("bearer " + tokenFactory.getToken());
         request.setHeaders(headers);
 
         HttpResponse response = executeWithRetry(request);

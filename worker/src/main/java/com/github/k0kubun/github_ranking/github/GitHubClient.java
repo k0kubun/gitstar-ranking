@@ -260,12 +260,7 @@ public class GitHubClient
                 }
             }
 
-            StringBuilder builder = new StringBuilder();
-            for (JsonObject error : errors) {
-                builder.append(error.getString("message"));
-                builder.append("\n");
-            }
-            throw new GraphQLUnhandledException(builder.toString());
+            throw new GraphQLUnhandledException(responseObject.toString());
         }
     }
 

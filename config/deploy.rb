@@ -1,5 +1,5 @@
 set :application, 'github-ranking'
-set :repo_url, 'git@github.com:k0kubun/github-ranking.git'
+set :repo_url, 'https://github.com/k0kubun/github-ranking.git'
 set :log_level, :info
 
 namespace :deploy do

@@ -21,6 +21,7 @@ create_table "repositories", id: :integer, force: :cascade, options: "ENGINE=Inn
   t.string "name"
   t.string "full_name"
   t.integer "owner_id"
+  t.integer "author_id"
   t.text "description", limit: 16777215
   t.boolean "fork"
   t.datetime "created_at", null: false
@@ -32,6 +33,7 @@ create_table "repositories", id: :integer, force: :cascade, options: "ENGINE=Inn
   t.index ["full_name"], name: "index_repositories_on_full_name", length: { full_name: 191 }
   t.index ["owner_id", "stargazers_count"], name: "index_repositories_on_owner_id_and_stargazers_count"
   t.index ["stargazers_count"], name: "index_repositories_on_stargazers_count"
+  t.index ["author_id", "stargazers_count"], name: "index_repositories_on_author_id_and_stargazers_count"
 end
 
 create_table "repository_ranks", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|

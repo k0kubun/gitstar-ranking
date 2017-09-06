@@ -75,7 +75,7 @@ public class Main
         scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getNewUserQueue()); }, 1, 1, TimeUnit.HOURS);
 
         // Schedule at most every 24 hour
-        //scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getSearchedUserQueue()); }, 1, 24, TimeUnit.HOURS);
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getSearchedUserQueue()); }, 1, 24, TimeUnit.HOURS);
 
         return scheduler;
     }
@@ -104,7 +104,7 @@ public class Main
         }
         workers.add(new UpdateStarredUserWorker(dataSource));
         workers.add(new UpdateStarredOrganizationWorker(dataSource));
-        //workers.add(new UpdateSearchedUserWorker(config));
+        workers.add(new UpdateSearchedUserWorker(config));
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
         workers.add(new RepositoryRankingWorker(config));

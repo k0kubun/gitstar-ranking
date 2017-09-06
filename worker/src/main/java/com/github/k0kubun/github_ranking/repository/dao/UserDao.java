@@ -14,13 +14,20 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.unstable.BindIn;
 
+@UseStringTemplate3StatementLocator
 public interface UserDao
 {
     @SqlQuery("select id, login, type from users where id = :id")
     @Mapper(UserMapper.class)
     User find(@Bind("id") Integer id);
+
+    @SqlQuery("select id, type, updated_at from users where where id in (<ids>)")
+    @Mapper(UserUpdatedAtMapper.class)
+    List<User> findUsersWithUpdatedAt(@BindIn("ids") List<Integer> ids);
 
     // This query does not update updated_at because updating it will show "Up to date" before updating repositories.
     @SqlUpdate("update users set login = :login where id = :id")
@@ -79,6 +86,19 @@ public interface UserDao
             User user = new User(r.getInt("id"), r.getString("type"));
             user.setLogin(r.getString("login"));
             user.setStargazersCount(r.getInt("stargazers_count"));
+            user.setUpdatedAt(r.getTimestamp("updated_at"));
+            return user;
+        }
+    }
+
+    class UserUpdatedAtMapper
+            implements ResultSetMapper<User>
+    {
+        @Override
+        public User map(int index, ResultSet r, StatementContext ctx)
+                throws SQLException
+        {
+            User user = new User(r.getInt("id"), r.getString("type"));
             user.setUpdatedAt(r.getTimestamp("updated_at"));
             return user;
         }

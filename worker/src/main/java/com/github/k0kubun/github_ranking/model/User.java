@@ -17,6 +17,7 @@ public class User
     {
         this.id = id;
         this.type = type;
+        this.updatedAt = null;
     }
 
     public Integer getId()

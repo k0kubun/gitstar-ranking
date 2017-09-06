@@ -44,7 +44,7 @@ public interface UserDao
     List<User> starsDescFirstUsers(@Bind("limit") Integer limit);
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
-            "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
+            "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
 

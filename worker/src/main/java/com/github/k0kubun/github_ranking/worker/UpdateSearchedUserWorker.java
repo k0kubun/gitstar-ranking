@@ -182,7 +182,7 @@ public class UpdateSearchedUserWorker
         {
             List<Integer> ids = new ArrayList<>();
             for (User user : users) {
-                ids.add(user.getId());
+                ids.add(Integer.valueOf(user.getId()));
             }
             return ids;
         }

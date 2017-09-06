@@ -25,9 +25,9 @@ public interface UserDao
     @Mapper(UserMapper.class)
     User find(@Bind("id") Integer id);
 
-    @SqlQuery("select id, type, updated_at from users where where id in (<ids>)")
+    @SqlQuery("select id, type, updated_at from users where id in (<ids>)")
     @Mapper(UserUpdatedAtMapper.class)
-    List<User> findUsersWithUpdatedAt(@BindIn("ids") List<String> ids);
+    List<User> findUsersWithUpdatedAt(@BindIn("ids") List<Integer> ids);
 
     // This query does not update updated_at because updating it will show "Up to date" before updating repositories.
     @SqlUpdate("update users set login = :login where id = :id")

@@ -178,11 +178,11 @@ public class UpdateSearchedUserWorker
             return users;
         }
 
-        private List<String> buildUserIds(List<User> users)
+        private List<Integer> buildUserIds(List<User> users)
         {
-            List<String> ids = new ArrayList<>();
+            List<Integer> ids = new ArrayList<>();
             for (User user : users) {
-                ids.add(Integer.valueOf(user.getId()).toString());
+                ids.add(Integer.valueOf(user.getId()));
             }
             return ids;
         }

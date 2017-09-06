@@ -175,7 +175,7 @@ public class UpdateSearchedUserWorker
                     result.add(user);
                 }
             }
-            return users;
+            return result;
         }
 
         private List<Integer> buildUserIds(List<User> users)

@@ -23,6 +23,7 @@ public class RoutesResource
         routes.add("POST /jobs/org_ranks");
         routes.add("POST /jobs/repo_ranks");
         routes.add("POST /jobs/new_users");
+        routes.add("POST /jobs/searched_users");
         return new ApiResponse<>(ApiResponse.Type.ARRAY, routes);
     }
 }

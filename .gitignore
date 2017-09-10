@@ -11,3 +11,6 @@
 *.sql
 .capistrano
 .gradle
+/public/packs
+/public/packs-test
+/node_modules

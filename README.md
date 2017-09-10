@@ -23,11 +23,25 @@ Install following dependencies.
 - Ruby 2.4.1
 - Java 1.8.0
 - MySQL 5.7
+- Node.js 6.0.0+
+- Yarn
 
 Then, execute following command.
 
 ```
 bin/setup
+```
+
+#### Ubuntu
+
+```bash
+curl -sL deb.nodesource.com/setup_6.x | sudo bash -
+sudo apt install nodejs
+
+# https://yarnpkg.com/lang/en/docs/install/
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update && sudo apt-get install yarn
 ```
 
 ### Run servers

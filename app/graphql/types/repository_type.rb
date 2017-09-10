@@ -11,4 +11,10 @@ Types::RepositoryType = GraphQL::ObjectType.define do
   field :stargazersCount, types.Int, property: :stargazers_count
   field :language, types.String
   field :fetchedAt, types.String, property: :fetched_at
+
+  field :owner, Types::OwnerType do
+    resolve ->(repo, args, ctx) {
+      repo.owner
+    }
+  end
 end

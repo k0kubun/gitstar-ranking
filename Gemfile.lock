@@ -108,6 +108,9 @@ GEM
     graphiql-rails (1.4.4)
       rails
     graphql (1.6.8)
+    graphql-batch (0.3.5)
+      graphql (>= 0.8, < 2)
+      promise.rb (~> 0.7.2)
     hamlit (2.8.4)
       temple (>= 0.8.0)
       thor
@@ -172,6 +175,7 @@ GEM
       oauth2 (~> 1.0)
       omniauth (~> 1.2)
     orm_adapter (0.5.0)
+    promise.rb (0.7.4)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -322,6 +326,7 @@ DEPENDENCIES
   google-analytics-rails
   graphiql-rails
   graphql
+  graphql-batch
   hamlit
   jquery-rails
   kaminari

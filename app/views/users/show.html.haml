@@ -2,6 +2,9 @@
 - provide :description, "See the rank of #{@user.login} on GitHub Ranking."
 - provide :canonical, user_url(@user)
 
+- content_for :page_level_javascript do
+  = javascript_pack_tag 'users/show'
+
 .row
   .col-md-3
     = render 'shared/user_profile', user: @user

@@ -9,4 +9,15 @@ Types::UserType = GraphQL::ObjectType.define do
   field :updatedAt, types.String, property: :updated_at
   field :stargazersCount, types.Int, property: :stargazers_count
   field :location, types.String
+  field :updateStatus, types.String, 'OUTDATED, UPDATED, UPDATING' do
+    resolve ->(user, args, ctx) {
+      if user.in_queue?
+        'UPDATING'
+      elsif user.queued_recently?
+        'UPDATED'
+      else
+        'OUTDATED'
+      end
+    }
+  end
 end

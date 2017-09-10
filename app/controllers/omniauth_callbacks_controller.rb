@@ -16,11 +16,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     register_token(id, token)
 
     sign_in @user
-    if @user.access_token.enabled.nil?
-      redirect_to settings_path
-    else
-      redirect_to @user
-    end
+    redirect_to @user
   end
 
   private

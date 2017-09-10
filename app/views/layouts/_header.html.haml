@@ -42,11 +42,6 @@
               = image_tag current_user.avatar_url, class: 'login_avatar'
               = current_user.login
           %li
-            = link_to settings_path do
-              = fa_icon 'gear'
-              %span.hidden-lg.hidden-md.hidden-sm
-                Settings
-          %li
             = link_to devise_session_path, method: :delete do
               = fa_icon 'sign-out'
               %span.hidden-lg.hidden-md.hidden-sm

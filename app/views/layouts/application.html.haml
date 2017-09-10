@@ -25,4 +25,7 @@
       %footer
         .row
           .col-lg-12
-            %p Released by #{link_to '@k0kubun', 'https://github.com/k0kubun'} in December 2014. Fork me on #{link_to 'GitHub', 'https://github.com/k0kubun/gitstar-ranking'}.
+            %p
+              Released by #{link_to '@k0kubun', 'https://github.com/k0kubun'} in December 2014. Fork me on #{link_to 'GitHub', 'https://github.com/k0kubun/gitstar-ranking'}.
+              - if user_signed_in?
+                Try Gitstar Ranking's #{link_to 'GraphQL API', graphiql_rails_path} published experimentally.

@@ -28,6 +28,7 @@ gem 'sentry-raven'
 gem 'sprockets'
 gem 'uglifier'
 gem 'unicorn'
+gem 'webpacker'
 
 group :development do
   gem 'capistrano'

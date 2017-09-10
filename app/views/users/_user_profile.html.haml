@@ -32,7 +32,7 @@
     - if @user.type == 'Organization' && current_user.member_of?(@user.login)
       .row
         .col-xs-12
-          #update_button
+          #update_button{ data: { label: 'Update stars', path: update_org_user_path(organization: { login: @user.login }) } }
             - if @user.in_queue?
               %span.btn.btn-default.disabled.col-xs-12 Updating stars...
             - elsif @user.queued_recently?
@@ -43,7 +43,7 @@
     - elsif @user == current_user
       .row
         .col-xs-12
-          #update_button
+          #update_button{ data: { label: 'Update your stars', path: update_myself_user_path } }
             - if @user.in_queue?
               %span.btn.btn-default.disabled.col-xs-12 Updating your stars...
             - elsif @user.queued_recently?

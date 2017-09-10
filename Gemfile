@@ -12,6 +12,7 @@ gem 'exception_notification'
 gem 'faraday'
 gem 'font-awesome-rails'
 gem 'google-analytics-rails'
+gem 'graphiql-rails', group: :development
 gem 'graphql'
 gem 'hamlit'
 gem 'jquery-rails'

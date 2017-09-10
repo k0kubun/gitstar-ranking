@@ -105,6 +105,7 @@ GEM
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     google-analytics-rails (1.1.1)
+    graphql (1.6.8)
     hamlit (2.8.4)
       temple (>= 0.8.0)
       thor
@@ -317,6 +318,7 @@ DEPENDENCIES
   font-awesome-rails
   foreman
   google-analytics-rails
+  graphql
   hamlit
   jquery-rails
   kaminari

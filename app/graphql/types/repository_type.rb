@@ -14,7 +14,7 @@ Types::RepositoryType = GraphQL::ObjectType.define do
 
   field :owner, Types::OwnerType do
     resolve ->(repo, args, ctx) do
-      GraphQL::RecordLoader.for(User).load(repo.owner_id).then(&:itself)
+      GraphQL::RecordLoader.for(User).load(repo.owner_id)
     end
   end
 end

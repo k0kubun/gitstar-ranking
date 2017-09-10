@@ -1,11 +1,12 @@
 Types::UserType = GraphQL::ObjectType.define do
-  name "User"
+  name 'User'
+
   field :id, types.Int
   field :login, types.String
-  field :avatar_url, types.String
+  field :avatarUrl, types.String, property: :avatarUrl
   field :type, types.String
-  field :created_at, types.String
-  field :updated_at, types.String
-  field :stargazers_count, types.Int
+  field :createdAt, types.String, property: :created_at
+  field :updatedAt, types.String, property: :updated_at
+  field :stargazersCount, types.Int, property: :stargazers_count
   field :location, types.String
 end

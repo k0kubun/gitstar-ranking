@@ -25,4 +25,5 @@ set :linked_dirs, %w[
   vendor/bundle
   public/system
   public/assets
+  public/packs
 ]

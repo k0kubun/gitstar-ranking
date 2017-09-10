@@ -20,4 +20,10 @@ Types::UserType = GraphQL::ObjectType.define do
       end
     }
   end
+
+  connection :repositories, Types::RepositoryType.connection_type, max_page_size: 50 do
+    resolve ->(user, args, ctx) {
+      user.repositories
+    }
+  end
 end

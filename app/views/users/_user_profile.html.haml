@@ -30,7 +30,7 @@
 
   - if user_signed_in?
     -# Button is rendered by React
-    - if @user.type == 'Organization' && current_user.member_of?(@user.login)
+    - if @user.type == 'Organization'
       .row
         .col-xs-12
           #update_button{ data: { login: @user.login, label: 'Update stars', path: update_org_user_path(organization: { login: @user.login }) } }

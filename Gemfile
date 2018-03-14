@@ -19,6 +19,7 @@ gem 'hamlit'
 gem 'jquery-rails'
 gem 'kaminari'
 gem 'mysql2'
+gem 'newrelic_rpm'
 gem 'omniauth'
 gem 'omniauth-github'
 gem 'rack-user_agent'
@@ -50,8 +51,4 @@ group :development, :test do
   gem 'pry-rails'
   gem 'rspec-rails'
   gem 'timecop'
-end
-
-group :production do
-  gem 'newrelic_rpm'
 end

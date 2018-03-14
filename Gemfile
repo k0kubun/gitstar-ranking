@@ -51,3 +51,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'timecop'
 end
+
+group :production do
+  gem 'newrelic_rpm'
+end

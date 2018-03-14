@@ -157,6 +157,7 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
+    newrelic_rpm (4.8.0.341)
     nio4r (2.1.0)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
@@ -337,6 +338,7 @@ DEPENDENCIES
   kaminari
   listen
   mysql2
+  newrelic_rpm
   omniauth
   omniauth-github
   pry-byebug
@@ -359,4 +361,4 @@ DEPENDENCIES
   webpacker
 
 BUNDLED WITH
-   1.15.4
+   1.16.1

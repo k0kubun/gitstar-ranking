@@ -14,6 +14,7 @@ set :deploy_to, '/home/k0kubun/github-ranking'
 set :linked_files, %w[
   .env
   config/database.yml
+  config/newrelic.yml
   config/secrets.yml
 ]
 

@@ -2,27 +2,35 @@ require 'dotenv'
 Dotenv.load
 
 # paths
-app_path = ENV['DEPLOY_TO']
-working_directory "#{app_path}/current"
-pid               "#{app_path}/current/tmp/pids/unicorn.pid"
+if ENV.key?('DEPLOY_TO')
+  app_path = ENV['DEPLOY_TO']
+  working_directory "#{app_path}/current"
+  pid               "#{app_path}/current/tmp/pids/unicorn.pid"
+
+  # use correct Gemfile on restarts
+  before_exec do |server|
+    # http://eagletmt.hateblo.jp/entry/2015/02/21/015956
+    Dotenv.overload
+
+    ENV['BUNDLE_GEMFILE'] = "#{app_path}/current/Gemfile"
+  end
+end
 
 # listen
-listen ENV['UNICORN_SOCKET_PATH']
+if ENV.key?('UNICORN_SOCKET_PATH')
+  listen ENV['UNICORN_SOCKET_PATH']
+else
+  listen Integer(ENV.fetch('UNICORN_PORT'))
+end
 
 # logging
-stderr_path "log/unicorn.stderr.log"
-stdout_path "log/unicorn.stdout.log"
+if ENV["RAILS_LOG_TO_STDOUT"] != 'true'
+  stderr_path "log/unicorn.stderr.log"
+  stdout_path "log/unicorn.stdout.log"
+end
 
 # workers
-worker_processes 3
-
-# use correct Gemfile on restarts
-before_exec do |server|
-  # http://eagletmt.hateblo.jp/entry/2015/02/21/015956
-  Dotenv.overload
-
-  ENV['BUNDLE_GEMFILE'] = "#{app_path}/current/Gemfile"
-end
+worker_processes Integer(ENV.fetch('UNICORN_NUM_WORKERS', 3))
 
 # preload
 preload_app true

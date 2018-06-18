@@ -19,4 +19,4 @@ RUN bundle install -j$(nproc) --without development test
 COPY . /app
 RUN bundle exec rake assets:precompile RAILS_ENV=production
 
-CMD ["bundle", "exec", "unicorn", "-c", "config/unicorn/production.rb", "-E", "production"]
+CMD ["bundle", "exec", "puma", "-e", "production"]

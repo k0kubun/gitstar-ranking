@@ -20,4 +20,4 @@ production:
   host: <%= ENV['DATABASE_HOST'] %>
   port: <%= ENV['DATABASE_PORT'] %>
   pool: <%= ENV.fetch('POOL_SIZE', '8') %>
-  database: <%= ENV.fetch('DATABASE_NAME', 'github_ranking')>
+  database: <%= ENV.fetch('DATABASE_NAME', 'github_ranking') %>

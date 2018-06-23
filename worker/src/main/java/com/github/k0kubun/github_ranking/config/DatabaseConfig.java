@@ -84,6 +84,7 @@ public class DatabaseConfig
         config.setUsername(getUser());
         config.setPassword(getPassword());
         config.setMaximumPoolSize(getMaxPoolSize());
+        config.setConnectionInitSql("SET NAMES utf8mb4");
 
         // Followings are recommendation from HikariCP https://github.com/brettwooldridge/HikariCP#initialization
         config.addDataSourceProperty("cachePrepStmts", "true");

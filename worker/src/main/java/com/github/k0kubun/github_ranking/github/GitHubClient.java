@@ -289,7 +289,7 @@ public class GitHubClient
     {
         String decoded = new String(Base64.getDecoder().decode(encoded));
         // TODO: Raise error if prefix is wrong
-        return Integer.valueOf(decoded.replaceFirst("12:Organization", ""));
+        return Integer.valueOf(decoded.replaceFirst("012:Organization", ""));
     }
 
     private void handleUserNodeErrors(JsonObject responseObject)

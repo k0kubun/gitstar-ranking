@@ -302,7 +302,7 @@ public class GitHubClient
     {
         String decoded = new String(Base64.getDecoder().decode(encoded));
         if (decoded.startsWith("012:Organization")) {
-            return Long.valueOf(decoded.replaceFirst("012:Organization", ""));
+            return Integer.valueOf(decoded.replaceFirst("012:Organization", ""));
         }
         else {
             throw new RuntimeException(String.format("'%s' does not have expected prefix for organizationId", decoded));

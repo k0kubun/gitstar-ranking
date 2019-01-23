@@ -1,4 +1,5 @@
-= link_to user_repository_path(repository.owner, repository.name),
+- repo_path = repository.owner ? user_repository_path(repository.owner, repository.name) : "/#{repository.full_name}"
+= link_to repo_path,
   class: 'list-group-item paginated_item' do
   - if repository.owner
     = image_tag repository.owner.avatar_url, class: 'avatar_image_big'

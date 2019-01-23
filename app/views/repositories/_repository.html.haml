@@ -1,4 +1,4 @@
-= link_to user_repository_path(repository.owner, repository),
+= link_to user_repository_path(repository.owner, repository.name),
   class: 'list-group-item paginated_item' do
   - if repository.owner
     = image_tag repository.owner.avatar_url, class: 'avatar_image_big'

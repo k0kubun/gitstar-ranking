@@ -1,7 +1,6 @@
 package com.github.k0kubun.github_ranking.worker;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
 import com.github.k0kubun.github_ranking.model.User;
 import com.github.k0kubun.github_ranking.repository.DatabaseLock;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
@@ -12,21 +11,18 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.sql.DataSource;
-
-import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NewUserWorker
+public class LegacyNewUserWorker
         extends UpdateUserWorker
 {
-    private static final Logger LOG = LoggerFactory.getLogger(NewUserWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LegacyNewUserWorker.class);
 
     private final BlockingQueue<Boolean> newUserQueue;
 
-    public NewUserWorker(Config config)
+    public LegacyNewUserWorker(Config config)
     {
         super(config.getDatabaseConfig().getDataSource());
         newUserQueue = config.getQueueConfig().getNewUserQueue();
@@ -41,11 +37,11 @@ public class NewUserWorker
                 return;
             }
         }
-        LOG.info("----- started NewUserWorker -----");
+        LOG.info("----- started LegacyNewUserWorker -----");
         try (Handle handle = dbi.open()) {
             importNewUsers(handle);
         }
-        LOG.info("----- finished NewUserWorker -----");
+        LOG.info("----- finished LegacyNewUserWorker -----");
     }
 
     private void importNewUsers(Handle handle)
@@ -64,14 +60,14 @@ public class NewUserWorker
 
                 try {
                     lock.withUserUpdate(user.getId(), () -> {
-                        LOG.info("NewUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        LOG.info("LegacyNewUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
                         updateUser(handle, user, clientBuilder.buildEnabled());
-                        LOG.info("NewUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        LOG.info("LegacyNewUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
                     });
                 }
                 catch (Exception e) {
                     Sentry.capture(e);
-                    LOG.error("Error in NewUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
+                    LOG.error("Error in LegacyNewUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
                 }
             }
             since = users.get(users.size() - 1).getId();

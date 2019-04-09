@@ -20,14 +20,14 @@ import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpdateSearchedUserWorker
+public class LegacyUpdateSearchedUserWorker
         extends UpdateUserWorker
 {
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateSearchedUserWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LegacyUpdateSearchedUserWorker.class);
 
     private final BlockingQueue<Boolean> searchedUserQueue;
 
-    public UpdateSearchedUserWorker(Config config)
+    public LegacyUpdateSearchedUserWorker(Config config)
     {
         super(config.getDatabaseConfig().getDataSource());
         searchedUserQueue = config.getQueueConfig().getSearchedUserQueue();
@@ -42,11 +42,11 @@ public class UpdateSearchedUserWorker
                 return;
             }
         }
-        LOG.info("----- started UpdateSearchedUserWorker -----");
+        LOG.info("----- started LegacyUpdateSearchedUserWorker -----");
         try (Handle handle = dbi.open()) {
             importSearchedUsers(handle);
         }
-        LOG.info("----- finished UpdateSearchedUserWorker -----");
+        LOG.info("----- finished LegacyUpdateSearchedUserWorker -----");
     }
 
     private void importSearchedUsers(Handle handle)
@@ -68,20 +68,20 @@ public class UpdateSearchedUserWorker
                 }
 
                 if (user.getUpdatedAt() != null && user.isUpdatedWithinDays(5)) {
-                    LOG.info("UpdateSearchedUserWorker skipped: (userId = " + user.getId() + ", login = " + user.getLogin() + ", updatedAt = " + user.getUpdatedAt().toString() + ")");
+                    LOG.info("LegacyUpdateSearchedUserWorker skipped: (userId = " + user.getId() + ", login = " + user.getLogin() + ", updatedAt = " + user.getUpdatedAt().toString() + ")");
                     continue;
                 }
 
                 try {
                     lock.withUserUpdate(user.getId(), () -> {
-                        LOG.info("UpdateSearchedUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        LOG.info("LegacyUpdateSearchedUserWorker started: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
                         updateUser(handle, user, clientBuilder.buildEnabled());
-                        LOG.info("UpdateSearchedUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
+                        LOG.info("LegacyUpdateSearchedUserWorker finished: (userId = " + user.getId() + ", login = " + user.getLogin() + ")");
                     });
                 }
                 catch (Exception e) {
                     Sentry.capture(e);
-                    LOG.error("Error in UpdateSearchedUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
+                    LOG.error("Error in LegacyUpdateSearchedUserWorker! (userId = " + user.getId() + "): " + e.toString() + ": " + e.getMessage());
                 }
             }
         }

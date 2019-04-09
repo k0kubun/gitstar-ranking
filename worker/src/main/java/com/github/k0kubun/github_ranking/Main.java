@@ -3,15 +3,10 @@ package com.github.k0kubun.github_ranking;
 import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.server.ApiApplication;
 import com.github.k0kubun.github_ranking.server.ApiServer;
-import com.github.k0kubun.github_ranking.worker.NewUserWorker;
 import com.github.k0kubun.github_ranking.worker.OrganizationRankingWorker;
 import com.github.k0kubun.github_ranking.worker.RepositoryRankingWorker;
-import com.github.k0kubun.github_ranking.worker.UpdateSearchedUserWorker;
-import com.github.k0kubun.github_ranking.worker.UpdateStarredOrganizationWorker;
-import com.github.k0kubun.github_ranking.worker.UpdateStarredUserWorker;
 import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
 import com.github.k0kubun.github_ranking.worker.UserRankingWorker;
-import com.github.k0kubun.github_ranking.worker.Worker;
 import com.github.k0kubun.github_ranking.worker.WorkerManager;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.sentry.Sentry;
@@ -19,7 +14,6 @@ import io.sentry.Sentry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -98,13 +92,13 @@ public class Main
         DataSource dataSource = config.getDatabaseConfig().getDataSource();
 
         WorkerManager workers = new WorkerManager();
-        //workers.add(new NewUserWorker(config));
+        //workers.add(new LegacyNewUserWorker(config));
         for (int i = 0; i < NUM_UPDATE_USER_WORKERS; i++) {
             workers.add(new UpdateUserWorker(dataSource));
         }
-        //workers.add(new UpdateStarredUserWorker(dataSource));
-        //workers.add(new UpdateStarredOrganizationWorker(dataSource));
-        //workers.add(new UpdateSearchedUserWorker(config));
+        //workers.add(new LegacyUpdateStarredUserWorker(dataSource));
+        //workers.add(new LegacyUpdateStarredOrganizationWorker(dataSource));
+        //workers.add(new LegacyUpdateSearchedUserWorker(config));
         workers.add(new UserRankingWorker(config));
         workers.add(new OrganizationRankingWorker(config));
         workers.add(new RepositoryRankingWorker(config));

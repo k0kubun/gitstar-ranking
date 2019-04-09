@@ -1,3 +1,7 @@
 /build
 /log/*.log
 /log/*.log.lck
+
+/.idea
+/stale_outputs_checked
+/worker.iml

@@ -49,6 +49,19 @@ sudo apt install nodejs
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
+
+# make config/database.yml functional
+sudo vi /lib/systemd/system/mysql.service # add --skip-grant-tables to ExecStart
+sudo systemctl daemon-reload
+sudo systemctl restart mysql
+mysql -uroot
+mysql> use mysql;
+mysql> update user set authentication_string=PASSWORD('') where User='root';
+mysql> update user set plugin='mysql_native_password' where User='root';
+mysql> flush privileges;
+sudo vi /lib/systemd/system/mysql.service # remove --skip-grant-tables from ExecStart
+sudo systemctl daemon-reload
+sudo systemctl restart mysql
 ```
 
 ### Run servers

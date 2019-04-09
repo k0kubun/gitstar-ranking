@@ -1,4 +1,4 @@
-#user_profile{ class: ('updating' if user_signed_in? && @user == current_user && @user.in_queue?) }
+#user_profile{ class: ('updating' if user_signed_in? && @user.in_queue?) }
   .user_avatar_wrapper.hidden-xs.hidden-sm
     = link_to user_path(user) do
       = image_tag user.avatar_url, class: 'user_avatar'
@@ -30,11 +30,6 @@
 
   - if user_signed_in?
     -# Button is rendered by React
-    - if @user.type == 'Organization'
-      .row
-        .col-xs-12
-          #update_button{ data: { login: @user.login, label: 'Update stars', path: update_org_user_path(organization: { login: @user.login }) } }
-    - elsif @user == current_user
-      .row
-        .col-xs-12
-          #update_button{ data: { login: @user.login, label: 'Update your stars', path: update_myself_user_path } }
+    .row
+      .col-xs-12
+        #update_button{ data: { login: @user.login, label: 'Update stars', path: update_later_user_path(@user.login) } }

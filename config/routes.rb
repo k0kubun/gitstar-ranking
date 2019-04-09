@@ -21,9 +21,8 @@ Rails.application.routes.draw do
       resource :session, only: :destroy
     end
 
-    resource :user, only: [], path: '/' do
-      post :update_myself, on: :member
-      post :update_org, on: :member
+    resources :users, only: [], param: :login, constraints: { login: /[a-zA-Z0-9-]+/ } do
+      post :update_later, on: :member
     end
   end
 

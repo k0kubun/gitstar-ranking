@@ -24,34 +24,20 @@ class UsersController < ApplicationController
     end
   end
 
-  def update_org
-    @organization = User.find_by!(login: params[:organization][:login])
+  def update_later
+    user = User.find_by!(login: params[:login])
 
-    if @organization.queued_recently?
-      redirect_to user_path(@organization), alert: 'Your organization has been already updated recently. Please retry later.'
+    if user.queued_recently?
+      redirect_to user_path(user), alert: 'It has been already updated recently. Please retry later.'
       return
     end
 
     ActiveRecord::Base.transaction do
-      @organization.update(queued_at: Time.now)
-      UpdateUserJob.perform_later(user_id: @organization.id, token_user_id: current_user.id)
+      user.update(queued_at: Time.now)
+      UpdateUserJob.perform_later(user_id: user.id, token_user_id: current_user.id)
     end
 
-    redirect_to user_path(@organization), notice: 'Update request is successfully queued. Please wait a moment.'
-  end
-
-  def update_myself
-    if current_user.queued_recently?
-      redirect_to current_user, alert: 'You have already updated your stars recently. Please retry later.'
-      return
-    end
-
-    ActiveRecord::Base.transaction do
-      current_user.update(queued_at: Time.now)
-      UpdateUserJob.perform_later(user_id: current_user.id, token_user_id: current_user.id)
-    end
-
-    redirect_to current_user, notice: 'Update request is successfully queued. Please wait a moment.'
+    redirect_to user_path(user), notice: 'Update request is successfully queued. Please wait a moment.'
   end
 
   private

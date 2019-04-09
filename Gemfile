@@ -32,10 +32,6 @@ gem 'uglifier'
 gem 'webpacker'
 
 group :development do
-  gem 'capistrano'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rails'
-  gem 'capistrano-rbenv'
   gem 'foreman'
   gem 'silencer'
   gem 'spring'

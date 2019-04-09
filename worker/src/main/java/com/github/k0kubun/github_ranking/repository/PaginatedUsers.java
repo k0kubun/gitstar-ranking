@@ -14,7 +14,7 @@ public class PaginatedUsers
 
     private final UserDao userDao;
     private Integer lastMinStars;
-    private Integer lastMinId;
+    private Long lastMinId;
 
     public PaginatedUsers(Handle handle)
     {

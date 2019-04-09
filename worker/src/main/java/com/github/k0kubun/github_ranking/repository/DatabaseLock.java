@@ -24,7 +24,7 @@ public class DatabaseLock
         this.worker = worker;
     }
 
-    public void withUserUpdate(Integer userId, UserUpdateCallback callback)
+    public void withUserUpdate(Long userId, UserUpdateCallback callback)
             throws IOException
     {
         boolean locked = false;

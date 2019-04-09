@@ -23,18 +23,18 @@ public interface UserDao
 {
     @SqlQuery("select id, login, type from users where id = :id")
     @Mapper(UserMapper.class)
-    User find(@Bind("id") Integer id);
+    User find(@Bind("id") Long id);
 
     @SqlQuery("select id, type, updated_at from users where id in (<ids>)")
     @Mapper(UserUpdatedAtMapper.class)
-    List<User> findUsersWithUpdatedAt(@BindIn("ids") List<Integer> ids);
+    List<User> findUsersWithUpdatedAt(@BindIn("ids") List<Long> ids);
 
     // This query does not update updated_at because updating it will show "Up to date" before updating repositories.
     @SqlUpdate("update users set login = :login where id = :id")
-    long updateLogin(@Bind("id") Integer id, @Bind("login") String login);
+    long updateLogin(@Bind("id") Long id, @Bind("login") String login);
 
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
-    long updateStars(@Bind("id") Integer id, @Bind("stargazersCount") Integer stargazersCount);
+    long updateStars(@Bind("id") Long id, @Bind("stargazersCount") Integer stargazersCount);
 
     @SqlQuery("select id from users order by id desc limit 1")
     int lastId();
@@ -46,7 +46,7 @@ public interface UserDao
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
             "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
-    List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Integer id, @Bind("limit") Integer limit);
+    List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Long id, @Bind("limit") Integer limit);
 
     @SqlQuery("select count(1) from users where type = 'User'")
     int countUsers();
@@ -61,7 +61,7 @@ public interface UserDao
     void bulkInsert(@BindBean List<User> users);
 
     @SqlUpdate("delete from users where id = :id")
-    long delete(@Bind("id") Integer id);
+    long delete(@Bind("id") Long id);
 
     class UserMapper
             implements ResultSetMapper<User>
@@ -70,7 +70,7 @@ public interface UserDao
         public User map(int index, ResultSet r, StatementContext ctx)
                 throws SQLException
         {
-            User user = new User(r.getInt("id"), r.getString("type"));
+            User user = new User(r.getLong("id"), r.getString("type"));
             user.setLogin(r.getString("login"));
             return user;
         }

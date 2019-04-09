@@ -167,7 +167,7 @@ public class LegacyUpdateSearchedUserWorker
             }
         }
 
-        private List<User> filterUsersById(List<User> users, int id)
+        private List<User> filterUsersById(List<User> users, long id)
         {
             List<User> result = new ArrayList<>();
             for (User user : users) {
@@ -178,11 +178,11 @@ public class LegacyUpdateSearchedUserWorker
             return result;
         }
 
-        private List<Integer> buildUserIds(List<User> users)
+        private List<Long> buildUserIds(List<User> users)
         {
-            List<Integer> ids = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
             for (User user : users) {
-                ids.add(Integer.valueOf(user.getId()));
+                ids.add(Long.valueOf(user.getId()));
             }
             return ids;
         }

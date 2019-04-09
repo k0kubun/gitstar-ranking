@@ -44,8 +44,9 @@ public interface UpdateUserJobDao
             JsonObject payload = Json.createReader(new StringReader(r.getString("payload"))).readObject();
             return new UpdateUserJob(
                     r.getInt("id"),
-                    payload.getInt("user_id"),
-                    payload.getInt("token_user_id")
+                    payload.getString("user_id", null),
+                    payload.getString("user_name", null),
+                    payload.getString("token_user_id")
             );
         }
     }

@@ -20,7 +20,7 @@ public interface AccessTokenDao
 
     @SqlQuery("select token from access_tokens where user_id = :userId")
     @Mapper(AccessTokenMapper.class)
-    AccessToken findByUserId(@Bind("userId") Integer userId);
+    AccessToken findByUserId(@Bind("userId") Long userId);
 
     // TODO: paginate
     @SqlQuery("select token from access_tokens where enabled = true limit 1000")

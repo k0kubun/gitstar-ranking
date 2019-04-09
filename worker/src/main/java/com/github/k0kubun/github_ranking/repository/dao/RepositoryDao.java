@@ -47,7 +47,7 @@ public interface RepositoryDao
     int countReposHavingStars(@Bind("stargazersCount") int stargazersCount);
 
     @SqlUpdate("delete from repositories where owner_id = :userId")
-    long deleteAllOwnedBy(@Bind("userId") Integer userId);
+    long deleteAllOwnedBy(@Bind("userId") Long userId);
 
     class RepositoryStarMapper
             implements ResultSetMapper<Repository>

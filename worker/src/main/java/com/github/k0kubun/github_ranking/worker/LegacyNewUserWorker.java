@@ -48,7 +48,7 @@ public class LegacyNewUserWorker
             throws IOException
     {
         DatabaseLock lock = new DatabaseLock(handle, this);
-        int since = handle.attach(UserDao.class).lastId();
+        long since = handle.attach(UserDao.class).lastId();
 
         List<User> users;
         while (!(users = clientBuilder.buildEnabled().getUsersSince(since)).isEmpty()) {

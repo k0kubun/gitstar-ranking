@@ -53,7 +53,7 @@ public class GitHubClient
         this(new StaticTokenFactory(token));
     }
 
-    public String getLogin(Integer userId)
+    public String getLogin(Long userId)
             throws IOException
     {
         JsonObject responseObject = graphql(
@@ -111,7 +111,7 @@ public class GitHubClient
         return responseObject.getJsonObject("data").getJsonObject("search").getJsonArray("edges").getValuesAs(JsonObject.class);
     }
 
-    public List<Repository> getPublicRepos(Integer userId, boolean isOrganization)
+    public List<Repository> getPublicRepos(Long userId, boolean isOrganization)
             throws IOException
     {
         List<Repository> repos = new ArrayList<>();
@@ -152,7 +152,7 @@ public class GitHubClient
         }
     }
 
-    public List<User> getUsersSince(int since)
+    public List<User> getUsersSince(long since)
             throws IOException
     {
         HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users?since=" + since));
@@ -200,7 +200,7 @@ public class GitHubClient
         return responseObject;
     }
 
-    private List<JsonObject> getPublicRepoNodes(Integer userId, boolean isOrganization)
+    private List<JsonObject> getPublicRepoNodes(Long userId, boolean isOrganization)
             throws IOException
     {
         String cursor = null;
@@ -265,7 +265,7 @@ public class GitHubClient
         return nodes;
     }
 
-    private String encodeUserId(Integer id)
+    private String encodeUserId(Long id)
     {
         String unencoded = "04:User" + id.toString();
         return Base64.getEncoder().encodeToString(unencoded.getBytes());

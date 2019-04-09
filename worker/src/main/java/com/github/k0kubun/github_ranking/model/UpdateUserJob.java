@@ -3,14 +3,17 @@ package com.github.k0kubun.github_ranking.model;
 public class UpdateUserJob
 {
     private final Integer id;
-    private final Integer userId;
-    private final Integer tokenUserId;
+    private final String userId;
+    private final String userName;
+    private final Long tokenUserId;
 
-    public UpdateUserJob(Integer id, Integer userId, Integer tokenUserId)
+    public UpdateUserJob(Integer id, String userId, String userName, String tokenUserId)
     {
         this.id = id;
+        // either userId or userName is specified in payload.
         this.userId = userId;
-        this.tokenUserId = tokenUserId;
+        this.userName = userName;
+        this.tokenUserId = Long.valueOf(tokenUserId);
     }
 
     public Integer getId()
@@ -18,13 +21,15 @@ public class UpdateUserJob
         return id;
     }
 
-    public Integer getUserId()
+    public Long getUserId()
     {
-        return userId;
+        return Long.valueOf(userId);
     }
 
-    public Integer getTokenUserId()
+    public String getUserName() { return userName; }
+
+    public Long getTokenUserId()
     {
-        return tokenUserId;
+        return Long.valueOf(tokenUserId);
     }
 }

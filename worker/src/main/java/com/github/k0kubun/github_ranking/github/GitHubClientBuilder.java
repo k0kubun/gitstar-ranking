@@ -30,7 +30,7 @@ public class GitHubClientBuilder
         tokens = new ArrayList<>();
     }
 
-    public GitHubClient buildForUser(Integer userId)
+    public GitHubClient buildForUser(Long userId)
     {
         AccessToken token = dbi.onDemand(AccessTokenDao.class).findByUserId(userId);
         return new GitHubClient(token.getToken());

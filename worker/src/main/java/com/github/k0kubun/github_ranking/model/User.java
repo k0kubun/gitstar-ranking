@@ -6,21 +6,21 @@ import java.time.ZoneId;
 
 public class User
 {
-    private final int id;
+    private final long id;
     private final String type;
     private String login;
     private int stargazersCount;
     private String avatarUrl;
     private Timestamp updatedAt;
 
-    public User(int id, String type)
+    public User(long id, String type)
     {
         this.id = id;
         this.type = type;
         this.updatedAt = null;
     }
 
-    public Integer getId()
+    public Long getId()
     {
         return id;
     }

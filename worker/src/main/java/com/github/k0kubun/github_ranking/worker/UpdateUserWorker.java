@@ -92,7 +92,7 @@ public class UpdateUserWorker
     public void updateUser(Handle handle, User user, GitHubClient client)
             throws IOException
     {
-        Integer userId = user.getId();
+        Long userId = user.getId();
         String login = user.getLogin();
 
         try {

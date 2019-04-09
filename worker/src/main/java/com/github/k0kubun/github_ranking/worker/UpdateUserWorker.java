@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -67,22 +68,39 @@ public class UpdateUserWorker
 
             // TODO: Log elapsed time
             try {
-                lock.withUserUpdate(job.getUserId(), () -> {
-                    User user = handle.attach(UserDao.class).find(job.getUserId());
-                    LOG.info("UpdateUserWorker started: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
-                    GitHubClient client = clientBuilder.buildForUser(job.getTokenUserId());
+                GitHubClient client = clientBuilder.buildForUser(job.getTokenUserId());
+                final Long userId;
+                if (job.getUserName() == null) {
+                    userId = job.getUserId();
+                } else {
+                    userId = createUser(handle, job.getUserName(), client);
+                }
+
+                lock.withUserUpdate(userId, () -> {
+                    User user = handle.attach(UserDao.class).find(userId);
+                    LOG.info("UpdateUserWorker started: (userId = " + userId + ", login = " + user.getLogin() + ")");
                     updateUser(handle, user, client);
-                    LOG.info("UpdateUserWorker finished: (userId = " + job.getUserId() + ", login = " + user.getLogin() + ")");
+                    LOG.info("UpdateUserWorker finished: (userId = " + userId + ", login = " + user.getLogin() + ")");
                 });
             }
             catch (Exception e) {
                 Sentry.capture(e);
                 LOG.error("Error in UpdateUserWorker! (userId = " + job.getUserId() + "): " + e.toString() + ": " + e.getMessage());
+                // e.printStackTrace();
             }
             finally {
                 dao.delete(job.getId());
             }
         }
+    }
+
+    // Create a pre-required user record for a give userName.
+    private Long createUser(Handle handle, String userName, GitHubClient client) throws IOException {
+        User user = client.getUserWithLogin(userName);
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        handle.attach(UserDao.class).bulkInsert(users);
+        return user.getId();
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.

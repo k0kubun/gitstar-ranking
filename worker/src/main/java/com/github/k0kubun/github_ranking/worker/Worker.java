@@ -53,5 +53,6 @@ public abstract class Worker
     {
         Sentry.capture(e);
         LOG.error("Unhandled exception!: " + e.getMessage());
+        // e.printStackTrace();
     }
 }

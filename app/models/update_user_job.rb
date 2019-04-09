@@ -10,9 +10,9 @@ class UpdateUserJob < ApplicationRecord
 
     # Payload is parsed in: worker/src/main/java/com/github/k0kubun/github_ranking/dao/UpdateUserJobDao.java
     payload = {
-      user_id: user_id&.to_s, # to avoid using `javax.json.JsonObject#getInt` for precision in worker side
+      user_id: user_id,
       user_name: user_name,
-      token_user_id: token_user_id.to_s, # to avoid using `javax.json.JsonObject#getInt` for precision in worker side
+      token_user_id: token_user_id,
     }.compact
     create(payload: payload.to_json, timeout_at: Time.now)
   end

@@ -1,6 +1,5 @@
 package com.github.k0kubun.github_ranking.github;
 
-import com.github.k0kubun.github_ranking.github.AccessTokenFactory;
 import com.github.k0kubun.github_ranking.model.Repository;
 import com.github.k0kubun.github_ranking.model.User;
 import com.google.api.client.http.ByteArrayContent;
@@ -22,11 +21,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import javax.json.JsonStructure;
-import javax.json.JsonValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +148,24 @@ public class GitHubClient
         }
     }
 
+    public User getUserWithLogin(String login) throws IOException
+    {
+        HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users/" + login));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAuthorization("bearer " + tokenFactory.getToken());
+        request.setHeaders(headers);
+
+        HttpResponse response = executeWithRetry(request);
+        // TODO: Handle error status code
+        JsonObject userObject = Json.createReader(new StringReader(response.parseAsString())).readObject();
+
+        User user = new User(Long.valueOf(userObject.getInt("id")), userObject.getString("type"));
+        user.setLogin(userObject.getString("login"));
+        user.setAvatarUrl(userObject.getString("avatar_url"));
+        return user;
+    }
+
     public List<User> getUsersSince(long since)
             throws IOException
     {
@@ -166,7 +180,7 @@ public class GitHubClient
         List<JsonObject> userObjects = Json.createReader(new StringReader(response.parseAsString())).readArray().getValuesAs(JsonObject.class);
         List<User> users = new ArrayList<>();
         for (JsonObject userObject : userObjects) {
-            User user = new User(userObject.getInt("id"), userObject.getString("type"));
+            User user = new User(Long.valueOf(userObject.getString("id")), userObject.getString("type"));
             user.setLogin(userObject.getString("login"));
             user.setAvatarUrl(userObject.getString("avatar_url"));
             users.add(user);

@@ -131,7 +131,7 @@ public class UpdateUserWorker
                 //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 LOG.debug("[" + login + "] finished: bulkInsert");
-                conn.attach(UserDao.class).updateStars(userId, calcTotalStars(userId, repos));
+                conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));
                 LOG.debug("[" + login + "] finished: updateStars");
             });
             LOG.info("[" + login + "] imported repos: " + repos.size());
@@ -157,13 +157,11 @@ public class UpdateUserWorker
         return Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(TIMEOUT_MINUTES));
     }
 
-    private int calcTotalStars(Long userId, List<Repository> repos)
+    private int calcTotalStars(List<Repository> repos)
     {
         int totalStars = 0;
         for (Repository repo : repos) {
-            if (userId.equals(Long.valueOf(repo.getOwnerId()))) {
-                totalStars += repo.getStargazersCount();
-            }
+            totalStars += repo.getStargazersCount();
         }
         return totalStars;
     }

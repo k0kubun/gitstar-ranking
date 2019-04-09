@@ -124,7 +124,9 @@ public class GitHubClient
                 int stargazersCount = node.getJsonObject("stargazers").getInt("totalCount");
                 String language = node.isNull("primaryLanguage") ? null : node.getJsonObject("primaryLanguage").getString("name");
 
-                repos.add(new Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language));
+                if (userId.equals(Long.valueOf(ownerId))) { // eliminate writable but not-owning repositories for some implicit consistency, like star count
+                    repos.add(new Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language));
+                }
             }
             catch (ClassCastException e) {
                 Sentry.capture(e);

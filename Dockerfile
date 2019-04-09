@@ -1,4 +1,4 @@
-FROM k0kubun/ruby:2.6.0-preview2
+FROM k0kubun/ruby:2.6.1
 ENV RUBYOPT="--jit"
 
 RUN cd /tmp && rm -f pubkey.gpg && wget https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add pubkey.gpg && \

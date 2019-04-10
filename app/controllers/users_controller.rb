@@ -51,8 +51,8 @@ class UsersController < ApplicationController
     unless valid_ids.empty?
       ActiveRecord::Base.transaction do
         User.where(id: valid_ids).update_all(queued_at: Time.now)
-        valid_ids.each do |id|
-          UpdateUserJob.perform_later(user_id: id, token_user_id: current_user.id)
+        valid_ids.each_with_index do |id, index|
+          UpdateUserJob.perform_later(user_id: id, token_user_id: current_user.id, wait: (index * 5).minutes)
         end
       end
     end

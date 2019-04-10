@@ -7,7 +7,8 @@ class User < ApplicationRecord
 
   attr_writer :rank
 
-  paginates_per 100
+  PER_PAGE = 100
+  paginates_per PER_PAGE
 
   devise :omniauthable, omniauth_providers: [:github]
 
@@ -28,6 +29,11 @@ class User < ApplicationRecord
 
   def admin?
     ADMIN_IDS.include?(id)
+  end
+
+  def not_queued_for_last?(duration)
+    return true if queued_at.nil?
+    queued_at < (Time.now - duration)
   end
 
   def queued_recently?

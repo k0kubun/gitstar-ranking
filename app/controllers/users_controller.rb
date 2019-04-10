@@ -9,6 +9,7 @@ class UsersController < ApplicationController
   def index
     @users = User.not_organization.starred_first.page(params[:page])
     RankBuilder.new(UserRank).realtime_preload(@users)
+    @stale_ids = @users.select { |u| u.not_queued_for_last?(7.days) }.map(&:id)
   end
 
   def show
@@ -38,6 +39,24 @@ class UsersController < ApplicationController
     end
 
     redirect_to user_path(user), notice: 'Update request is successfully queued. Please wait a moment.'
+  end
+
+  def bulk_update
+    if !params[:ids].is_a?(Array) && params[:ids].size > User::PAGE_PER
+      redirect_back fallback_location: root_path, alert: "Invalid 'ids' parameter #{params[:ids].inspect} is given"
+      return
+    end
+
+    valid_ids = User.where(id: params[:ids]).pluck(:id)
+    unless valid_ids.empty?
+      ActiveRecord::Base.transaction do
+        User.where(id: valid_ids).update_all(queued_at: Time.now)
+        valid_ids.each do |id|
+          UpdateUserJob.perform_later(user_id: id, token_user_id: current_user.id)
+        end
+      end
+    end
+    redirect_back fallback_location: root_path, notice: "Requested to update #{valid_ids.size} users. Please wait a moment."
   end
 
   private

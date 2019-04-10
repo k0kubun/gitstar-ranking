@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
     resources :users, only: [], param: :login, constraints: { login: /[a-zA-Z0-9-]+/ } do
       post :update_later, on: :member
+      post :bulk_update, on: :collection
     end
   end
 

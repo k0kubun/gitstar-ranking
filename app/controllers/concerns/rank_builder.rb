@@ -15,6 +15,7 @@ class RankBuilder
     calculate(record)
   end
 
+  # Take records with `attr_writer :rank`, calculate realtime ranking on demand and set it.
   # @param [ActiveRecord::Relation,Array<ActiveRecord::Base>] records
   def realtime_preload(records)
     return if records.to_a.size == 0

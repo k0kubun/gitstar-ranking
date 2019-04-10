@@ -2,11 +2,19 @@
 - provide :description, "See the top 1000 GitHub repositories on GitHub Ranking."
 = render 'shared/pagination_link', max_page: pagination_limit, url: repositories_url
 
+= render_flash :notice
+= render_flash :alert
+
 .page-header
   %h1
     Repositories Ranking
 
     %span.pull-right.hidden-xs.hidden-sm
+      - if @stale_ids.size > 0
+        = link_to "Update #{@stale_ids.size} Stale Owners", bulk_update_users_path(ids: @stale_ids),
+          class: 'btn btn-info update_stale_button', method: :post, data: { disable_with: 'Requesting...' }
+      - else
+        = link_to 'Up to date', '#', class: 'btn btn-default disabled update_stale_button'
       = limited_paginate @repositories, window: 2, theme: 'no_edge'
 
 .row

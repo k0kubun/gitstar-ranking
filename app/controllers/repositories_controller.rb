@@ -8,7 +8,7 @@ class RepositoriesController < ApplicationController
   def index
     @repositories = Repository.preload(:owner).starred_first.page(params[:page])
     RankBuilder.new(RepositoryRank).realtime_preload(@repositories)
-    @stale_ids = @repositories.map(&:owner).select { |u| u&.not_queued_for_last?(1.day) }.map(&:id).uniq
+    @stale_ids = @repositories.map(&:owner).select { |u| u&.not_queued_for_last?(7.days) }.map(&:id).uniq
   end
 
   def show

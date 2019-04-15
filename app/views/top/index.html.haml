@@ -38,7 +38,7 @@
                 = image_tag user.avatar_url, class: 'avatar_image'
               = link_to user_path(user) do
                 = user.login
-            %td= user.stargazers_count
+            %td= number_with_delimiter(user.stargazers_count)
     = link_to users_path do
       Show more »
 
@@ -60,7 +60,7 @@
                 = image_tag org.avatar_url, class: 'avatar_image'
               = link_to user_path(org) do
                 = org.login
-            %td= org.stargazers_count
+            %td= number_with_delimiter(org.stargazers_count)
     = link_to organizations_path do
       Show more »
 
@@ -86,6 +86,6 @@
                   = repo.full_name
                 - else
                   = truncate repo.name, length: 20
-            %td= repo.stargazers_count
+            %td= number_with_delimiter(repo.stargazers_count)
     = link_to repositories_path do
       Show more »

@@ -19,7 +19,7 @@ Docker container images are built on Docker Hub with Automated Build.
 
 ## Screen Shot
 
-[![](http://i.gyazo.com/c737a76774886f59ba73215c01e5d053.png)](http://githubranking.com)
+[![screen shot](./public/screenshot.png)](http://githubranking.com)
 
 ## Development
 

@@ -7,6 +7,14 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def require_valid_apikey!
+    unless valid = current_user.has_valid_apikey?
+      sign_out
+      redirect_to root_path, alert: 'Your access token seems expired. Please login again.'
+    end
+    valid
+  end
+
   # devise authentication fail redirection
   def new_session_path(resource)
     root_path

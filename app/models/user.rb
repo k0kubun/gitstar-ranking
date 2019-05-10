@@ -55,6 +55,13 @@ class User < ApplicationRecord
     client.rate_limit
   end
 
+  def has_valid_apikey?
+    rate_limit
+    true
+  rescue
+    false
+  end
+
   def member_of?(organization_login)
     return false if access_token&.token.nil?
     client = GithubApi::V3Client.new(access_token.token)

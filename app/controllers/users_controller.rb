@@ -5,6 +5,7 @@ class UsersController < ApplicationController
   PER_PAGE = 50
 
   before_action :validate_page_param, only: :index
+  before_action :require_valid_apikey!, only: [:update_later, :bulk_update]
 
   def index
     @users = User.not_organization.starred_first.page(params[:page])
@@ -18,8 +19,10 @@ class UsersController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     user_name = request.path.sub(/\A\//, '')
     if current_user && user_exists_on_github?(user_name)
-      UpdateUserJob.perform_later(token_user_id: current_user.id, user_name: user_name)
-      redirect_to root_path, notice: "Requested to create a page for #{user_name.dump}. Wait for a while and check it later."
+      if require_valid_apikey!
+        UpdateUserJob.perform_later(token_user_id: current_user.id, user_name: user_name)
+        redirect_to root_path, notice: "Requested to create a page for #{user_name.dump}. Wait for a while and check it later."
+      end
     else
       raise
     end

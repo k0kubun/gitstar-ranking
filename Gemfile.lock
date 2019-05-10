@@ -158,7 +158,7 @@ GEM
       omniauth (~> 1.2)
     orm_adapter (0.5.0)
     promise.rb (0.7.4)
-    pry (0.11.3)
+    pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     pry-byebug (3.5.1)

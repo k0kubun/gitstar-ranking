@@ -1,4 +1,4 @@
-rvm: 2.4.1
+rvm: 2.6.1
 sudo: required
 branches:
   only:

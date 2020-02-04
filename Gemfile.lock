@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/k0kubun/omniauth-github.git
+  revision: 7d7f67846c0a40c32fc36e09e0f8021755b979b8
+  ref: 7d7f67846c0a40c32fc36e09e0f8021755b979b8
+  specs:
+    omniauth-github (1.3.0)
+      omniauth (~> 1.5)
+      omniauth-oauth2 (>= 1.4.0, < 2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -150,9 +159,6 @@ GEM
     omniauth (1.9.0)
       hashie (>= 3.4.6, < 3.7.0)
       rack (>= 1.6.2, < 3)
-    omniauth-github (1.3.0)
-      omniauth (~> 1.5)
-      omniauth-oauth2 (>= 1.4.0, < 2.0)
     omniauth-oauth2 (1.6.0)
       oauth2 (~> 1.1)
       omniauth (~> 1.9)
@@ -302,7 +308,7 @@ DEPENDENCIES
   mysql2
   newrelic_rpm
   omniauth
-  omniauth-github
+  omniauth-github!
   pry-byebug
   pry-doc
   pry-rails

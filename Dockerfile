@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY Gemfile /app
 COPY Gemfile.lock /app
-RUN bundle install -j$(nproc) --without development test
+RUN bundle install -j$(nproc)
 
 COPY . /app
 RUN bundle exec rake assets:precompile RAILS_ENV=production

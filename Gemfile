@@ -32,7 +32,7 @@ gem 'rack-user_agent'
 gem 'ridgepoler-rails'
 gem 'sassc-rails'
 gem 'sentry-raven'
-gem 'sprockets'
+gem 'sprockets', '< 4'
 gem 'uglifier'
 gem 'webpacker'
 

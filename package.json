@@ -1,9 +1,9 @@
 {
   "dependencies": {
+    "@rails/webpacker": "^4.2.2",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "@rails/webpacker": "^4.2.2"
+    "react-dom": "^15.6.1"
   },
   "devDependencies": {
     "webpack-dev-server": "^2.11.5"

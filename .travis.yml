@@ -1,5 +1,5 @@
 rvm: 2.6.1
-node_js: 8
+node_js: 8.17.0
 sudo: required
 branches:
   only:

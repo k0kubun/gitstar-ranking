@@ -322,7 +322,7 @@ DEPENDENCIES
   silencer
   spring
   spring-commands-rspec
-  sprockets
+  sprockets (< 4)
   timecop
   uglifier
   webpacker

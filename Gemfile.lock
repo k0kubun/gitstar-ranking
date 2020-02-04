@@ -314,7 +314,7 @@ DEPENDENCIES
   pry-rails
   puma
   rack-user_agent
-  rails (~> 5.1)
+  rails (< 5.2)
   ridgepoler-rails
   rspec-rails
   sassc-rails

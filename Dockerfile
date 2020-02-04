@@ -2,7 +2,8 @@ FROM k0kubun/ruby:2.6.1
 ENV RUBYOPT="--jit"
 
 RUN cd /tmp && rm -f pubkey.gpg && wget https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add pubkey.gpg && \
-  rm pubkey.gpg && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
+  rm pubkey.gpg && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+  wget -O - https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libmysqlclient-dev \
   nodejs \

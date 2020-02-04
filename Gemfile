@@ -34,7 +34,7 @@ gem 'sassc-rails'
 gem 'sentry-raven'
 gem 'sprockets', '< 4' # needs app/assets/config/manifest.js
 gem 'uglifier'
-gem 'webpacker'
+gem 'webpacker', '< 4'
 
 group :development do
   gem 'foreman'

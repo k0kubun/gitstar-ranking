@@ -1,5 +1,10 @@
 source 'https://rubygems.org'
 
+git_source(:github) do |repo_name|
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
+  "https://github.com/#{repo_name}.git"
+end
+
 gem 'rails', '~> 5.1'
 
 gem 'activerecord-import'
@@ -21,7 +26,7 @@ gem 'kaminari'
 gem 'mysql2'
 gem 'newrelic_rpm'
 gem 'omniauth'
-gem 'omniauth-github'
+gem 'omniauth-github', github: 'k0kubun/omniauth-github', ref: '7d7f67846c0a40c32fc36e09e0f8021755b979b8'
 gem 'puma'
 gem 'rack-user_agent'
 gem 'ridgepoler-rails'

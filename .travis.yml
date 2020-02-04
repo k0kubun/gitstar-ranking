@@ -10,7 +10,7 @@ before_script:
   - sudo service mysql restart
   - bundle exec rake db:create db:migrate
   - mkdir -p /home/travis/build/k0kubun/github-ranking/tmp/cache
-  - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get update && sudo apt-get install -y nodejs
+  - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get update && sudo apt-get install -y nodejs yarn
 script:
   - bundle exec rake assets:precompile RAILS_ENV=production
   - bundle exec rake spec

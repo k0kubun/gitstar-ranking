@@ -127,8 +127,13 @@ public class UpdateUserWorker
             List<Repository> repos = client.getPublicRepos(userId, user.isOrganization());
             LOG.debug("[" + login + "] finished: getPublicRepos");
 
+            List<Long> repoIds = new ArrayList<>();
+            for (Repository repo : repos) {
+                repoIds.add(repo.getId());
+            }
+
             handle.useTransaction((conn, status) -> {
-                //conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId); // Delete obsolete ones
+                conn.attach(RepositoryDao.class).deleteAllOwnedByExcept(userId, repoIds); // Delete obsolete ones
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 LOG.debug("[" + login + "] finished: bulkInsert");
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));

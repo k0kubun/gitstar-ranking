@@ -14,8 +14,11 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.unstable.BindIn;
 
+@UseStringTemplate3StatementLocator
 public interface RepositoryDao
 {
     @SqlQuery("select id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language " +
@@ -48,6 +51,9 @@ public interface RepositoryDao
 
     @SqlUpdate("delete from repositories where owner_id = :userId")
     long deleteAllOwnedBy(@Bind("userId") Long userId);
+
+    @SqlUpdate("delete from repositories where owner_id = :userId and id not in (<ids>)")
+    long deleteAllOwnedByExcept(@Bind("userId") Long userId, @BindIn("ids") List<Long> ids);
 
     class RepositoryStarMapper
             implements ResultSetMapper<Repository>

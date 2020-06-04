@@ -37,11 +37,13 @@ public class OrganizationRankingWorker
     public void perform()
             throws Exception
     {
+        /*
         while (orgRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
                 return;
             }
         }
+        */
         LOG.info("----- started OrganizationRankingWorker -----");
         try (Handle handle = dbi.open()) {
             OrganizationRank lastRank = updateUpperRanking(handle);

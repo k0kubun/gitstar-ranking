@@ -26,11 +26,18 @@ public class UserRankingWorker
     private final BlockingQueue<Boolean> userRankingQueue;
     private final DBI dbi;
 
+    // TODO: refactor the relationship between User/Organization/RepositoryRankingWorker
+    private final OrganizationRankingWorker organizationRankingWorker;
+    private final RepositoryRankingWorker repositoryRankingWorker;
+
     public UserRankingWorker(Config config)
     {
         super();
         userRankingQueue = config.getQueueConfig().getUserRankingQueue();
         dbi = new DBI(config.getDatabaseConfig().getDataSource());
+
+        organizationRankingWorker = new OrganizationRankingWorker(config);
+        repositoryRankingWorker = new RepositoryRankingWorker(config);
     }
 
     @Override
@@ -50,6 +57,8 @@ public class UserRankingWorker
             }
         }
         LOG.info("----- finished UserRankingWorker -----");
+        organizationRankingWorker.perform();
+        repositoryRankingWorker.perform();
     }
 
     private UserRank updateUpperRanking(Handle handle)

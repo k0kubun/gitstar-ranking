@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class Main
 {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-    private static final int NUM_UPDATE_USER_WORKERS = 3;
+    private static final int NUM_UPDATE_USER_WORKERS = 2;
 
     private static final Config config = new Config(System.getenv());
 
@@ -61,9 +61,9 @@ public class Main
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
 
         // Schedule at most every 8 hours
-        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 1, 8, TimeUnit.HOURS); // 1~5 : 4
-        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue()); }, 5, 8, TimeUnit.HOURS); // 5~7 : 2
-        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);  // 7~8, 0~1 : 2
+        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue()); }, 1, 8, TimeUnit.HOURS);
+        // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 5, 8, TimeUnit.HOURS);
+        // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
 
         // Schedule at most every 1 hour
         //scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getNewUserQueue()); }, 1, 1, TimeUnit.HOURS);
@@ -100,8 +100,8 @@ public class Main
         //workers.add(new LegacyUpdateStarredOrganizationWorker(dataSource));
         //workers.add(new LegacyUpdateSearchedUserWorker(config));
         workers.add(new UserRankingWorker(config));
-        workers.add(new OrganizationRankingWorker(config));
-        workers.add(new RepositoryRankingWorker(config));
+        //workers.add(new OrganizationRankingWorker(config));
+        //workers.add(new RepositoryRankingWorker(config));
         return workers;
     }
 

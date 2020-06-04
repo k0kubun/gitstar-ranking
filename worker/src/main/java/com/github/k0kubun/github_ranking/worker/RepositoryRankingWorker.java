@@ -36,11 +36,13 @@ public class RepositoryRankingWorker
     public void perform()
             throws Exception
     {
+        /*
         while (repoRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
                 return;
             }
         }
+        */
         LOG.info("----- started RepositoryRankingWorker -----");
         try (Handle handle = dbi.open()) {
             RepositoryRank lastRank = updateUpperRanking(handle);

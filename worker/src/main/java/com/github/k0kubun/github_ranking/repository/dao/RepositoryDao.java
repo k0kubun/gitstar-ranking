@@ -38,7 +38,7 @@ public interface RepositoryDao
     @Mapper(RepositoryStarMapper.class)
     List<Repository> starsDescFirstRepos(@Bind("limit") Integer limit);
 
-    @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) < (:stargazersCount, :id) " +
+    @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) \\< (:stargazersCount, :id) " +
             "order by stargazers_count desc, id desc limit :limit")
     @Mapper(RepositoryStarMapper.class)
     List<Repository> starsDescReposAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Long id, @Bind("limit") Integer limit);

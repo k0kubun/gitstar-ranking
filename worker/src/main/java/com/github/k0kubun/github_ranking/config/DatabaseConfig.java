@@ -1,7 +1,6 @@
 package com.github.k0kubun.github_ranking.config;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 
 import java.util.Map;
 
@@ -24,7 +23,11 @@ public class DatabaseConfig
 
     public DataSource getDataSource()
     {
-        return new HikariDataSource(getHikariConfig());
+        MysqlDataSource mysqlDataSource = new MysqlDataSource();
+        mysqlDataSource.setUrl(getUrl());
+        mysqlDataSource.setUser(getUser());
+        mysqlDataSource.setPassword(getPassword());
+        return mysqlDataSource;
     }
 
     public String getUrl()
@@ -60,12 +63,6 @@ public class DatabaseConfig
         return env.getOrDefault("DATABASE_NAME", DEFAULT_DATABASE);
     }
 
-    // HikariCP's default = 10: https://github.com/brettwooldridge/HikariCP#frequently-used
-    private Integer getMaxPoolSize()
-    {
-        return getIntegerOrDefault("DATABASE_MAX_POOL_SIZE", 10);
-    }
-
     private Integer getIntegerOrDefault(String key, Integer defaultValue)
     {
         if (env.containsKey(key)) {
@@ -75,22 +72,5 @@ public class DatabaseConfig
         else {
             return defaultValue;
         }
-    }
-
-    private HikariConfig getHikariConfig()
-    {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(getUrl());
-        config.setUsername(getUser());
-        config.setPassword(getPassword());
-        config.setMaximumPoolSize(getMaxPoolSize());
-        config.setConnectionInitSql("SET NAMES utf8mb4");
-
-        // Followings are recommendation from HikariCP https://github.com/brettwooldridge/HikariCP#initialization
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-        return config;
     }
 }

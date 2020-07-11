@@ -2,6 +2,7 @@ package com.github.k0kubun.github_ranking.config;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -27,6 +28,7 @@ public class DatabaseConfig
         mysqlDataSource.setUrl(getUrl());
         mysqlDataSource.setUser(getUser());
         mysqlDataSource.setPassword(getPassword());
+        mysqlDataSource.setConnectionInitSqls(Collections.singleton("SET NAMES utf8mb4"));
         return mysqlDataSource;
     }
 

@@ -1,6 +1,6 @@
 package com.github.k0kubun.github_ranking.config;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.util.Map;
 

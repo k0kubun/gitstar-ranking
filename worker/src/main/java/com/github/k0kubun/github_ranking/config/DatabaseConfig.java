@@ -32,7 +32,7 @@ public class DatabaseConfig
 
     public String getUrl()
     {
-        return String.format("jdbc:mysql://%s:%d/%s?characterEncoding=UTF-8",
+        return String.format("jdbc:mysql://%s:%d/%s",
                 getHost(),
                 getPort(),
                 getDatabaseName());

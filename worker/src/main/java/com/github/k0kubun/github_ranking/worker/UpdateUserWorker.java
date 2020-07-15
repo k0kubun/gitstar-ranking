@@ -133,7 +133,11 @@ public class UpdateUserWorker
             }
 
             handle.useTransaction((conn, status) -> {
-                conn.attach(RepositoryDao.class).deleteAllOwnedByExcept(userId, repoIds); // Delete obsolete ones
+                if (repoIds.size() > 0) {
+                    conn.attach(RepositoryDao.class).deleteAllOwnedByExcept(userId, repoIds); // Delete obsolete ones
+                } else {
+                    conn.attach(RepositoryDao.class).deleteAllOwnedBy(userId);
+                }
                 conn.attach(RepositoryDao.class).bulkInsert(repos);
                 LOG.debug("[" + login + "] finished: bulkInsert");
                 conn.attach(UserDao.class).updateStars(userId, calcTotalStars(repos));

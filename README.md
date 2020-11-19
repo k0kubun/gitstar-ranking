@@ -6,9 +6,9 @@ https://gitstar-ranking.com
 
 ## Build Status
 
-| Server | Worker |
-|:-------|:-------|
-| [![Build Status](https://travis-ci.org/k0kubun/gitstar-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/gitstar-ranking) | [![wercker status](https://app.wercker.com/status/4f1170bbabcfa8b28e379746dff4e167/s/master "wercker status")](https://app.wercker.com/project/byKey/4f1170bbabcfa8b28e379746dff4e167) |
+| Server |
+|:-------|
+| [![Build Status](https://travis-ci.org/k0kubun/gitstar-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/gitstar-ranking) |
 
 ## Docker Hub
 

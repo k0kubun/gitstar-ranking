@@ -35,6 +35,7 @@ class UsersController < ApplicationController
       schemaVersion: 1,
       label: 'git rank',
       message: user.rank.to_s,
+      color: 'brightgreen',
     }
   end
 

@@ -22,13 +22,14 @@ Rails.application.routes.draw do
     end
 
     resources :users, only: [], param: :login, constraints: { login: /[a-zA-Z0-9-]+/ } do
-      get :shields
       post :update_later, on: :member
       post :bulk_update, on: :collection
     end
   end
 
-  resources :users, only: :index
+  resources :users, only: :index, param: :login, constraints: { login: /[a-zA-Z0-9-]+/ } do
+    get :shields
+  end
   resources :organizations, only: :index
   resources :repositories, only: :index
 

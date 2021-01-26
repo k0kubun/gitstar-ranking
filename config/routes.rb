@@ -28,7 +28,7 @@ Rails.application.routes.draw do
   end
 
   resources :users, only: :index, param: :login, constraints: { login: /[a-zA-Z0-9-]+/ } do
-    get :shields
+    get :shields, on: :member
   end
   resources :organizations, only: :index
   resources :repositories, only: :index

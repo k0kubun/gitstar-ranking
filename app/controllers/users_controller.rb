@@ -28,6 +28,16 @@ class UsersController < ApplicationController
     end
   end
 
+  # https://shields.io/endpoint
+  def shields
+    user = User.find_by!(login: params[:login])
+    render json: {
+      schemaVersion: 1,
+      label: 'git rank',
+      message: user.rank.to_s,
+    }
+  end
+
   def update_later
     user = User.find_by!(login: params[:login])
 

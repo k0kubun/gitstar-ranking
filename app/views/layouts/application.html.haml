@@ -24,9 +24,8 @@
 
     .container
       = yield
-
-    .container
-      = render 'layouts/ads'
+      .ads_container
+        = render 'layouts/ads'
       %footer
         .row
           .col-lg-12

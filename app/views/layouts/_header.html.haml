@@ -38,14 +38,15 @@
       %ul.nav.navbar-nav.navbar-right
         - if user_signed_in?
           - if current_user.admin?
-            - if full_user = LastUpdate.find_by(id: 1)&.user
-              %li
-                = link_to user_path(full_user) do
-                  Full: #{number_with_delimiter(full_user.id)}
             - if star_user = LastUpdate.find_by(id: 2)&.user
               %li
                 = link_to user_path(star_user) do
                   Star: #{number_with_delimiter(star_user.stargazers_count)}
+            - if full_user = LastUpdate.find_by(id: 1)&.user
+              %li
+                - last_user_id = User.order(id: :desc).limit(1).pluck(:id).first
+                = link_to user_path(full_user) do
+                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / last_user_id)})
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

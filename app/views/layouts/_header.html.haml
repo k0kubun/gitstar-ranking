@@ -46,7 +46,7 @@
               %li
                 - last_user_id = User.order(id: :desc).limit(1).pluck(:id).first
                 = link_to user_path(full_user) do
-                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / last_user_id)})
+                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / last_user_id)}%)
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

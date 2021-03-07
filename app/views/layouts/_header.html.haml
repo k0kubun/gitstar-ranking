@@ -41,7 +41,7 @@
             - if star_user = LastUpdate.find_by(id: 2)&.user
               %li
                 = link_to user_path(star_user) do
-                  Star: #{number_with_delimiter(star_user.stargazers_count)}
+                  Star: #{number_with_delimiter(LastUpdate.find_by(id: 3)&.cursor || 0)}
             - if full_user = LastUpdate.find_by(id: 1)&.user
               %li
                 - last_user_id = User.order(id: :desc).limit(1).pluck(:id).first

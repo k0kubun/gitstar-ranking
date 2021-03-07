@@ -4,6 +4,7 @@ import com.github.k0kubun.github_ranking.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.skife.jdbi.v2.StatementContext;
@@ -24,6 +25,9 @@ public interface UserDao
     @SqlQuery("select id, login, type from users where id = :id")
     @Mapper(UserMapper.class)
     User find(@Bind("id") Long id);
+
+    @SqlQuery("select updated_at from users where id = :id")
+    Timestamp userUpdatedAt(@Bind("id") Long id);
 
     @SqlQuery("select id, type, updated_at from users where id in (<ids>)")
     @Mapper(UserUpdatedAtMapper.class)

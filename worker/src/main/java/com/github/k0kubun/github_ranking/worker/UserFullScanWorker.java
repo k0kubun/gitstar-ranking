@@ -71,8 +71,8 @@ public class UserFullScanWorker extends UpdateUserWorker {
 
         handle.attach(UserDao.class).bulkInsert(users);
         for (User user : users) {
-            User current = handle.attach(UserDao.class).find(user.getId()); // TODO: Fix N+1
-            if (current.getUpdatedAt().before(updateThreshold)) {
+            Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
+            if (updatedAt.before(updateThreshold)) {
                 updateUser(handle, user, client);
             } else {
                 LOG.info(String.format("Skip up-to-date user (id: %d, login: %s)", user.getId(), user.getLogin()));

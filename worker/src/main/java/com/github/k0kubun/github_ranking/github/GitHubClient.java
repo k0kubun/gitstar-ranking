@@ -171,7 +171,7 @@ public class GitHubClient
     public List<User> getUsersSince(long since)
             throws IOException
     {
-        HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users?since=" + since));
+        HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_ENDPOINT + "/users?per_page=100&since=" + since));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAuthorization("bearer " + tokenFactory.getToken());

@@ -4,7 +4,6 @@ import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.github.GitHubClient;
 import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
 import com.github.k0kubun.github_ranking.model.User;
-import com.github.k0kubun.github_ranking.repository.DatabaseLock;
 import com.github.k0kubun.github_ranking.repository.dao.LastUpdateDao;
 import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 import org.skife.jdbi.v2.DBI;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -23,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 public class UserFullScanWorker extends UpdateUserWorker {
     private static final long TOKEN_USER_ID = 3138447; // k0kubun
-    private static final long BATCH_SIZE = 1000;
     private static final Logger LOG = LoggerFactory.getLogger(UserRankingWorker.class);
 
     private final BlockingQueue<Boolean> userFullScanQueue;

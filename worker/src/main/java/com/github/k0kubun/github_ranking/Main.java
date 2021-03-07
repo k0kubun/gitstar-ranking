@@ -64,12 +64,6 @@ public class Main
         // Schedule at most every 15 minutes
         scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 1, 15, TimeUnit.MINUTES);
 
-        // Schedule at most every 1 hour
-        //scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getNewUserQueue()); }, 1, 1, TimeUnit.HOURS);
-
-        // Schedule at most every 24 hour
-        //scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getSearchedUserQueue()); }, 1, 24, TimeUnit.HOURS);
-
         return scheduler;
     }
 
@@ -91,16 +85,10 @@ public class Main
         DataSource dataSource = config.getDatabaseConfig().getDataSource();
 
         WorkerManager workers = new WorkerManager();
-        //workers.add(new LegacyNewUserWorker(config));
         for (int i = 0; i < NUM_UPDATE_USER_WORKERS; i++) {
             workers.add(new UpdateUserWorker(dataSource));
         }
-        //workers.add(new LegacyUpdateStarredUserWorker(dataSource));
-        //workers.add(new LegacyUpdateStarredOrganizationWorker(dataSource));
-        //workers.add(new LegacyUpdateSearchedUserWorker(config));
         workers.add(new UserRankingWorker(config));
-        //workers.add(new OrganizationRankingWorker(config));
-        //workers.add(new RepositoryRankingWorker(config));
         workers.add(new UserFullScanWorker(config));
         return workers;
     }

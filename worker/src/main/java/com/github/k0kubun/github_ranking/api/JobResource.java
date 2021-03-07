@@ -55,22 +55,6 @@ public class JobResource
     }
 
     @POST
-    @Path("/new_users")
-    public ApiResponse newUsers()
-    {
-        return new ApiResponse<>(ApiResponse.Type.INTEGER,
-                scheduleIfEmpty(queueConfig.getNewUserQueue()));
-    }
-
-    @POST
-    @Path("/searched_users")
-    public ApiResponse searchedUsers()
-    {
-        return new ApiResponse<>(ApiResponse.Type.INTEGER,
-                scheduleIfEmpty(queueConfig.getSearchedUserQueue()));
-    }
-
-    @POST
     @Path("/full_scan")
     public ApiResponse fullScan()
     {

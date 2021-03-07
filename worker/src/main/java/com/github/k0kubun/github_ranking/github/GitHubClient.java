@@ -182,7 +182,7 @@ public class GitHubClient
         List<JsonObject> userObjects = Json.createReader(new StringReader(response.parseAsString())).readArray().getValuesAs(JsonObject.class);
         List<User> users = new ArrayList<>();
         for (JsonObject userObject : userObjects) {
-            User user = new User(Long.valueOf(userObject.getString("id")), userObject.getString("type"));
+            User user = new User(userObject.getJsonNumber("id").longValue(), userObject.getString("type"));
             user.setLogin(userObject.getString("login"));
             user.setAvatarUrl(userObject.getString("avatar_url"));
             users.add(user);

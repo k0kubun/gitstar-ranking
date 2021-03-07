@@ -6,10 +6,8 @@ branches:
 cache: bundler
 dist: xenial
 before_script:
-  - echo -e "[mysqld]\ninnodb_file_format = Barracuda\ninnodb_file_per_table = 1\ninnodb_large_prefix = 1" | sudo sh -c "cat >> /etc/mysql/my.cnf"
-  - sudo service mysql restart
+  - sudo service postgresql start
   - bundle exec rake db:create db:migrate
-  - mkdir -p /home/travis/build/k0kubun/github-ranking/tmp/cache
 script:
   - bundle exec rake assets:precompile RAILS_ENV=production
   - bundle exec rake spec

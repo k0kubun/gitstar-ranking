@@ -60,12 +60,12 @@ public class UserFullScanWorker extends UpdateUserWorker {
                     break;
                 }
 
-                long lastUpdatedId = handle.attach(LastUpdateDao.class).lastUserId();
+                long lastUpdatedId = handle.attach(LastUpdateDao.class).userId(LastUpdateDao.USER_FULL_SCAN);
                 long nextUpdatedId = updateUsers(client, handle, lastUpdatedId, lastUserId);
                 if (nextUpdatedId <= lastUpdatedId) {
                     break;
                 }
-                handle.attach(LastUpdateDao.class).updateUserId(nextUpdatedId);
+                handle.attach(LastUpdateDao.class).updateUserId(LastUpdateDao.USER_FULL_SCAN, nextUpdatedId);
             }
         }
         LOG.info(String.format("----- finished UserFullScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));

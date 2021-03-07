@@ -90,7 +90,7 @@ public class UserStarScanWorker extends UpdateUserWorker {
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
                 lastUpdatedId = updateUsers(client, handle, users, lastUpdatedId);
-                handle.attach(LastUpdateDao.class).updateUserId(LastUpdateDao.USER_FULL_SCAN, lastUpdatedId);
+                handle.attach(LastUpdateDao.class).updateUserId(LastUpdateDao.USER_STAR_SCAN, lastUpdatedId);
 
                 numUsers -= users.size();
             }

@@ -76,8 +76,8 @@ public class UserFullScanWorker extends UpdateUserWorker {
             Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
             if (user.getId() <= 8464 /* bug fix */ || updatedAt.before(updateThreshold)) {
                 updateUser(handle, user, client);
-                LOG.info(String.format("Updated: userId = %d, login = %s (%.4f%%)",
-                        user.getId(), user.getLogin(), 100.0D * user.getId() / lastUserId));
+                LOG.info(String.format("[%s] userId = %d / %d (%.4f%%)",
+                        user.getLogin(), user.getId(), lastUserId, 100.0D * user.getId() / lastUserId));
             } else {
                 LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
             }

@@ -15,7 +15,7 @@ module Concerns
     end
 
     def pagination_limit
-      10
+      50
     end
   end
 end

@@ -37,6 +37,13 @@
 
       %ul.nav.navbar-nav.navbar-right
         - if user_signed_in?
+          - if current_user.admin?
+            %li
+              - full_id = LastUpdate.find_by(id: 1)&.user_id || 0
+              Full: #{number_with_delimiter(full_id)}
+            %li
+              - star_id = LastUpdate.find_by(id: 2)&.user_id || 0
+              Star: #{number_with_delimiter(User.find_by(id: star_id)&.stargazers_count || 0)}
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

@@ -10,7 +10,7 @@ class UsersController < ApplicationController
   def index
     @users = User.not_organization.starred_first.page(params[:page])
     RankBuilder.new(UserRank).realtime_preload(@users)
-    @stale_ids = @users.select { |u| u.not_queued_for_last?(7.days) }.map(&:id)
+    @stale_ids = @users.select { |u| u.not_queued_for_last?(1.days) }.map(&:id)
   end
 
   def show

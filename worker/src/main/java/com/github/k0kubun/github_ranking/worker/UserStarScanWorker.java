@@ -64,12 +64,10 @@ public class UserStarScanWorker extends UpdateUserWorker {
                 }
 
                 // Find a current cursor
-                long lastUpdatedId = handle.attach(LastUpdateDao.class).userId(LastUpdateDao.USER_STAR_SCAN);
-                long stars;
-                if (lastUpdatedId == 0) {
+                long lastUpdatedId = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.STAR_SCAN_USER_ID);
+                long stars = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.STAR_SCAN_STARS);
+                if (stars == 0) {
                     stars = handle.attach(UserDao.class).maxStargazersCount();
-                } else {
-                    stars = handle.attach(UserDao.class).userStargazersCount(lastUpdatedId);
                 }
 
                 // Query a next batch
@@ -79,7 +77,10 @@ public class UserStarScanWorker extends UpdateUserWorker {
                     if (users.isEmpty()) {
                         stars = handle.attach(UserDao.class).nextStargazersCount(stars);
                         if (stars == 0) {
-                            handle.attach(LastUpdateDao.class).resetUserId(LastUpdateDao.USER_STAR_SCAN);
+                            handle.useTransaction((conn, status) -> {
+                                conn.attach(LastUpdateDao.class).resetCursor(LastUpdateDao.STAR_SCAN_USER_ID);
+                                conn.attach(LastUpdateDao.class).resetCursor(LastUpdateDao.STAR_SCAN_STARS);
+                            });
                             LOG.info(String.format("--- completed and reset UserStarScanWorker (API: %s/5000) ---", client.getRateLimitRemaining()));
                             return;
                         }
@@ -89,8 +90,12 @@ public class UserStarScanWorker extends UpdateUserWorker {
 
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
-                lastUpdatedId = updateUsers(client, handle, users, lastUpdatedId);
-                handle.attach(LastUpdateDao.class).updateUserId(LastUpdateDao.USER_STAR_SCAN, lastUpdatedId);
+                long nextUpdatedId = updateUsers(client, handle, users, lastUpdatedId);
+                long nextStars = stars;
+                handle.useTransaction((conn, status) -> {
+                    conn.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.STAR_SCAN_USER_ID, nextUpdatedId);
+                    conn.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.STAR_SCAN_STARS, nextStars);
+                });
 
                 numUsers -= users.size();
             }

@@ -5,17 +5,18 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
 public interface LastUpdateDao {
-    int USER_FULL_SCAN = 1;
-    int USER_STAR_SCAN = 2;
+    int FULL_SCAN_USER_ID = 1;
+    int STAR_SCAN_USER_ID = 2;
+    int STAR_SCAN_STARS = 3;
 
-    @SqlQuery("select user_id from last_updates where id = :key")
-    long userId(@Bind("key") int key);
+    @SqlQuery("select cursor from last_updates where id = :key")
+    long getCursor(@Bind("key") int key);
 
-    @SqlUpdate("insert into last_updates (id, user_id, updated_at) " +
-            "values (:key, :user_id, current_timestamp(0)) on conflict (id) do update set " +
-            "user_id=excluded.user_id, updated_at=excluded.updated_at")
-    void updateUserId(@Bind("key") int key, @Bind("user_id") long userId);
+    @SqlUpdate("insert into last_updates (id, cursor, updated_at) " +
+            "values (:key, :cursor, current_timestamp(0)) on conflict (id) do update set " +
+            "cursor=excluded.cursor, updated_at=excluded.updated_at")
+    void updateCursor(@Bind("key") int key, @Bind("cursor") long cursor);
 
     @SqlQuery("delete from last_updates where id = :key")
-    long resetUserId(@Bind("key") int key);
+    long resetCursor(@Bind("key") int key);
 }

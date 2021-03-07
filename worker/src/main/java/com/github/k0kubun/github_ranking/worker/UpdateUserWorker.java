@@ -47,8 +47,8 @@ public class UpdateUserWorker
     public void perform()
             throws Exception
     {
-        try (Handle handle = dbi.open()) {
-            DatabaseLock lock = new DatabaseLock(handle, this);
+        try (Handle handle = dbi.open(); Handle lockHandle = dbi.open()) {
+            DatabaseLock lock = new DatabaseLock(lockHandle);
 
             // Poll until it succeeds to acquire a job...
             Timestamp timeoutAt;

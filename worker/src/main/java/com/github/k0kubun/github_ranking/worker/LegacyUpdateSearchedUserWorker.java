@@ -8,6 +8,7 @@ import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 import io.sentry.Sentry;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -43,16 +44,16 @@ public class LegacyUpdateSearchedUserWorker
             }
         }
         LOG.info("----- started LegacyUpdateSearchedUserWorker -----");
-        try (Handle handle = dbi.open()) {
-            importSearchedUsers(handle);
+        try (Handle handle = dbi.open(); Handle lockHandle = dbi.open()) {
+            importSearchedUsers(handle, lockHandle);
         }
         LOG.info("----- finished LegacyUpdateSearchedUserWorker -----");
     }
 
-    private void importSearchedUsers(Handle handle)
-            throws IOException
+    private void importSearchedUsers(Handle handle, Handle lockHandle)
+            throws IOException, SQLException
     {
-        DatabaseLock lock = new DatabaseLock(handle, this);
+        DatabaseLock lock = new DatabaseLock(lockHandle);
         PaginatedSearchedUsers paginatedUsers = new PaginatedSearchedUsers(handle, clientBuilder.buildEnabled());
 
         List<User> users;

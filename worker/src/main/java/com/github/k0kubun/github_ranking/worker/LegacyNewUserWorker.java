@@ -7,6 +7,7 @@ import com.github.k0kubun.github_ranking.repository.dao.UserDao;
 import io.sentry.Sentry;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -38,16 +39,16 @@ public class LegacyNewUserWorker
             }
         }
         LOG.info("----- started LegacyNewUserWorker -----");
-        try (Handle handle = dbi.open()) {
-            importNewUsers(handle);
+        try (Handle handle = dbi.open(); Handle lockHandle = dbi.open()) {
+            importNewUsers(handle, lockHandle);
         }
         LOG.info("----- finished LegacyNewUserWorker -----");
     }
 
-    private void importNewUsers(Handle handle)
-            throws IOException
+    private void importNewUsers(Handle handle, Handle lockHandle)
+            throws IOException, SQLException
     {
-        DatabaseLock lock = new DatabaseLock(handle, this);
+        DatabaseLock lock = new DatabaseLock(lockHandle);
         long since = handle.attach(UserDao.class).lastId();
 
         List<User> users;

@@ -5,6 +5,7 @@ import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
 import com.github.k0kubun.github_ranking.worker.Worker;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.skife.jdbi.v2.Handle;
 
@@ -14,16 +15,17 @@ public class DatabaseLock
     private static final char UPDATE_USER_JOBS_LOCK = 0;
     private static final char USER_UPDATE_LOCK = 1;
 
-    private final Handle handle;
+    private final Handle lockHandle;
 
-    public DatabaseLock(Handle handle, Worker worker) // TOOD: remove worker
+    public DatabaseLock(Handle lockHandle) throws SQLException
     {
-        this.handle = handle;
+        lockHandle.getConnection().setAutoCommit(false);
+        this.lockHandle = lockHandle;
     }
 
     public void withUserUpdate(Long userId, UserUpdateCallback callback)
     {
-        handle.useTransaction((conn, status) -> {
+        lockHandle.useTransaction((conn, status) -> {
             LockDao dao = conn.attach(LockDao.class);
             getLock(dao, userId, USER_UPDATE_LOCK);
             callback.withLock();
@@ -34,7 +36,7 @@ public class DatabaseLock
     // com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException: Deadlock found when trying to get lock; try restarting transaction
     public long withUpdateUserJobs(UpdateUserJobCallback callback)
     {
-        return handle.inTransaction((conn, status) -> {
+        return lockHandle.inTransaction((conn, status) -> {
             LockDao dao = conn.attach(LockDao.class);
             getLock(dao, SHARED_KEY, UPDATE_USER_JOBS_LOCK);
             return callback.withLock(conn.attach(UpdateUserJobDao.class));

@@ -31,8 +31,8 @@ public class LegacyUpdateStarredOrganizationWorker
     public void perform()
             throws Exception
     {
-        try (Handle handle = dbi.open()) {
-            DatabaseLock lock = new DatabaseLock(handle, this);
+        try (Handle handle = dbi.open(); Handle lockHandle = dbi.open()) {
+            DatabaseLock lock = new DatabaseLock(lockHandle);
             PaginatedOrganizations paginatedOrganizations = new PaginatedOrganizations(handle);
 
             List<Organization> orgs;

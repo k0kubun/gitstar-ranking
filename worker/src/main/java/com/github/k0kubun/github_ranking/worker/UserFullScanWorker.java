@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UserFullScanWorker extends UpdateUserWorker {
     private static final long TOKEN_USER_ID = 3138447; // k0kubun
-    private static final long THRESHOLD_DAYS = 14;
+    private static final long THRESHOLD_DAYS = 1; // At least later than Mar 6th
     private static final long MIN_RATE_LIMIT_REMAINING = 500; // Limit: 5000 / h
     private static final Logger LOG = LoggerFactory.getLogger(UserFullScanWorker.class);
 

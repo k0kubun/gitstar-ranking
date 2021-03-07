@@ -8,6 +8,11 @@ create_table "access_tokens", id: :integer, force: :cascade, options: "ENGINE=In
   t.index ["enabled"], name: "index_access_tokens_on_enabled"
 end
 
+create_table "last_updates", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+  t.integer "user_id", null: false
+  t.datetime "updated_at", null: false
+end
+
 create_table "organization_ranks", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
   t.integer "stargazers_count", null: false
   t.integer "rank", null: false

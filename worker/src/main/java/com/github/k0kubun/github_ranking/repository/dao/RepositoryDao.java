@@ -29,8 +29,8 @@ public interface RepositoryDao
     @SqlBatch("insert into repositories " +
             "(id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language, created_at, updated_at, fetched_at) " +
             "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(0), current_timestamp(0), current_timestamp(0)) " +
-            "on duplicate key update " +
-            "owner_id=values(owner_id), name=values(name), full_name=values(full_name), description=values(description), homepage=values(homepage), stargazers_count=values(stargazers_count), language=values(language), updated_at=values(updated_at), fetched_at=values(fetched_at)")
+            "on conflict (id) do update set " +
+            "owner_id=excluded.owner_id, name=excluded.name, full_name=excluded.full_name, description=excluded.description, homepage=excluded.homepage, stargazers_count=excluded.stargazers_count, language=excluded.language, updated_at=excluded.updated_at, fetched_at=excluded.fetched_at")
     @BatchChunkSize(100)
     void bulkInsert(@BindBean List<Repository> repos);
 

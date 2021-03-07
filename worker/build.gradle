@@ -14,7 +14,6 @@ dependencies {
     compile 'io.sentry:sentry:1.5.2'
     compile 'javax.json:javax.json-api:1.1'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
-    compile 'mysql:mysql-connector-java:5.1.49'
     compile 'org.postgresql:postgresql:42.2.19'
     compile 'org.antlr:stringtemplate:3.2.1' // Using ST3 because ST4 isn't supported by JDBI 2
     compile 'org.glassfish:javax.json:1.1'

@@ -75,7 +75,7 @@ public class UserFullScanWorker extends UpdateUserWorker {
             if (updatedAt.before(updateThreshold)) {
                 updateUser(handle, user, client);
             } else {
-                LOG.info(String.format("Skip up-to-date user (id: %d, login: %s)", user.getId(), user.getLogin()));
+                LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
             }
             if (lastUpdatedId < user.getId()) {
                 lastUpdatedId = user.getId();

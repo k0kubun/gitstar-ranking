@@ -53,8 +53,8 @@ public class UserFullScanWorker extends UpdateUserWorker {
             // 1000 / 15 min ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
                 long lastUpdatedId = handle.attach(LastUpdateDao.class).lastUserId();
-                long nextUpdatedId = updateUsers(client, handle, lastUpdatedId);
-                LOG.info(String.format("Last user_id: %d (%.3f%%)", nextUpdatedId, 100.0D * nextUpdatedId / lastUserId));
+                long nextUpdatedId = updateUsers(client, handle, lastUpdatedId, lastUserId);
+                LOG.info(String.format("API remaining: %d/5000", client.getRateLimitRemaining()));
 
                 if (nextUpdatedId <= lastUpdatedId) {
                     break;
@@ -65,7 +65,7 @@ public class UserFullScanWorker extends UpdateUserWorker {
         LOG.info(String.format("----- finished UserFullScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
     }
 
-    private long updateUsers(GitHubClient client, Handle handle, long lastUpdatedId) throws IOException {
+    private long updateUsers(GitHubClient client, Handle handle, long lastUpdatedId, long lastUserId) throws IOException {
         List<User> users = client.getUsersSince(lastUpdatedId);
         if (users.isEmpty()) {
             return lastUpdatedId;
@@ -76,6 +76,8 @@ public class UserFullScanWorker extends UpdateUserWorker {
             Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
             if (user.getId() <= 8464 /* bug fix */ || updatedAt.before(updateThreshold)) {
                 updateUser(handle, user, client);
+                LOG.info(String.format("Updated: userId = %d, login = %s (%.4f%%)",
+                        user.getId(), user.getLogin(), 100.0D * user.getId() / lastUserId));
             } else {
                 LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
             }

@@ -10,66 +10,46 @@ import org.skife.jdbi.v2.Handle;
 
 public class DatabaseLock
 {
-    private static final String UPDATE_USER_JOBS_LOCK = "update_user_jobs";
-    private static final String USER_UPDATE_LOCK_PREFIX = "user_update:";
+    private static final long SHARED_KEY = 0;
+    private static final char UPDATE_USER_JOBS_LOCK = 0;
+    private static final char USER_UPDATE_LOCK = 1;
 
-    private final LockDao dao;
     private final Handle handle;
-    private final Worker worker;
 
-    public DatabaseLock(Handle handle, Worker worker)
+    public DatabaseLock(Handle handle, Worker worker) // TOOD: remove worker
     {
-        dao = handle.attach(LockDao.class);
         this.handle = handle;
-        this.worker = worker;
     }
 
     public void withUserUpdate(Long userId, UserUpdateCallback callback)
-            throws IOException
     {
-        boolean locked = false;
-
-        try {
-            while (!(locked = (dao.getLock(USER_UPDATE_LOCK_PREFIX + userId.toString(), 10) == 1))) {
-                if (worker.isStopped) {
-                    return;
-                }
-            }
+        handle.useTransaction((conn, status) -> {
+            LockDao dao = conn.attach(LockDao.class);
+            getLock(dao, userId, USER_UPDATE_LOCK);
             callback.withLock();
-        }
-        finally {
-            if (locked) {
-                dao.releaseLock(USER_UPDATE_LOCK_PREFIX + userId.toString());
-            }
-        }
+        });
     }
 
     // Lock for `acquireUntil`. We need this to execute `acquireUntil` because concurrent execution of the query causes dead lock...:
     // com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException: Deadlock found when trying to get lock; try restarting transaction
     public long withUpdateUserJobs(UpdateUserJobCallback callback)
     {
-        boolean locked = false;
+        return handle.inTransaction((conn, status) -> {
+            LockDao dao = conn.attach(LockDao.class);
+            getLock(dao, SHARED_KEY, UPDATE_USER_JOBS_LOCK);
+            return callback.withLock(conn.attach(UpdateUserJobDao.class));
+        });
+    }
 
-        try {
-            while (!(locked = (dao.getLock(UPDATE_USER_JOBS_LOCK, 10) == 1))) {
-                if (worker.isStopped) {
-                    return 0;
-                }
-            }
-            return callback.withLock(handle.attach(UpdateUserJobDao.class));
-        }
-        finally {
-            if (locked) {
-                dao.releaseLock(UPDATE_USER_JOBS_LOCK);
-            }
-        }
+    private void getLock(LockDao dao, long key, char namespace) {
+        // `pg_advisory_xact_lock(key1 int, key2 int)` is int/int, so not useful
+        dao.getLock((key << 8) + namespace);
     }
 
     @FunctionalInterface
     public interface UserUpdateCallback
     {
-        void withLock()
-                throws IOException;
+        void withLock() throws IOException;
     }
 
     @FunctionalInterface

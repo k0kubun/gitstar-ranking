@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UserFullScanWorker extends UpdateUserWorker {
     private static final long TOKEN_USER_ID = 3138447; // k0kubun
-    private static final Logger LOG = LoggerFactory.getLogger(UserRankingWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserFullScanWorker.class);
 
     private final BlockingQueue<Boolean> userFullScanQueue;
     private final DBI dbi;

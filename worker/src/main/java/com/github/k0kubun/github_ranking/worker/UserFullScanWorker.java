@@ -51,12 +51,12 @@ public class UserFullScanWorker extends UpdateUserWorker {
         try (Handle handle = dbi.open()) {
             long lastUserId = handle.attach(UserDao.class).lastId();
 
-            // 1000 / 15 min ≒ 4000 / hour
+            // 2 * (1000 / 30 min) ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
                 int remaining = client.getRateLimitRemaining();
                 LOG.info(String.format("API remaining: %d/5000", remaining));
                 if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                    LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining));
+                    LOG.info(String.format("API remaining is smaller than %d. Stopping.", MIN_RATE_LIMIT_REMAINING));
                     break;
                 }
 

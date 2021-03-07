@@ -8,12 +8,14 @@ public class QueueConfig {
     private final BlockingQueue<Boolean> userRankingQueue;
     private final BlockingQueue<Boolean> orgRankingQueue;
     private final BlockingQueue<Boolean> repoRankingQueue;
+    private final BlockingQueue<Boolean> userStarScanQueue;
     private final BlockingQueue<Boolean> userFullScanQueue;
 
     public QueueConfig() {
         userRankingQueue = new LinkedBlockingQueue<>();
         orgRankingQueue = new LinkedBlockingQueue<>();
         repoRankingQueue = new LinkedBlockingQueue<>();
+        userStarScanQueue = new LinkedBlockingQueue<>();
         userFullScanQueue = new LinkedBlockingQueue<>();
     }
 
@@ -27,6 +29,10 @@ public class QueueConfig {
 
     public BlockingQueue<Boolean> getRepoRankingQueue() {
         return repoRankingQueue;
+    }
+
+    public BlockingQueue<Boolean> getUserStarScanQueue() {
+        return userStarScanQueue;
     }
 
     public BlockingQueue<Boolean> getUserFullScanQueue() {

@@ -22,6 +22,7 @@ public class RoutesResource
         routes.add("POST /jobs/user_ranks");
         routes.add("POST /jobs/org_ranks");
         routes.add("POST /jobs/repo_ranks");
+        routes.add("POST /jobs/star_scan");
         routes.add("POST /jobs/full_scan");
         return new ApiResponse<>(ApiResponse.Type.ARRAY, routes);
     }

@@ -4,13 +4,10 @@ import com.github.k0kubun.github_ranking.config.QueueConfig;
 import com.github.k0kubun.github_ranking.model.ApiResponse;
 import io.sentry.Sentry;
 
-import java.sql.Time;
 import java.util.concurrent.BlockingQueue;
 
-import javax.sql.DataSource;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 
@@ -52,6 +49,14 @@ public class JobResource
     {
         return new ApiResponse<>(ApiResponse.Type.INTEGER,
                 scheduleIfEmpty(queueConfig.getRepoRankingQueue()));
+    }
+
+    @POST
+    @Path("/star_scan")
+    public ApiResponse starredScan()
+    {
+        return new ApiResponse<>(ApiResponse.Type.INTEGER,
+                scheduleIfEmpty(queueConfig.getUserStarScanQueue()));
     }
 
     @POST

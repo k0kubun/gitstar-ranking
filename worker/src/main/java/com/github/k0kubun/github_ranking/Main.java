@@ -61,8 +61,9 @@ public class Main
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 5, 8, TimeUnit.HOURS);
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
 
-        // Schedule at most every 15 minutes
-        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 0, 15, TimeUnit.MINUTES);
+        // Schedule at most every 30 minutes
+        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserStarScanQueue()), 0, 30, TimeUnit.MINUTES);
+        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 15, 30, TimeUnit.MINUTES);
 
         return scheduler;
     }
@@ -89,6 +90,7 @@ public class Main
             workers.add(new UpdateUserWorker(dataSource));
         }
         workers.add(new UserRankingWorker(config));
+        workers.add(new UserStarScanWorker(config));
         workers.add(new UserFullScanWorker(config));
         return workers;
     }

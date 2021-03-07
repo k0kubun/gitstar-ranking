@@ -5,7 +5,8 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
 public interface LastUpdateDao {
-    public static final int USER_FULL_SCAN = 1;
+    int USER_FULL_SCAN = 1;
+    int USER_STAR_SCAN = 2;
 
     @SqlQuery("select user_id from last_updates where id = :key")
     long userId(@Bind("key") int key);
@@ -14,4 +15,7 @@ public interface LastUpdateDao {
             "values (:key, :user_id, current_timestamp(0)) on conflict (id) do update set " +
             "user_id=excluded.user_id, updated_at=excluded.updated_at")
     void updateUserId(@Bind("key") int key, @Bind("user_id") long userId);
+
+    @SqlQuery("delete from last_updates where id = :key")
+    long resetUserId(@Bind("key") int key);
 }

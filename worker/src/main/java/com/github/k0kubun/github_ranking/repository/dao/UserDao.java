@@ -29,6 +29,12 @@ public interface UserDao
     @SqlQuery("select updated_at from users where id = :id")
     Timestamp userUpdatedAt(@Bind("id") Long id);
 
+    @SqlQuery("select stargazers_count from users where id = :id")
+    long userStargazersCount(@Bind("id") Long id);
+
+    @SqlQuery("select stargazers_count from users order by stargazers_count desc limit 1;")
+    long maxStargazersCount();
+
     @SqlQuery("select id, type, updated_at from users where id in (<ids>)")
     @Mapper(UserUpdatedAtMapper.class)
     List<User> findUsersWithUpdatedAt(@BindIn("ids") List<Long> ids);
@@ -51,6 +57,14 @@ public interface UserDao
             "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)
     List<User> starsDescUsersAfter(@Bind("stargazersCount") Integer stargazersCount, @Bind("id") Long id, @Bind("limit") Integer limit);
+
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users " +
+            "where stargazers_count = :stargazersCount and id > :id order by id asc limit :limit")
+    @Mapper(UserStarMapper.class)
+    List<User> usersWithStarsAfter(@Bind("stargazersCount") long stargazersCount, @Bind("id") long id, @Bind("limit") int limit);
+
+    @SqlQuery("select stargazers_count from users where stargazers_count < :stargazersCount order by stargazers_count desc limit 1")
+    long nextStargazersCount(@Bind("stargazersCount") long stargazersCount);
 
     @SqlQuery("select count(1) from users where type = 'User'")
     int countUsers();

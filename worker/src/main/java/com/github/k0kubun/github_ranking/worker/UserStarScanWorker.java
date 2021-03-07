@@ -117,4 +117,14 @@ public class UserStarScanWorker extends UpdateUserWorker {
         }
         return lastUpdatedId;
     }
+
+    @Override
+    public void updateUser(Handle handle, User user, GitHubClient client) throws IOException {
+        super.updateUser(handle, user, client);
+        try {
+            Thread.sleep(500); // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
+        } catch (InterruptedException e) {
+            // suppress for override
+        }
+    }
 }

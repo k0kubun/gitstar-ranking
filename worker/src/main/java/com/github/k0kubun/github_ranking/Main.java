@@ -62,7 +62,7 @@ public class Main
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
 
         // Schedule at most every 15 minutes
-        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 1, 15, TimeUnit.MINUTES);
+        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 0, 15, TimeUnit.MINUTES);
 
         return scheduler;
     }

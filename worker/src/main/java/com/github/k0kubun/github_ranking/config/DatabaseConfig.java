@@ -1,6 +1,6 @@
 package com.github.k0kubun.github_ranking.config;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import java.util.Map;
 
@@ -23,11 +23,11 @@ public class DatabaseConfig
 
     public DataSource getDataSource()
     {
-        MysqlDataSource mysqlDataSource = new MysqlDataSource();
-        mysqlDataSource.setUrl(getUrl());
-        mysqlDataSource.setUser(getUser());
-        mysqlDataSource.setPassword(getPassword());
-        return mysqlDataSource;
+        PGSimpleDataSource dataSource = new PGSimpleDataSource();
+        dataSource.setUrl(getUrl());
+        dataSource.setUser(getUser());
+        dataSource.setPassword(getPassword());
+        return dataSource;
     }
 
     public String getUrl()

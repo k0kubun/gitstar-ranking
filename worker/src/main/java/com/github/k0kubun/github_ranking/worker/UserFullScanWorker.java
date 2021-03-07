@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class UserFullScanWorker extends UpdateUserWorker {
     private static final long TOKEN_USER_ID = 3138447; // k0kubun
     private static final long THRESHOLD_DAYS = 14;
+    private static final long MIN_RATE_LIMIT_REMAINING = 500; // Limit: 5000 / h
     private static final Logger LOG = LoggerFactory.getLogger(UserFullScanWorker.class);
 
     private final BlockingQueue<Boolean> userFullScanQueue;
@@ -52,10 +53,15 @@ public class UserFullScanWorker extends UpdateUserWorker {
 
             // 1000 / 15 min ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
+                int remaining = client.getRateLimitRemaining();
+                LOG.info(String.format("API remaining: %d/5000", remaining));
+                if (remaining < MIN_RATE_LIMIT_REMAINING) {
+                    LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining));
+                    break;
+                }
+
                 long lastUpdatedId = handle.attach(LastUpdateDao.class).lastUserId();
                 long nextUpdatedId = updateUsers(client, handle, lastUpdatedId, lastUserId);
-                LOG.info(String.format("API remaining: %d/5000", client.getRateLimitRemaining()));
-
                 if (nextUpdatedId <= lastUpdatedId) {
                     break;
                 }

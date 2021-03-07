@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UserFullScanWorker extends UpdateUserWorker {
     private static final long TOKEN_USER_ID = 3138447; // k0kubun
+    private static final long THRESHOLD_DAYS = 14;
     private static final Logger LOG = LoggerFactory.getLogger(UserFullScanWorker.class);
 
     private final BlockingQueue<Boolean> userFullScanQueue;
@@ -33,7 +34,7 @@ public class UserFullScanWorker extends UpdateUserWorker {
         userFullScanQueue = config.getQueueConfig().getUserFullScanQueue();
         clientBuilder = new GitHubClientBuilder(config.getDatabaseConfig().getDataSource());
         dbi = new DBI(config.getDatabaseConfig().getDataSource());
-        updateThreshold = Timestamp.from(Instant.now().minus(365, ChronoUnit.DAYS));
+        updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS));
     }
 
     @Override

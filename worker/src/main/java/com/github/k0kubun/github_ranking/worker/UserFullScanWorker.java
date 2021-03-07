@@ -50,9 +50,9 @@ public class UserFullScanWorker extends UpdateUserWorker {
             // 1000 / 15 min ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
                 long lastUpdatedId = handle.attach(LastUpdateDao.class).lastUserId();
-                LOG.info(String.format("Last user_id: %d (%.3f%%)", lastUpdatedId, 100.0D * lastUpdatedId / lastUserId));
-
                 long nextUpdatedId = updateUsers(handle, lastUpdatedId);
+                LOG.info(String.format("Last user_id: %d (%.3f%%)", nextUpdatedId, 100.0D * nextUpdatedId / lastUserId));
+
                 if (nextUpdatedId <= lastUpdatedId) {
                     break;
                 }

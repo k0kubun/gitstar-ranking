@@ -60,7 +60,7 @@ public interface UserDao
 
     @SqlBatch("insert into users (id, type, login, avatar_url, created_at, updated_at) " +
             "values (:id, :type, :login, :avatarUrl, current_timestamp(0), current_timestamp(0)) " +
-            "on conflict (id) do update set login=excluded.login, avatar_url=excluded.avatar_url, updated_at=excluded.updated_at")
+            "on conflict (id) do update set login=excluded.login, avatar_url=excluded.avatar_url") // DO NOT update updated_at on conflict for threshold check
     @BatchChunkSize(100)
     void bulkInsert(@BindBean List<User> users);
 

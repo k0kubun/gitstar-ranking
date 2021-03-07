@@ -39,7 +39,7 @@ public class DatabaseLock
         return lockHandle.inTransaction((conn, status) -> {
             LockDao dao = conn.attach(LockDao.class);
             getLock(dao, SHARED_KEY, UPDATE_USER_JOBS_LOCK);
-            return callback.withLock(conn.attach(UpdateUserJobDao.class));
+            return callback.withLock();
         });
     }
 
@@ -57,6 +57,6 @@ public class DatabaseLock
     @FunctionalInterface
     public interface UpdateUserJobCallback
     {
-        long withLock(UpdateUserJobDao dao);
+        long withLock();
     }
 }

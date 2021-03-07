@@ -52,7 +52,7 @@ public class UpdateUserWorker
 
             // Poll until it succeeds to acquire a job...
             Timestamp timeoutAt;
-            while (acquireUntil(lock, timeoutAt = nextTimeout()) == 0) {
+            while (acquireUntil(lock, handle, timeoutAt = nextTimeout()) == 0) {
                 if (isStopped) {
                     return;
                 }
@@ -156,9 +156,9 @@ public class UpdateUserWorker
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
-    private long acquireUntil(DatabaseLock lock, Timestamp timeoutAt)
+    private long acquireUntil(DatabaseLock lock, Handle handle, Timestamp timeoutAt)
     {
-        return lock.withUpdateUserJobs(dao -> dao.acquireUntil(timeoutAt));
+        return lock.withUpdateUserJobs(() -> handle.attach(UpdateUserJobDao.class).acquireUntil(timeoutAt));
     }
 
     private Timestamp nextTimeout()

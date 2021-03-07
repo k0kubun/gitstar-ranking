@@ -25,7 +25,7 @@ public interface UpdateUserJobDao
     long acquireUntil(@Bind("timeoutAt") Timestamp timeoutAt);
 
     // Using the timeout value and connection_id as key, fetch payload of acquired job.
-    @SqlQuery("select id, payload from update_user_jobs where timeout_at = :timeoutAt and owner = connection_id()")
+    @SqlQuery("select id, payload from update_user_jobs where timeout_at = :timeoutAt and owner = pg_backend_pid()")
     @Mapper(UpdateUserJobMapper.class)
     UpdateUserJob fetchByTimeout(@Bind("timeoutAt") Timestamp timeoutAt);
 

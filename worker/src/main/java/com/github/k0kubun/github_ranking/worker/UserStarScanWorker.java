@@ -52,12 +52,12 @@ public class UserStarScanWorker extends UpdateUserWorker {
         GitHubClient client = clientBuilder.buildForUser(TOKEN_USER_ID);
         LOG.info(String.format("----- started UserStarScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
         try (Handle handle = dbi.open()) {
-            // 2 * (1000 / 30 min) ≒ 4000 / hour
-            int numUsers = 1000;
-            while (numUsers > 0 && !isStopped) {
+            int numUsers = 1000; // 2 * (1000 / 30 min) ≒ 4000 / hour
+            int numChecks = 10000; // Avoid issuing too many queries by skips
+            while (numUsers > 0 && numChecks > 0 && !isStopped) {
                 // Check rate limit
                 int remaining = client.getRateLimitRemaining();
-                LOG.info(String.format("API remaining: %d/5000 (numUsers: %d)", remaining, numUsers));
+                LOG.info(String.format("API remaining: %d/5000 (numUsers: %d, numChecks: %d)", remaining, numUsers, numChecks));
                 if (remaining < MIN_RATE_LIMIT_REMAINING) {
                     LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining));
                     break;
@@ -90,37 +90,35 @@ public class UserStarScanWorker extends UpdateUserWorker {
 
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
-                long nextUpdatedId = updateUsers(client, handle, users, lastUpdatedId);
+                for (User user : users) {
+                    Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
+                    if (updatedAt.before(updateThreshold)) {
+                        updateUser(handle, user, client);
+                        LOG.info(String.format("[%s] userId = %d (stars: %d)", user.getLogin(), user.getId(), user.getStargazersCount()));
+                        numUsers--;
+                    } else {
+                        LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
+                    }
+                    numChecks--;
+
+                    if (lastUpdatedId < user.getId()) {
+                        lastUpdatedId = user.getId();
+                    }
+                    if (isStopped) { // Shutdown immediately if requested
+                        break;
+                    }
+                }
+
+                // Update the counter
+                long nextUpdatedId = lastUpdatedId;
                 long nextStars = stars;
                 handle.useTransaction((conn, status) -> {
                     conn.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.STAR_SCAN_USER_ID, nextUpdatedId);
                     conn.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.STAR_SCAN_STARS, nextStars);
                 });
-
-                numUsers -= users.size();
             }
         }
         LOG.info(String.format("----- finished UserStarScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
-    }
-
-    private long updateUsers(GitHubClient client, Handle handle, List<User> users, long lastUpdatedId) throws IOException {
-        for (User user : users) {
-            Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
-            if (updatedAt.before(updateThreshold)) {
-                updateUser(handle, user, client);
-                LOG.info(String.format("[%s] userId = %d (stars: %d)", user.getLogin(), user.getId(), user.getStargazersCount()));
-            } else {
-                LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
-            }
-
-            if (lastUpdatedId < user.getId()) {
-                lastUpdatedId = user.getId();
-            }
-            if (isStopped) { // Shutdown immediately if requested
-                break;
-            }
-        }
-        return lastUpdatedId;
     }
 
     @Override

@@ -43,14 +43,16 @@ public class UserFullScanWorker extends UpdateUserWorker {
                 return;
             }
         }
-        LOG.info("----- started UserFullScanWorker -----");
+
+        GitHubClient client = clientBuilder.buildForUser(TOKEN_USER_ID);
+        LOG.info(String.format("----- started UserFullScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
         try (Handle handle = dbi.open()) {
             long lastUserId = handle.attach(UserDao.class).lastId();
 
             // 1000 / 15 min ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
                 long lastUpdatedId = handle.attach(LastUpdateDao.class).lastUserId();
-                long nextUpdatedId = updateUsers(handle, lastUpdatedId);
+                long nextUpdatedId = updateUsers(client, handle, lastUpdatedId);
                 LOG.info(String.format("Last user_id: %d (%.3f%%)", nextUpdatedId, 100.0D * nextUpdatedId / lastUserId));
 
                 if (nextUpdatedId <= lastUpdatedId) {
@@ -59,11 +61,10 @@ public class UserFullScanWorker extends UpdateUserWorker {
                 handle.attach(LastUpdateDao.class).updateUserId(nextUpdatedId);
             }
         }
-        LOG.info("----- finished UserFullScanWorker -----");
+        LOG.info(String.format("----- finished UserFullScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
     }
 
-    private long updateUsers(Handle handle, long lastUpdatedId) throws IOException {
-        GitHubClient client = clientBuilder.buildForUser(TOKEN_USER_ID);
+    private long updateUsers(GitHubClient client, Handle handle, long lastUpdatedId) throws IOException {
         List<User> users = client.getUsersSince(lastUpdatedId);
         if (users.isEmpty()) {
             return lastUpdatedId;

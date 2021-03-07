@@ -1,6 +1,6 @@
 default: &default
-  adapter: mysql2
-  encoding: utf8mb4
+  adapter: postgresql
+  encoding: unicode
   pool: 8
   username: root
   password:
@@ -8,17 +8,18 @@ default: &default
 
 development:
   <<: *default
-  database: github_ranking
+  database: gitstar_ranking
 
 test:
   <<: *default
-  database: github_ranking_test
+  database: gitstar_ranking_test
 
 production:
-  adapter: mysql2
+  adapter: postgresql
+  encoding: unicode
   username: <%= ENV['DATABASE_USER'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
   host: <%= ENV['DATABASE_HOST'] %>
   port: <%= ENV['DATABASE_PORT'] %>
-  pool: <%= ENV.fetch('POOL_SIZE', '8') %>
-  database: <%= ENV.fetch('DATABASE_NAME', 'github_ranking') %>
+  pool: <%= ENV.fetch('POOL_SIZE', '4') %>
+  database: <%= ENV.fetch('DATABASE_NAME', 'gitstar_ranking') %>

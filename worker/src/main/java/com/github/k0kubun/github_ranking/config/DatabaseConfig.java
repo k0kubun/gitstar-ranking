@@ -9,10 +9,10 @@ import javax.sql.DataSource;
 public class DatabaseConfig
 {
     private static final String DEFAULT_HOST = "127.0.0.1";
-    private static final Integer DEFAULT_PORT = 3306;
+    private static final Integer DEFAULT_PORT = 5432;
     private static final String DEFAULT_USER = "root";
     private static final String DEFAULT_PASSWORD = "";
-    private static final String DEFAULT_DATABASE = "github_ranking";
+    private static final String DEFAULT_DATABASE = "gitstar_ranking";
 
     private final Map<String, String> env;
 
@@ -32,7 +32,7 @@ public class DatabaseConfig
 
     public String getUrl()
     {
-        return String.format("jdbc:mysql://%s:%d/%s?useUnicode=yes&characterEncoding=UTF-8",
+        return String.format("jdbc:postgresql://%s:%d/%s",
                 getHost(),
                 getPort(),
                 getDatabaseName());

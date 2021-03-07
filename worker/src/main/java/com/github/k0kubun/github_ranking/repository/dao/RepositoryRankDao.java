@@ -21,7 +21,7 @@ public interface RepositoryRankDao
     long deleteRankBetween(@Bind("highest") int highest, @Bind("lowest") int lowest);
 
     @SqlBatch("insert into repository_ranks (stargazers_count, rank, created_at, updated_at) " +
-            "values (:stargazersCount, :rank, current_timestamp(), current_timestamp())")
+            "values (:stargazersCount, :rank, current_timestamp(0), current_timestamp(0))")
     @BatchChunkSize(5000)
     void bulkInsert(@BindBean List<RepositoryRank> repoRanks);
 }

@@ -33,7 +33,7 @@ public interface UserDao
     @SqlUpdate("update users set login = :login where id = :id")
     long updateLogin(@Bind("id") Long id, @Bind("login") String login);
 
-    @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp() where id = :id")
+    @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp(0) where id = :id")
     long updateStars(@Bind("id") Long id, @Bind("stargazersCount") Integer stargazersCount);
 
     @SqlQuery("select id from users order by id desc limit 1")
@@ -55,7 +55,7 @@ public interface UserDao
     int countUsersHavingStars(@Bind("stargazersCount") int stargazersCount);
 
     @SqlBatch("insert into users (id, type, login, avatar_url, created_at, updated_at) " +
-            "values (:id, :type, :login, :avatarUrl, current_timestamp(), current_timestamp()) " +
+            "values (:id, :type, :login, :avatarUrl, current_timestamp(0), current_timestamp(0)) " +
             "on duplicate key update login=values(login), avatar_url=values(avatar_url), updated_at=values(updated_at)")
     @BatchChunkSize(100)
     void bulkInsert(@BindBean List<User> users);

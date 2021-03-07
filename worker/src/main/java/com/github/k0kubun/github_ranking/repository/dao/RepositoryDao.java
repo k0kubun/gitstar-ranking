@@ -28,7 +28,7 @@ public interface RepositoryDao
 
     @SqlBatch("insert into repositories " +
             "(id, owner_id, name, full_name, description, fork, homepage, stargazers_count, language, created_at, updated_at, fetched_at) " +
-            "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(), current_timestamp(), current_timestamp()) " +
+            "values (:id, :ownerId, :name, :fullName, :description, :fork, :homepage, :stargazersCount, :language, current_timestamp(0), current_timestamp(0), current_timestamp(0)) " +
             "on duplicate key update " +
             "owner_id=values(owner_id), name=values(name), full_name=values(full_name), description=values(description), homepage=values(homepage), stargazers_count=values(stargazers_count), language=values(language), updated_at=values(updated_at), fetched_at=values(fetched_at)")
     @BatchChunkSize(100)

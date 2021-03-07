@@ -20,7 +20,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 public interface UpdateUserJobDao
 {
     // Exclusively lock job record to dequeue.
-    @SqlUpdate("with t1 as (select id from update_user_jobs where timeout_at < current_timestamp() order by timeout_at asc limit 1) " +
+    @SqlUpdate("with t1 as (select id from update_user_jobs where timeout_at < current_timestamp(0) order by timeout_at asc limit 1) " +
             "update update_user_jobs t2 set timeout_at = :timeoutAt, owner = pg_backend_pid() from t1 where t1.id = t2.id")
     long acquireUntil(@Bind("timeoutAt") Timestamp timeoutAt);
 

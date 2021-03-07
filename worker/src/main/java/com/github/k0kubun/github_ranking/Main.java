@@ -3,11 +3,7 @@ package com.github.k0kubun.github_ranking;
 import com.github.k0kubun.github_ranking.config.Config;
 import com.github.k0kubun.github_ranking.server.ApiApplication;
 import com.github.k0kubun.github_ranking.server.ApiServer;
-import com.github.k0kubun.github_ranking.worker.OrganizationRankingWorker;
-import com.github.k0kubun.github_ranking.worker.RepositoryRankingWorker;
-import com.github.k0kubun.github_ranking.worker.UpdateUserWorker;
-import com.github.k0kubun.github_ranking.worker.UserRankingWorker;
-import com.github.k0kubun.github_ranking.worker.WorkerManager;
+import com.github.k0kubun.github_ranking.worker.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.sentry.Sentry;
 
@@ -61,9 +57,12 @@ public class Main
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
 
         // Schedule at most every 8 hours
-        scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue()); }, 1, 8, TimeUnit.HOURS);
+        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserRankingQueue()), 1, 8, TimeUnit.HOURS);
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 5, 8, TimeUnit.HOURS);
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
+
+        // Schedule at most every 15 minutes
+        scheduler.scheduleWithFixedDelay(() -> scheduleIfEmpty(config.getQueueConfig().getUserFullScanQueue()), 1, 15, TimeUnit.MINUTES);
 
         // Schedule at most every 1 hour
         //scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getNewUserQueue()); }, 1, 1, TimeUnit.HOURS);
@@ -102,6 +101,7 @@ public class Main
         workers.add(new UserRankingWorker(config));
         //workers.add(new OrganizationRankingWorker(config));
         //workers.add(new RepositoryRankingWorker(config));
+        workers.add(new UserFullScanWorker(config));
         return workers;
     }
 

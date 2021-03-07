@@ -70,6 +70,14 @@ public class JobResource
                 scheduleIfEmpty(queueConfig.getSearchedUserQueue()));
     }
 
+    @POST
+    @Path("/full_scan")
+    public ApiResponse fullScan()
+    {
+        return new ApiResponse<>(ApiResponse.Type.INTEGER,
+                scheduleIfEmpty(queueConfig.getUserFullScanQueue()));
+    }
+
     private Integer scheduleIfEmpty(BlockingQueue<Boolean> queue)
     {
         int size = queue.size();

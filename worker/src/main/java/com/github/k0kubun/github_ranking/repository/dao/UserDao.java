@@ -37,7 +37,7 @@ public interface UserDao
     long updateStars(@Bind("id") Long id, @Bind("stargazersCount") Integer stargazersCount);
 
     @SqlQuery("select id from users order by id desc limit 1")
-    int lastId();
+    long lastId();
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper.class)

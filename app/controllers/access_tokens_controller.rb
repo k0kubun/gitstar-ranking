@@ -4,6 +4,7 @@ class AccessTokensController < ApplicationController
       raise ActionController::BadRequest
     end
     @access_tokens = AccessToken.preload(:user).page(params[:page])
+    @count = AccessToken.count
   end
 
   def answered
@@ -11,6 +12,7 @@ class AccessTokensController < ApplicationController
       raise ActionController::BadRequest
     end
     @access_tokens = AccessToken.where.not(enabled: nil).preload(:user).page(params[:page])
+    @count = AccessToken.where.not(enabled: nil).count
   end
 
   def enable

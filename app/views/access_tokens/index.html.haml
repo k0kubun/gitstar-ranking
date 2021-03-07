@@ -1,15 +1,17 @@
 %h3
-  Access Tokens (#{AccessToken.count}) - #{link_to 'See answered', answered_access_tokens_path}
+  Access Tokens (#{@count}) - #{link_to 'See answered', answered_access_tokens_path}
 
 %table.table
   %thead
     %tr
       %th User
       %th Enabled
+      %th Created At
   %tbody
     - @access_tokens.each do |access_token|
       %tr
         %td= access_token.user.login
         %td= access_token.enabled.inspect
+        %td= access_token.created_at
 
 = paginate @access_tokens

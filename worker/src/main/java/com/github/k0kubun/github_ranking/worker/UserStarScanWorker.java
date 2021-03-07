@@ -35,7 +35,7 @@ public class UserStarScanWorker extends UpdateUserWorker {
 
     public UserStarScanWorker(Config config) {
         super(config.getDatabaseConfig().getDataSource());
-        userStarScanQueue = config.getQueueConfig().getUserFullScanQueue();
+        userStarScanQueue = config.getQueueConfig().getUserStarScanQueue();
         clientBuilder = new GitHubClientBuilder(config.getDatabaseConfig().getDataSource());
         dbi = new DBI(config.getDatabaseConfig().getDataSource());
         updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS));

@@ -33,7 +33,7 @@ public class UserFullScanWorker extends UpdateUserWorker {
         userFullScanQueue = config.getQueueConfig().getUserFullScanQueue();
         clientBuilder = new GitHubClientBuilder(config.getDatabaseConfig().getDataSource());
         dbi = new DBI(config.getDatabaseConfig().getDataSource());
-        updateThreshold = Timestamp.from(Instant.now().minus(1, ChronoUnit.YEARS));
+        updateThreshold = Timestamp.from(Instant.now().minus(365, ChronoUnit.DAYS));
     }
 
     @Override

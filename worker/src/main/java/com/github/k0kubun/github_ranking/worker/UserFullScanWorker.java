@@ -87,8 +87,12 @@ public class UserFullScanWorker extends UpdateUserWorker {
             } else {
                 LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
             }
+
             if (lastUpdatedId < user.getId()) {
                 lastUpdatedId = user.getId();
+            }
+            if (isStopped) { // Shutdown immediately if requested
+                break;
             }
         }
         return lastUpdatedId;

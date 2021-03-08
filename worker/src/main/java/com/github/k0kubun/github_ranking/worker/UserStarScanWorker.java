@@ -53,7 +53,7 @@ public class UserStarScanWorker extends UpdateUserWorker {
         LOG.info(String.format("----- started UserStarScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
         try (Handle handle = dbi.open()) {
             int numUsers = 1000; // 2 * (1000 / 30 min) ≒ 4000 / hour
-            int numChecks = 10000; // Avoid issuing too many queries by skips
+            int numChecks = 2000; // Avoid issuing too many queries by skips
             while (numUsers > 0 && numChecks > 0 && !isStopped) {
                 // Check rate limit
                 int remaining = client.getRateLimitRemaining();

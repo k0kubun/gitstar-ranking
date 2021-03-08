@@ -4,19 +4,6 @@ GitHub star ranking for users, organizations and repositories.
 
 https://gitstar-ranking.com
 
-## Build Status
-
-| Server |
-|:-------|
-| [![Build Status](https://travis-ci.org/k0kubun/gitstar-ranking.svg?branch=master)](https://travis-ci.org/k0kubun/gitstar-ranking) |
-
-## Docker Hub
-
-Docker container images are built on Docker Hub with Automated Build.
-
-* Server: https://hub.docker.com/r/k0kubun/gitstar-ranking-server/builds
-* Worker: https://hub.docker.com/r/k0kubun/gitstar-ranking-worker/builds
-
 ## Screen Shot
 
 [![screen shot](./public/screenshot.png)](http://githubranking.com)

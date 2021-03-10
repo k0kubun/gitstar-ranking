@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
         const updateStatus = data.data.user.updateStatus;
         if (updateStatus == 'UPDATED') {
           userUpdate.innerHTML = 'Up to date';
-        } else if (updateStatus == 'UPDATING') {
+        } else {
           setTimeout(function() { updateButton() }.bind(this), 3000);
         }
       });

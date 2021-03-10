@@ -36,5 +36,5 @@
         - elsif @user.queued_recently?
           %span.btn.btn-default.disabled.col-xs-12 Up to date
         - else
-          = link_to update_later_user_path(@user.login), class: 'btn btn-info col-xs-12', method: :post do
+          = link_to update_later_user_path(@user.login), id: 'user-update', class: 'btn btn-info col-xs-12', method: :post, remote: true do
             Update your stars

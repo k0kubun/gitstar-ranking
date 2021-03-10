@@ -53,49 +53,44 @@ public class UserFullScanWorker extends UpdateUserWorker {
 
             // 2 * (1000 / 30 min) ≒ 4000 / hour
             for (int i = 0; i < 10; i++) {
-                int remaining = client.getRateLimitRemaining();
-                LOG.info(String.format("API remaining: %d/5000", remaining));
-                if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                    LOG.info(String.format("API remaining is smaller than %d. Stopping.", MIN_RATE_LIMIT_REMAINING));
+                long lastUpdatedId = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.FULL_SCAN_USER_ID);
+                List<User> users = client.getUsersSince(lastUpdatedId);
+                if (users.isEmpty()) {
                     break;
                 }
 
-                long lastUpdatedId = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.FULL_SCAN_USER_ID);
-                long nextUpdatedId = updateUsers(client, handle, lastUpdatedId, lastUserId);
-                if (nextUpdatedId <= lastUpdatedId) {
-                    break;
+                handle.attach(UserDao.class).bulkInsert(users);
+                for (User user : users) {
+                    Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
+                    if (updatedAt.before(updateThreshold)) {
+                        // Check rate limit
+                        int remaining = client.getRateLimitRemaining();
+                        LOG.info(String.format("API remaining: %d/5000", remaining));
+                        if (remaining < MIN_RATE_LIMIT_REMAINING) {
+                            LOG.info(String.format("API remaining is smaller than %d. Stopping.", MIN_RATE_LIMIT_REMAINING));
+                            i = 10;
+                            break;
+                        }
+
+                        updateUser(handle, user, client);
+                        LOG.info(String.format("[%s] userId = %d / %d (%.4f%%)",
+                                user.getLogin(), user.getId(), lastUserId, 100.0D * user.getId() / lastUserId));
+                    } else {
+                        LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
+                    }
+
+                    if (lastUpdatedId < user.getId()) {
+                        lastUpdatedId = user.getId();
+                    }
+                    if (isStopped) { // Shutdown immediately if requested
+                        break;
+                    }
                 }
-                handle.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.FULL_SCAN_USER_ID, nextUpdatedId);
+
+                handle.attach(LastUpdateDao.class).updateCursor(LastUpdateDao.FULL_SCAN_USER_ID, lastUpdatedId);
             }
         }
         LOG.info(String.format("----- finished UserFullScanWorker (API: %s/5000) -----", client.getRateLimitRemaining()));
-    }
-
-    private long updateUsers(GitHubClient client, Handle handle, long lastUpdatedId, long lastUserId) throws IOException {
-        List<User> users = client.getUsersSince(lastUpdatedId);
-        if (users.isEmpty()) {
-            return lastUpdatedId;
-        }
-
-        handle.attach(UserDao.class).bulkInsert(users);
-        for (User user : users) {
-            Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
-            if (updatedAt.before(updateThreshold)) {
-                updateUser(handle, user, client);
-                LOG.info(String.format("[%s] userId = %d / %d (%.4f%%)",
-                        user.getLogin(), user.getId(), lastUserId, 100.0D * user.getId() / lastUserId));
-            } else {
-                LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.getId(), user.getLogin(), updatedAt.toString()));
-            }
-
-            if (lastUpdatedId < user.getId()) {
-                lastUpdatedId = user.getId();
-            }
-            if (isStopped) { // Shutdown immediately if requested
-                break;
-            }
-        }
-        return lastUpdatedId;
     }
 
     @Override

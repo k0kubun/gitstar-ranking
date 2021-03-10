@@ -55,14 +55,6 @@ public class UserStarScanWorker extends UpdateUserWorker {
             int numUsers = 1000; // 2 * (1000 / 30 min) ≒ 4000 / hour
             int numChecks = 2000; // Avoid issuing too many queries by skips
             while (numUsers > 0 && numChecks > 0 && !isStopped) {
-                // Check rate limit
-                int remaining = client.getRateLimitRemaining();
-                LOG.info(String.format("API remaining: %d/5000 (numUsers: %d, numChecks: %d)", remaining, numUsers, numChecks));
-                if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                    LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining));
-                    break;
-                }
-
                 // Find a current cursor
                 long lastUpdatedId = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.STAR_SCAN_USER_ID);
                 long stars = handle.attach(LastUpdateDao.class).getCursor(LastUpdateDao.STAR_SCAN_STARS);
@@ -91,6 +83,15 @@ public class UserStarScanWorker extends UpdateUserWorker {
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
                 for (User user : users) {
+                    // Check rate limit
+                    int remaining = client.getRateLimitRemaining();
+                    LOG.info(String.format("API remaining: %d/5000 (numUsers: %d, numChecks: %d)", remaining, numUsers, numChecks));
+                    if (remaining < MIN_RATE_LIMIT_REMAINING) {
+                        LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining));
+                        numChecks = 0;
+                        break;
+                    }
+
                     Timestamp updatedAt = handle.attach(UserDao.class).userUpdatedAt(user.getId()); // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
                         updateUser(handle, user, client);

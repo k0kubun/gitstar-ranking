@@ -18,4 +18,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: ./gradlew installDist
+      - run:
+          command: ./gradlew installDist
+          working-directory: worker

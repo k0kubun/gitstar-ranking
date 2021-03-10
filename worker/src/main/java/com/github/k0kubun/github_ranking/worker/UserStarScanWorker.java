@@ -83,6 +83,11 @@ public class UserStarScanWorker extends UpdateUserWorker {
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
                 for (User user : users) {
+                    if (user.getLogin().equals("GITenberg")) {
+                        LOG.info("Skipping a user with too many repositories: " + user.getLogin());
+                        continue;
+                    }
+
                     // Check rate limit
                     int remaining = client.getRateLimitRemaining();
                     LOG.info(String.format("API remaining: %d/5000 (numUsers: %d, numChecks: %d)", remaining, numUsers, numChecks));

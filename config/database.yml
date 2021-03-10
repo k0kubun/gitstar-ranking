@@ -2,9 +2,9 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 8
-  username: root
+  username: postgres
   password:
-  #host: 127.0.0.1
+  host: 127.0.0.1
 
 development:
   <<: *default

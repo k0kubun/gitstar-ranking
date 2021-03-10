@@ -1,4 +1,4 @@
-name: test
+name: server
 on:
   push:
     branches:
@@ -26,4 +26,4 @@ jobs:
           restore-keys: ${{ runner.os }}-gems-
       - name: bundle install
         run: bundle config path vendor/bundle && bundle install -j$(nproc) --retry 3
-      - run: bundle exec rake assets:precompile RAILS_ENV=test
+      - run: bundle exec rake assets:precompile RAILS_ENV=production

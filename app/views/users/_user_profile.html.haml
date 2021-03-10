@@ -29,7 +29,12 @@
         Fetched on #{l(user.updated_at, format: :middle)}
 
   - if user_signed_in?
-    -# Button is rendered by React
     .row
-      .col-xs-12
-        #update_button{ data: { login: @user.login, label: 'Update stars', path: update_later_user_path(@user.login) } }
+      .update_button.col-xs-12
+        - if @user.in_queue?
+          %span.btn.btn-default.disabled.col-xs-12 Updating your stars...
+        - elsif @user.queued_recently?
+          %span.btn.btn-default.disabled.col-xs-12 Up to date
+        - else
+          = link_to update_later_user_path(@user.login), class: 'btn btn-info col-xs-12', method: :post do
+            Update your stars

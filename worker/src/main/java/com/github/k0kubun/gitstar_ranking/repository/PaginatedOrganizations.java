@@ -1,7 +1,7 @@
-package com.github.k0kubun.github_ranking.repository;
+package com.github.k0kubun.gitstar_ranking.repository;
 
-import com.github.k0kubun.github_ranking.model.Organization;
-import com.github.k0kubun.github_ranking.repository.dao.OrganizationDao;
+import com.github.k0kubun.gitstar_ranking.model.Organization;
+import com.github.k0kubun.gitstar_ranking.repository.dao.OrganizationDao;
 
 import java.util.List;
 

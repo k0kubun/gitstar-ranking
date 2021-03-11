@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.config;
+package com.github.k0kubun.gitstar_ranking.config;
 
 import org.postgresql.ds.PGSimpleDataSource;
 

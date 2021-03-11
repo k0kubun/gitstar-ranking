@@ -1,6 +1,6 @@
-package com.github.k0kubun.github_ranking.repository.dao;
+package com.github.k0kubun.gitstar_ranking.repository.dao;
 
-import com.github.k0kubun.github_ranking.model.Organization;
+import com.github.k0kubun.gitstar_ranking.model.Organization;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

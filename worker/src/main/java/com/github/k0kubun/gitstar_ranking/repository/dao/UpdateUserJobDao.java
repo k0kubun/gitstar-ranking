@@ -1,6 +1,6 @@
-package com.github.k0kubun.github_ranking.repository.dao;
+package com.github.k0kubun.gitstar_ranking.repository.dao;
 
-import com.github.k0kubun.github_ranking.model.UpdateUserJob;
+import com.github.k0kubun.gitstar_ranking.model.UpdateUserJob;
 
 import java.io.StringReader;
 import java.sql.ResultSet;

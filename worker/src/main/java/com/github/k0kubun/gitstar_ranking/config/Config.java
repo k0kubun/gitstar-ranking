@@ -1,6 +1,6 @@
-package com.github.k0kubun.github_ranking.config;
+package com.github.k0kubun.gitstar_ranking.config;
 
-import com.github.k0kubun.github_ranking.config.QueueConfig;
+import com.github.k0kubun.gitstar_ranking.config.QueueConfig;
 
 import java.util.Map;
 

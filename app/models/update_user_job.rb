@@ -14,7 +14,7 @@ class UpdateUserJob < ApplicationRecord
       timeout_at += wait
     end
 
-    # Payload is parsed in: worker/src/main/java/com/github/k0kubun/github_ranking/dao/UpdateUserJobDao.java
+    # Payload is parsed in: worker/src/main/java/com/github/k0kubun/gitstar_ranking/dao/UpdateUserJobDao.java
     payload = {
       user_id: user_id,
       user_name: user_name,

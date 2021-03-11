@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.worker;
+package com.github.k0kubun.gitstar_ranking.worker;
 
 import io.sentry.Sentry;
 

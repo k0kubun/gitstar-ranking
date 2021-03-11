@@ -1,7 +1,7 @@
-package com.github.k0kubun.github_ranking;
+package com.github.k0kubun.gitstar_ranking;
 
-import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.worker.*;
+import com.github.k0kubun.gitstar_ranking.config.Config;
+import com.github.k0kubun.gitstar_ranking.worker.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.sentry.Sentry;
 

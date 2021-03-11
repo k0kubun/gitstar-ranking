@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.model;
+package com.github.k0kubun.gitstar_ranking.model;
 
 public class UpdateUserJob
 {

@@ -1,8 +1,8 @@
-package com.github.k0kubun.github_ranking.github;
+package com.github.k0kubun.gitstar_ranking.github;
 
-import com.github.k0kubun.github_ranking.model.AccessToken;
-import com.github.k0kubun.github_ranking.repository.dao.AccessTokenDao;
-import com.github.k0kubun.github_ranking.worker.Worker;
+import com.github.k0kubun.gitstar_ranking.model.AccessToken;
+import com.github.k0kubun.gitstar_ranking.repository.dao.AccessTokenDao;
+import com.github.k0kubun.gitstar_ranking.worker.Worker;
 import io.sentry.Sentry;
 
 import java.util.ArrayList;

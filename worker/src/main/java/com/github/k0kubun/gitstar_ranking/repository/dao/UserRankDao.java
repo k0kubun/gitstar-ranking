@@ -1,6 +1,6 @@
-package com.github.k0kubun.github_ranking.repository.dao;
+package com.github.k0kubun.gitstar_ranking.repository.dao;
 
-import com.github.k0kubun.github_ranking.model.UserRank;
+import com.github.k0kubun.gitstar_ranking.model.UserRank;
 
 import java.util.List;
 

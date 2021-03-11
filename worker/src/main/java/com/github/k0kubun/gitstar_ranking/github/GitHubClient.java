@@ -1,7 +1,7 @@
-package com.github.k0kubun.github_ranking.github;
+package com.github.k0kubun.gitstar_ranking.github;
 
-import com.github.k0kubun.github_ranking.model.Repository;
-import com.github.k0kubun.github_ranking.model.User;
+import com.github.k0kubun.gitstar_ranking.model.Repository;
+import com.github.k0kubun.gitstar_ranking.model.User;
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpHeaders;

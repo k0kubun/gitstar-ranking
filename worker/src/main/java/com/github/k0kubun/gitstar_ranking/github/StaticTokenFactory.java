@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.github;
+package com.github.k0kubun.gitstar_ranking.github;
 
 public class StaticTokenFactory
         implements AccessTokenFactory

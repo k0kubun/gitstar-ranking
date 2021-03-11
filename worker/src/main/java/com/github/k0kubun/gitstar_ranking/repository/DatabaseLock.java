@@ -1,8 +1,8 @@
-package com.github.k0kubun.github_ranking.repository;
+package com.github.k0kubun.gitstar_ranking.repository;
 
-import com.github.k0kubun.github_ranking.repository.dao.LockDao;
-import com.github.k0kubun.github_ranking.repository.dao.UpdateUserJobDao;
-import com.github.k0kubun.github_ranking.worker.Worker;
+import com.github.k0kubun.gitstar_ranking.repository.dao.LockDao;
+import com.github.k0kubun.gitstar_ranking.repository.dao.UpdateUserJobDao;
+import com.github.k0kubun.gitstar_ranking.worker.Worker;
 
 import java.io.IOException;
 import java.sql.SQLException;

@@ -1,11 +1,11 @@
-package com.github.k0kubun.github_ranking.worker;
+package com.github.k0kubun.gitstar_ranking.worker;
 
-import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.github.GitHubClient;
-import com.github.k0kubun.github_ranking.github.GitHubClientBuilder;
-import com.github.k0kubun.github_ranking.model.User;
-import com.github.k0kubun.github_ranking.repository.dao.LastUpdateDao;
-import com.github.k0kubun.github_ranking.repository.dao.UserDao;
+import com.github.k0kubun.gitstar_ranking.config.Config;
+import com.github.k0kubun.gitstar_ranking.github.GitHubClient;
+import com.github.k0kubun.gitstar_ranking.github.GitHubClientBuilder;
+import com.github.k0kubun.gitstar_ranking.model.User;
+import com.github.k0kubun.gitstar_ranking.repository.dao.LastUpdateDao;
+import com.github.k0kubun.gitstar_ranking.repository.dao.UserDao;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;

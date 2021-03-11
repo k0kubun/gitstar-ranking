@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClassName = "com.github.k0kubun.github_ranking.Main"
+    mainClassName = "com.github.k0kubun.gitstar_ranking.Main"
 }
 
 repositories {

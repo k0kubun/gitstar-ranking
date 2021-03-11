@@ -1,4 +1,4 @@
-package com.github.k0kubun.github_ranking.repository.dao;
+package com.github.k0kubun.gitstar_ranking.repository.dao;
 
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

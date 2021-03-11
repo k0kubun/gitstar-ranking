@@ -1,11 +1,11 @@
-package com.github.k0kubun.github_ranking.worker;
+package com.github.k0kubun.gitstar_ranking.worker;
 
-import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.model.User;
-import com.github.k0kubun.github_ranking.model.UserRank;
-import com.github.k0kubun.github_ranking.repository.PaginatedUsers;
-import com.github.k0kubun.github_ranking.repository.dao.UserDao;
-import com.github.k0kubun.github_ranking.repository.dao.UserRankDao;
+import com.github.k0kubun.gitstar_ranking.config.Config;
+import com.github.k0kubun.gitstar_ranking.model.User;
+import com.github.k0kubun.gitstar_ranking.model.UserRank;
+import com.github.k0kubun.gitstar_ranking.repository.PaginatedUsers;
+import com.github.k0kubun.gitstar_ranking.repository.dao.UserDao;
+import com.github.k0kubun.gitstar_ranking.repository.dao.UserRankDao;
 
 import java.util.ArrayList;
 import java.util.List;

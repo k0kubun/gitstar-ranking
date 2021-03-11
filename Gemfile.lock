@@ -231,7 +231,6 @@ GEM
       tilt
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
-    silencer (1.0.1)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
@@ -290,7 +289,6 @@ DEPENDENCIES
   rspec-rails
   sassc-rails
   sentry-raven
-  silencer
   spring
   spring-commands-rspec
   sprockets (< 4)

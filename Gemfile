@@ -35,7 +35,6 @@ gem 'uglifier'
 
 group :development do
   gem 'foreman'
-  gem 'silencer'
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'listen'

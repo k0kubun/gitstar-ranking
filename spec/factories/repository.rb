@@ -1,14 +1,14 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :repository do
-    name 'githubranking'
-    full_name 'k0kubun/githubranking'
+    name { 'gitstar-ranking' }
+    full_name { 'k0kubun/gitstar-ranking' }
     association :owner, factory: :user
-    description 'GitHub Ranks'
-    fork false
-    homepage 'http://githubranking.com'
-    stargazers_count 11
-    language 'Ruby'
-    fetched_at nil
-    rank 131197
+    description { 'GitHub Ranks' }
+    fork { false }
+    homepage { 'http://githubranking.com' }
+    stargazers_count { 11 }
+    language { 'Ruby' }
+    fetched_at { nil }
+    rank { 131197 }
   end
 end

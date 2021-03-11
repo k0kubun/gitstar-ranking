@@ -87,8 +87,8 @@ GEM
       actionmailer (>= 4.0, < 7)
       activesupport (>= 4.0, < 7)
     execjs (2.7.0)
-    factory_girl (4.9.0)
-      activesupport (>= 3.0.0)
+    factory_bot (6.1.0)
+      activesupport (>= 5.0.0)
     faraday (0.17.3)
       multipart-post (>= 1.2, < 3)
     ffi (1.15.0)
@@ -277,7 +277,7 @@ DEPENDENCIES
   devise
   dotenv-rails
   exception_notification
-  factory_girl
+  factory_bot
   faraday
   font-awesome-rails
   foreman

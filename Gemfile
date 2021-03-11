@@ -42,7 +42,7 @@ group :development do
 end
 
 group :development, :test do
-  gem 'factory_girl'
+  gem 'factory_bot'
   gem 'pry-byebug'
   gem 'pry-doc'
   gem 'pry-rails'

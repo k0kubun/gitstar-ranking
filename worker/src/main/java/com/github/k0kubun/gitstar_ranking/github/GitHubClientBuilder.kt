@@ -10,6 +10,6 @@ class GitHubClientBuilder(dataSource: DataSource?) {
 
     fun buildForUser(userId: Long?): GitHubClient {
         val token = dbi.onDemand(AccessTokenDao::class.java).findByUserId(userId)
-        return GitHubClient(token.token)
+        return GitHubClient(token!!.token)
     }
 }

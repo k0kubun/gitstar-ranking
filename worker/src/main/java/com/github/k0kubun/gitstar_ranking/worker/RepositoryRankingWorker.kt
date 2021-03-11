@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory
 private const val PAGE_SIZE = 5000
 
 class RepositoryRankingWorker(config: Config) : Worker() {
-    private val dbi: DBI
+    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
+
     @Throws(Exception::class)
     override fun perform() {
         LOG.info("----- started RepositoryRankingWorker -----")
@@ -136,7 +137,4 @@ class RepositoryRankingWorker(config: Config) : Worker() {
         private val LOG = LoggerFactory.getLogger(RepositoryRankingWorker::class.java)
     }
 
-    init {
-        dbi = DBI(config.databaseConfig.dataSource)
-    }
 }

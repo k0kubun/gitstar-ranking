@@ -28,12 +28,12 @@ interface RepositoryDao {
 
     @SqlQuery("select id, stargazers_count from repositories order by stargazers_count desc, id desc limit :limit")
     @Mapper(RepositoryStarMapper::class)
-    fun starsDescFirstRepos(@Bind("limit") limit: Int?): List<Repository?>?
+    fun starsDescFirstRepos(@Bind("limit") limit: Int?): List<Repository>
 
     @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) \\< (:stargazersCount, :id) " +
         "order by stargazers_count desc, id desc limit :limit")
     @Mapper(RepositoryStarMapper::class)
-    fun starsDescReposAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<Repository?>?
+    fun starsDescReposAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<Repository>
 
     @SqlQuery("select count(1) from repositories")
     fun countRepos(): Int

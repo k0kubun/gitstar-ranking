@@ -40,12 +40,12 @@ interface UserDao {
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper::class)
-    fun starsDescFirstUsers(@Bind("limit") limit: Int?): List<User?>?
+    fun starsDescFirstUsers(@Bind("limit") limit: Int?): List<User>
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
         "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper::class)
-    fun starsDescUsersAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<User?>?
+    fun starsDescUsersAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<User>
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users " +
         "where stargazers_count = :stargazersCount and :id \\< id order by id asc limit :limit")

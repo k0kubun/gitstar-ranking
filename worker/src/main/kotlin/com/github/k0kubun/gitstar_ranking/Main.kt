@@ -24,7 +24,6 @@ object Main {
     private val config = Config(System.getenv())
     @JvmStatic
     fun main(args: Array<String>) {
-        Sentry.init(System.getenv()["SENTRY_DSN"])
         val scheduler = buildAndRunScheduler()
         val workers = buildWorkers(config)
         workers.start()

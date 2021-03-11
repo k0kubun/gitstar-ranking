@@ -21,6 +21,13 @@ import java.util.ArrayList
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
+// Users with too many repositories. To be fixed later.
+private val PENDING_USERS = listOf(
+    "GITenberg",
+    "gitpan",
+    "the-domains",
+)
+
 // Scan all starred users
 class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfig.dataSource) {
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queueConfig.userStarScanQueue
@@ -69,7 +76,7 @@ class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size, stars))
                 for (user in users) {
-                    if (user.login == "GITenberg" || user.login == "gitpan") {
+                    if (PENDING_USERS.contains(user.login)) {
                         LOG.info("Skipping a user with too many repositories: " + user.login)
                         continue
                     }

@@ -53,9 +53,8 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                 // TODO: Log elapsed time
                 try {
                     val client = clientBuilder.buildForUser(job.tokenUserId)
-                    val userId: Long
-                    userId = if (job.userName == null) {
-                        job.userId
+                    val userId: Long = if (job.userName == null) {
+                        job.userId!!
                     } else {
                         createUser(handle, job.userName, client)
                     }

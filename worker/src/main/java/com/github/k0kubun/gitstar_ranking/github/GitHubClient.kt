@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory
 class GitHubClient(private val tokenFactory: AccessTokenFactory) {
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
 
-    constructor(token: String?) : this(StaticTokenFactory(token))
+    constructor(token: String) : this(StaticTokenFactory(token))
 
     @Throws(IOException::class)
     fun getLogin(userId: Long): String {

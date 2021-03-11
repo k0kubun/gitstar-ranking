@@ -87,7 +87,7 @@ class OrganizationRankingWorker(config: Config) : Worker() {
         val highestRank = orgRanks[0].rank
         val minStars = lastOf(orgRanks).stargazersCount
         val lowestRank = lastOf(orgRanks).rank
-        handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
             conn.attach(OrganizationRankDao::class.java).deleteStarsBetween(minStars, maxStars)
             conn.attach(OrganizationRankDao::class.java).deleteRankBetween(highestRank, lowestRank)
             conn.attach(OrganizationRankDao::class.java).bulkInsert(orgRanks)

@@ -13,21 +13,21 @@ class DatabaseConfig(private val env: Map<String, String>) {
             dataSource.password = password
             return dataSource
         }
-    val url: String
+    private val url: String
         get() = String.format("jdbc:postgresql://%s:%d/%s",
             host,
             port,
             databaseName)
-    val user: String
+    private val user: String
         get() = env["DATABASE_USER"] ?: DEFAULT_USER
-    val password: String
+    private val password: String
         get() = env["DATABASE_PASSWORD"] ?: DEFAULT_PASSWORD
     private val host: String
-        private get() = env["DATABASE_HOST"] ?: DEFAULT_HOST
+        get() = env["DATABASE_HOST"] ?: DEFAULT_HOST
     private val port: Int
-        private get() = getIntegerOrDefault("DATABASE_PORT", DEFAULT_PORT)
+        get() = getIntegerOrDefault("DATABASE_PORT", DEFAULT_PORT)
     private val databaseName: String
-        private get() = env["DATABASE_NAME"] ?: DEFAULT_DATABASE
+        get() = env["DATABASE_NAME"] ?: DEFAULT_DATABASE
 
     private fun getIntegerOrDefault(key: String, defaultValue: Int): Int {
         return if (env.containsKey(key)) {

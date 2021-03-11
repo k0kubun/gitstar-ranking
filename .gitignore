@@ -2,15 +2,7 @@
 /log/*
 !/log/.keep
 /tmp
-/light_blue
 /public/assets
-/solr/development/data/*
-/solr/pids/*
-/.env
 *.rdb
 *.sql
-.capistrano
 .gradle
-/public/packs
-/public/packs-test
-/node_modules

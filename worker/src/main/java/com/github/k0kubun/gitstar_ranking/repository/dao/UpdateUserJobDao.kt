@@ -3,7 +3,6 @@ package com.github.k0kubun.gitstar_ranking.repository.dao
 import org.skife.jdbi.v2.sqlobject.SqlUpdate
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlQuery
-import com.github.k0kubun.gitstar_ranking.repository.dao.UpdateUserJobDao.UpdateUserJobMapper
 import com.github.k0kubun.gitstar_ranking.model.UpdateUserJob
 import org.skife.jdbi.v2.tweak.ResultSetMapper
 import kotlin.Throws

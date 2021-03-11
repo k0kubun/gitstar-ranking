@@ -14,12 +14,12 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper
 interface OrganizationDao {
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'Organization' order by stargazers_count desc, id desc limit :limit")
     @Mapper(OrganizationMapper::class)
-    fun starsDescFirstOrgs(@Bind("limit") limit: Int?): List<Organization?>?
+    fun starsDescFirstOrgs(@Bind("limit") limit: Int?): List<Organization>
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'Organization' and " +
         "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(OrganizationMapper::class)
-    fun starsDescOrgsAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Int?, @Bind("limit") limit: Int?): List<Organization?>?
+    fun starsDescOrgsAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Int?, @Bind("limit") limit: Int?): List<Organization>
 
     @SqlQuery("select count(1) from users where type = 'Organization'")
     fun countOrganizations(): Int

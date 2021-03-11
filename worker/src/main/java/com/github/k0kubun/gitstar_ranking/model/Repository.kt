@@ -2,14 +2,14 @@ package com.github.k0kubun.gitstar_ranking.model
 
 class Repository {
     val id: Long
-    private val ownerId: Int?
-    private val name: String?
-    private val fullName: String?
-    private val description: String?
-    private val fork: Boolean?
-    private val homepage: String?
+    val ownerId: Int?
+    val name: String?
+    val fullName: String?
+    val description: String?
+    val fork: Boolean?
+    val homepage: String?
     val stargazersCount: Int
-    private val language: String?
+    val language: String?
 
     constructor(id: Long, stargazersCount: Int) {
         this.id = id

@@ -10,7 +10,7 @@ public class DatabaseConfig
 {
     private static final String DEFAULT_HOST = "127.0.0.1";
     private static final Integer DEFAULT_PORT = 5432;
-    private static final String DEFAULT_USER = "root";
+    private static final String DEFAULT_USER = "postgres";
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_DATABASE = "gitstar_ranking";
 

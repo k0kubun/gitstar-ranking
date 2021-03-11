@@ -4,10 +4,10 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <fileNamePattern>log/github-ranking-worker.log.%i.gz</fileNamePattern>
       <minIndex>1</minIndex>
-      <maxIndex>5</maxIndex>
+      <maxIndex>3</maxIndex>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <maxFileSize>10MB</maxFileSize>
+      <maxFileSize>100MB</maxFileSize>
     </triggeringPolicy>
     <encoder>
       <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS Z} [%level] (%thread\) %logger: %m%n</pattern>

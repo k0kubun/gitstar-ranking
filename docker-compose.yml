@@ -6,6 +6,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
-      - ./docker/postgresql/data:/var/lib/postgresql/data
+      - ./tmp/postgresql:/var/lib/postgresql/data
     ports:
       - '5432:5432'

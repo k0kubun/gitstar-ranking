@@ -22,10 +22,11 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 // Users with too many repositories. To be fixed later.
-private val PENDING_USERS = listOf(
+val PENDING_USERS = listOf(
     "GITenberg",
     "gitpan",
     "the-domains",
+    "wp-plugins",
 )
 
 // Scan all starred users

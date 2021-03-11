@@ -47,6 +47,11 @@ class UserFullScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
                 }
                 handle.attach(UserDao::class.java).bulkInsert(users)
                 for (user in users) {
+                    if (PENDING_USERS.contains(user.login)) {
+                        LOG.info("Skipping a user with too many repositories: " + user.login)
+                        continue
+                    }
+
                     val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
                         // Check rate limit

@@ -27,3 +27,7 @@ jobs:
       - name: bundle install
         run: bundle config path vendor/bundle && bundle install -j$(nproc) --retry 3
       - run: bundle exec rake assets:precompile RAILS_ENV=production
+
+      - run: docker-compose up -d
+      - run: bundle exec rake db:create db:migrate
+      - run: bundle exec rspec

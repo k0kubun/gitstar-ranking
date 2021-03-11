@@ -20,7 +20,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper
 interface UserDao {
     @SqlQuery("select id, login, type from users where id = :id")
     @Mapper(UserMapper::class)
-    fun find(@Bind("id") id: Long?): User?
+    fun find(@Bind("id") id: Long): User?
 
     @SqlQuery("select updated_at from users where id = :id")
     fun userUpdatedAt(@Bind("id") id: Long?): Timestamp?
@@ -50,7 +50,7 @@ interface UserDao {
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users " +
         "where stargazers_count = :stargazersCount and :id \\< id order by id asc limit :limit")
     @Mapper(UserStarMapper::class)
-    fun usersWithStarsAfter(@Bind("stargazersCount") stargazersCount: Long, @Bind("id") id: Long, @Bind("limit") limit: Int): List<User?>?
+    fun usersWithStarsAfter(@Bind("stargazersCount") stargazersCount: Long, @Bind("id") id: Long, @Bind("limit") limit: Int): List<User>
 
     @SqlQuery("select stargazers_count from users where stargazers_count \\< :stargazersCount order by stargazers_count desc limit 1")
     fun nextStargazersCount(@Bind("stargazersCount") stargazersCount: Long): Long

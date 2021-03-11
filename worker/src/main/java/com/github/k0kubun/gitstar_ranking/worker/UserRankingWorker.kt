@@ -102,7 +102,7 @@ class UserRankingWorker(config: Config) : Worker() {
         val highestRank = userRanks[0].rank
         val minStars = lastOf(userRanks).stargazersCount
         val lowestRank = lastOf(userRanks).rank
-        handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
             conn.attach(UserRankDao::class.java).deleteStarsBetween(minStars, maxStars)
             conn.attach(UserRankDao::class.java).deleteRankBetween(highestRank, lowestRank)
             conn.attach(UserRankDao::class.java).bulkInsert(userRanks)

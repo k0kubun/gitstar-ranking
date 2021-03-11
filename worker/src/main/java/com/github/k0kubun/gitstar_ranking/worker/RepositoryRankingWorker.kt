@@ -89,7 +89,7 @@ class RepositoryRankingWorker(config: Config) : Worker() {
         val highestRank = repoRanks[0].rank
         val minStars = lastOf(repoRanks).stargazersCount
         val lowestRank = lastOf(repoRanks).rank
-        handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
             conn.attach(RepositoryRankDao::class.java).deleteStarsBetween(minStars, maxStars)
             conn.attach(RepositoryRankDao::class.java).deleteRankBetween(highestRank, lowestRank)
             conn.attach(RepositoryRankDao::class.java).bulkInsert(repoRanks)
@@ -106,7 +106,7 @@ class RepositoryRankingWorker(config: Config) : Worker() {
 
     // This class does cursor-based-pagination for repositories order by stargazers_count DESC.
     inner class PaginatedRepositories(handle: Handle) {
-        private val repoDao: RepositoryDao
+        private val repoDao: RepositoryDao = handle.attach(RepositoryDao::class.java)
         private var lastMinStars: Int?
         private var lastMinId: Long?
         fun nextRepos(): List<Repository> {
@@ -126,7 +126,6 @@ class RepositoryRankingWorker(config: Config) : Worker() {
         }
 
         init {
-            repoDao = handle.attach(RepositoryDao::class.java)
             lastMinStars = null
             lastMinId = null
         }

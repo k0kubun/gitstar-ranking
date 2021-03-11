@@ -59,7 +59,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                         createUser(handle, job.userName, client)
                     }
                     lock.withUserUpdate(userId) {
-                        val user = handle.attach(UserDao::class.java).find(userId)
+                        val user = handle.attach(UserDao::class.java).find(userId)!!
                         LOG.info("UpdateUserWorker started: (userId = " + userId + ", login = " + user.login + ")")
                         updateUser(handle, user, client)
                         LOG.info("UpdateUserWorker finished: (userId = " + userId + ", login = " + user.login + ")")
@@ -97,9 +97,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
             LOG.debug("[$login] finished: find User")
             if (!user.isOrganization) {
                 val newLogin = client.getLogin(userId)
-                if (newLogin != null) {
-                    handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
-                }
+                handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
                 LOG.debug("[$login] finished: update Login")
             }
             val repos = client.getPublicRepos(userId, user.isOrganization)
@@ -108,7 +106,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
             for (repo in repos) {
                 repoIds.add(repo.id)
             }
-            handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                 if (repoIds.size > 0) {
                     conn.attach(RepositoryDao::class.java).deleteAllOwnedByExcept(userId, repoIds) // Delete obsolete ones
                 } else {
@@ -123,7 +121,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
         } catch (e: UserNotFoundException) {
             LOG.error("UserNotFoundException error: " + e.message)
             LOG.info("delete user: $userId")
-            handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                 conn.attach(UserDao::class.java).delete(userId)
                 conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
             }

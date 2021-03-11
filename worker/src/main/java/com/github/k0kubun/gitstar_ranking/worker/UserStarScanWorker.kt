@@ -89,7 +89,7 @@ class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
                         numChecks = 0
                         break
                     }
-                    val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id) // TODO: Fix N+1
+                    val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
                         updateUser(handle, user, client)
                         LOG.info(String.format("[%s] userId = %d (stars: %d)", user.login, user.id, user.stargazersCount))

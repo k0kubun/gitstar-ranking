@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id("java")
-    id("application")
+    kotlin("jvm") version "1.4.31"
+    java
+    application
 }
 
 application {
@@ -24,4 +27,8 @@ dependencies {
     implementation("org.jboss.resteasy:resteasy-jackson2-provider:3.1.2.Final")
     implementation("org.jdbi:jdbi:2.78")
     testImplementation("junit:junit:4.12")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
 }

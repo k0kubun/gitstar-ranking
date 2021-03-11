@@ -246,7 +246,6 @@ GEM
     thor (1.1.0)
     thread_safe (0.3.6)
     tilt (2.0.10)
-    timecop (0.9.1)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
@@ -295,7 +294,6 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   sprockets (< 4)
-  timecop
   uglifier
 
 BUNDLED WITH

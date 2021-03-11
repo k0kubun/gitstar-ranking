@@ -45,5 +45,4 @@ group :development, :test do
   gem 'factory_bot'
   gem 'pry-rails'
   gem 'rspec-rails'
-  gem 'timecop'
 end

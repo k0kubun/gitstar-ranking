@@ -26,7 +26,7 @@ gem 'rack-user_agent'
 gem 'ridgepoler-rails'
 gem 'sassc-rails'
 gem 'sentry-raven'
-gem 'sprockets', '< 4' # needs app/assets/config/manifest.js
+gem 'sprockets'
 gem 'uglifier'
 
 group :development do

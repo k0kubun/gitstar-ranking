@@ -1,11 +1,13 @@
 GIT
-  remote: https://github.com/k0kubun/omniauth-github.git
-  revision: 7d7f67846c0a40c32fc36e09e0f8021755b979b8
-  ref: 7d7f67846c0a40c32fc36e09e0f8021755b979b8
+  remote: https://github.com/heartcombo/devise.git
+  revision: 0cd72a56f984a7ff089246f87a8b259120545edd
   specs:
-    omniauth-github (1.3.0)
-      omniauth (~> 1.5)
-      omniauth-oauth2 (>= 1.4.0, < 2.0)
+    devise (4.7.3)
+      bcrypt (~> 3.0)
+      orm_adapter (~> 0.1)
+      railties (>= 4.1.0)
+      responders
+      warden (~> 1.2.3)
 
 GEM
   remote: https://rubygems.org/
@@ -62,12 +64,6 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.1.8)
     crass (1.0.6)
-    devise (4.7.3)
-      bcrypt (~> 3.0)
-      orm_adapter (~> 0.1)
-      railties (>= 4.1.0)
-      responders
-      warden (~> 1.2.3)
     diff-lcs (1.4.4)
     diffy (3.4.0)
     erubi (1.10.0)
@@ -135,12 +131,19 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    omniauth (1.9.1)
+    omniauth (2.0.3)
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
+      rack-protection
+    omniauth-github (2.0.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.7.1)
     omniauth-oauth2 (1.7.1)
       oauth2 (~> 1.4)
       omniauth (>= 1.9, < 3)
+    omniauth-rails_csrf_protection (1.0.0)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
     orm_adapter (0.5.0)
     pg (1.2.3)
     pry (0.14.0)
@@ -152,6 +155,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.5.2)
     rack (2.2.3)
+    rack-protection (2.1.0)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rack-user_agent (0.5.2)
@@ -253,7 +258,7 @@ DEPENDENCIES
   activerecord-import
   bootstrap-sass
   bootswatch-rails
-  devise
+  devise!
   factory_bot
   faraday
   font-awesome-rails
@@ -264,7 +269,8 @@ DEPENDENCIES
   kaminari
   listen
   omniauth
-  omniauth-github!
+  omniauth-github
+  omniauth-rails_csrf_protection
   pg
   pry-rails
   puma

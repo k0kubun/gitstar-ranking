@@ -1,5 +1,6 @@
 /build
 /log/*.log
+/log/*.log.*.gz
 /log/*.log.lck
 
 /.idea

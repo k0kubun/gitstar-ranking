@@ -1,8 +1,6 @@
 package com.github.k0kubun.github_ranking;
 
 import com.github.k0kubun.github_ranking.config.Config;
-import com.github.k0kubun.github_ranking.server.ApiApplication;
-import com.github.k0kubun.github_ranking.server.ApiServer;
 import com.github.k0kubun.github_ranking.worker.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.sentry.Sentry;
@@ -35,12 +33,8 @@ public class Main
         WorkerManager workers = buildWorkers(config);
         workers.start();
 
-        ApiServer server = new ApiServer(ApiApplication.class, config);
-        server.start();
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shutdownAndAwaitTermination(scheduler);
-            server.stop();
             workers.stop();
         }));
     }

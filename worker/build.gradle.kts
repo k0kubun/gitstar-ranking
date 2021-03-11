@@ -15,7 +15,6 @@ dependencies {
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
     compile("com.google.guava:guava:21.0")
     compile("com.google.http-client:google-http-client:1.22.0")
-    compile("com.treasuredata:underwrap:0.1.4")
     compile("io.sentry:sentry:1.5.2")
     compile("javax.json:javax.json-api:1.1")
     compile("javax.ws.rs:javax.ws.rs-api:2.0.1")

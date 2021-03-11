@@ -55,6 +55,11 @@ class UsersController < ApplicationController
     redirect_to user_path(user), notice: 'Update request is successfully queued. Please wait a moment.'
   end
 
+  def update_status
+    user = User.find_by!(login: params[:login])
+    render json: { status: user.update_status }
+  end
+
   def bulk_update
     if !params[:ids].is_a?(Array) && params[:ids].size > User::PAGE_PER
       redirect_back fallback_location: root_path, alert: "Invalid 'ids' parameter #{params[:ids].inspect} is given"

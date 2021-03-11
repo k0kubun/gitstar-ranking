@@ -7,15 +7,8 @@ window.addEventListener('load', () => {
     userUpdate.classList.remove('disabled');
 
     const updateButton = () => {
-      const query = `
-        query {
-          user(login:"${userUpdate.dataset['login']}") {
-            updateStatus
-          }
-        }
-      `;
-      $.post('/graphql',  { query: query }, (data) => {
-        const updateStatus = data.data.user.updateStatus;
+      $.get(`/users/${userUpdate.dataset['login']}/update_status`, (data) => {
+        const updateStatus = data.status;
         if (updateStatus == 'UPDATED') {
           userUpdate.innerHTML = 'Up to date';
         } else {

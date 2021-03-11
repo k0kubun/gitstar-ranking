@@ -62,6 +62,16 @@ class User < ApplicationRecord
     false
   end
 
+  def update_status
+    if in_queue?
+      'UPDATING'
+    elsif queued_recently?
+      'UPDATED'
+    else
+      'OUTDATED'
+    end
+  end
+
   def member_of?(organization_login)
     return false if access_token&.token.nil?
     client = GithubApi::V3Client.new(access_token.token)

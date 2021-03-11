@@ -83,7 +83,7 @@ public class UserStarScanWorker extends UpdateUserWorker {
                 // Update users in the batch
                 LOG.info(String.format("Batch size: %d (stars: %d)", users.size(), stars));
                 for (User user : users) {
-                    if (user.getLogin().equals("GITenberg")) {
+                    if (user.getLogin().equals("GITenberg") || user.getLogin().equals("gitpan")) {
                         LOG.info("Skipping a user with too many repositories: " + user.getLogin());
                         continue;
                     }

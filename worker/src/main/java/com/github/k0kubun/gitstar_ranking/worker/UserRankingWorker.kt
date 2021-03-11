@@ -17,12 +17,13 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 class UserRankingWorker(config: Config) : Worker() {
-    private val userRankingQueue: BlockingQueue<Boolean?>
-    private val dbi: DBI
+    private val userRankingQueue: BlockingQueue<Boolean> = config.queueConfig.userRankingQueue
+    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
 
     // TODO: refactor the relationship between User/Organization/RepositoryRankingWorker
-    private val organizationRankingWorker: OrganizationRankingWorker
-    private val repositoryRankingWorker: RepositoryRankingWorker
+    private val organizationRankingWorker: OrganizationRankingWorker = OrganizationRankingWorker(config)
+    private val repositoryRankingWorker: RepositoryRankingWorker = RepositoryRankingWorker(config)
+
     @Throws(Exception::class)
     override fun perform() {
         while (userRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
@@ -119,12 +120,5 @@ class UserRankingWorker(config: Config) : Worker() {
     companion object {
         private const val ITERATE_MIN_STARS = 10
         private val LOG = LoggerFactory.getLogger(UserRankingWorker::class.java)
-    }
-
-    init {
-        userRankingQueue = config.queueConfig.userRankingQueue
-        dbi = DBI(config.databaseConfig.dataSource)
-        organizationRankingWorker = OrganizationRankingWorker(config)
-        repositoryRankingWorker = RepositoryRankingWorker(config)
     }
 }

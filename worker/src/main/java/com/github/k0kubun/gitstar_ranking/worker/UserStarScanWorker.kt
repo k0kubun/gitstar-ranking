@@ -23,10 +23,11 @@ import org.slf4j.LoggerFactory
 
 // Scan all starred users
 class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfig.dataSource) {
-    private val userStarScanQueue: BlockingQueue<Boolean?>
-    override val dbi: DBI
-    override val clientBuilder: GitHubClientBuilder
-    private val updateThreshold: Timestamp
+    private val userStarScanQueue: BlockingQueue<Boolean> = config.queueConfig.userStarScanQueue
+    override val dbi: DBI = DBI(config.databaseConfig.dataSource)
+    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.databaseConfig.dataSource)
+    private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
+
     @Throws(Exception::class)
     override fun perform() {
         while (userStarScanQueue.poll(5, TimeUnit.SECONDS) == null) {
@@ -54,7 +55,7 @@ class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
                     if (users.isEmpty()) {
                         stars = handle.attach(UserDao::class.java).nextStargazersCount(stars)
                         if (stars == 0L) {
-                            handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+                            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                                 conn.attach(LastUpdateDao::class.java).resetCursor(LastUpdateDao.STAR_SCAN_USER_ID)
                                 conn.attach(LastUpdateDao::class.java).resetCursor(LastUpdateDao.STAR_SCAN_STARS)
                             }
@@ -101,7 +102,7 @@ class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
                 // Update the counter
                 val nextUpdatedId = lastUpdatedId
                 val nextStars = stars
-                handle.useTransaction { conn: Handle, status: TransactionStatus? ->
+                handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                     conn.attach(LastUpdateDao::class.java).updateCursor(LastUpdateDao.STAR_SCAN_USER_ID, nextUpdatedId)
                     conn.attach(LastUpdateDao::class.java).updateCursor(LastUpdateDao.STAR_SCAN_STARS, nextStars)
                 }
@@ -128,10 +129,4 @@ class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
         private val LOG = LoggerFactory.getLogger(UserStarScanWorker::class.java)
     }
 
-    init {
-        userStarScanQueue = config.queueConfig.userStarScanQueue
-        clientBuilder = GitHubClientBuilder(config.databaseConfig.dataSource)
-        dbi = DBI(config.databaseConfig.dataSource)
-        updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
-    }
 }

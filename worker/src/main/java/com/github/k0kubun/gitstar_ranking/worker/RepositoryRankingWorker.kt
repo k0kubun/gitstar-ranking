@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory
 private const val PAGE_SIZE = 5000
 
 class RepositoryRankingWorker(config: Config) : Worker() {
-    private val repoRankingQueue: BlockingQueue<Boolean>
     private val dbi: DBI
     @Throws(Exception::class)
     override fun perform() {
@@ -138,7 +137,6 @@ class RepositoryRankingWorker(config: Config) : Worker() {
     }
 
     init {
-        repoRankingQueue = config.queueConfig.repoRankingQueue
         dbi = DBI(config.databaseConfig.dataSource)
     }
 }

@@ -26,8 +26,8 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
-    open val dbi: DBI
-    open val clientBuilder: GitHubClientBuilder
+    open val dbi: DBI = DBI(dataSource)
+    open val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(dataSource)
 
     // Dequeue a record from update_user_jobs and call updateUser().
     @Throws(Exception::class)
@@ -151,10 +151,5 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
     companion object {
         private const val TIMEOUT_MINUTES = 1
         private val LOG = LoggerFactory.getLogger(UpdateUserWorker::class.java)
-    }
-
-    init {
-        clientBuilder = GitHubClientBuilder(dataSource)
-        dbi = DBI(dataSource)
     }
 }

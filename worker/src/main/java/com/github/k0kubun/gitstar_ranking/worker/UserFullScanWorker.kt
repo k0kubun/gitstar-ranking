@@ -20,10 +20,11 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 class UserFullScanWorker(config: Config) : UpdateUserWorker(config.databaseConfig.dataSource) {
-    private val userFullScanQueue: BlockingQueue<Boolean?>
-    override val dbi: DBI
-    override val clientBuilder: GitHubClientBuilder
-    private val updateThreshold: Timestamp
+    private val userFullScanQueue: BlockingQueue<Boolean> = config.queueConfig.userFullScanQueue
+    override val dbi: DBI = DBI(config.databaseConfig.dataSource)
+    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.databaseConfig.dataSource)
+    private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
+
     @Throws(Exception::class)
     override fun perform() {
         while (userFullScanQueue.poll(5, TimeUnit.SECONDS) == null) {
@@ -91,12 +92,5 @@ class UserFullScanWorker(config: Config) : UpdateUserWorker(config.databaseConfi
         private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
         private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
         private val LOG = LoggerFactory.getLogger(UserFullScanWorker::class.java)
-    }
-
-    init {
-        userFullScanQueue = config.queueConfig.userFullScanQueue
-        clientBuilder = GitHubClientBuilder(config.databaseConfig.dataSource)
-        dbi = DBI(config.databaseConfig.dataSource)
-        updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
     }
 }

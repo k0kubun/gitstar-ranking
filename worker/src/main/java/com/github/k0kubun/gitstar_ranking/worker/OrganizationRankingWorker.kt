@@ -16,7 +16,6 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 class OrganizationRankingWorker(config: Config) : Worker() {
-    private val orgRankingQueue: BlockingQueue<Boolean>
     private val dbi: DBI
     @Throws(Exception::class)
     override fun perform() {
@@ -109,7 +108,6 @@ class OrganizationRankingWorker(config: Config) : Worker() {
     }
 
     init {
-        orgRankingQueue = config.queueConfig.orgRankingQueue
         dbi = DBI(config.databaseConfig.dataSource)
     }
 }

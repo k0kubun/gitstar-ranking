@@ -16,7 +16,8 @@ import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 class OrganizationRankingWorker(config: Config) : Worker() {
-    private val dbi: DBI
+    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
+
     @Throws(Exception::class)
     override fun perform() {
         LOG.info("----- started OrganizationRankingWorker -----")
@@ -51,7 +52,7 @@ class OrganizationRankingWorker(config: Config) : Worker() {
                     currentRankNum = 1
                 }
             }
-            if (!commitPendingRanks.isEmpty()) {
+            if (commitPendingRanks.isNotEmpty()) {
                 commitRanks(handle, commitPendingRanks)
                 commitPendingRanks.clear()
             }
@@ -107,7 +108,4 @@ class OrganizationRankingWorker(config: Config) : Worker() {
         private val LOG = LoggerFactory.getLogger(OrganizationRankingWorker::class.java)
     }
 
-    init {
-        dbi = DBI(config.databaseConfig.dataSource)
-    }
 }

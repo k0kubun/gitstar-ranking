@@ -2,7 +2,6 @@ package com.github.k0kubun.gitstar_ranking.worker
 
 import com.github.k0kubun.gitstar_ranking.config.Config
 import com.github.k0kubun.gitstar_ranking.model.Repository
-import java.util.concurrent.BlockingQueue
 import org.skife.jdbi.v2.DBI
 import kotlin.Throws
 import java.lang.Exception
@@ -53,7 +52,7 @@ class RepositoryRankingWorker(config: Config) : Worker() {
                     currentRankNum = 1
                 }
             }
-            if (!commitPendingRanks.isEmpty()) {
+            if (commitPendingRanks.isNotEmpty()) {
                 commitRanks(handle, commitPendingRanks)
                 commitPendingRanks.clear()
             }

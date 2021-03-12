@@ -7,7 +7,6 @@ end
 
 gem 'rails', '6.1.3'
 
-gem 'activerecord-import'
 gem 'bootstrap-sass'
 gem 'bootswatch-rails'
 gem 'devise', github: 'heartcombo/devise'

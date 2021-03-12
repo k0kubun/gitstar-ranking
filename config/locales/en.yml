@@ -34,3 +34,11 @@ en:
     formats:
       middle: '%Y/%m/%d %H:%M'
       lastmod: '%Y-%m-%d'
+  datetime:
+    distance_in_words:
+      x_seconds:
+        one:   "1 sec"
+        other: "%{count} sec"
+      x_minutes:
+        one:   "1 min"
+        other: "%{count} min"

@@ -47,7 +47,7 @@
               %li
                 = link_to user_path(full_user) do
                   = fa_icon 'user-circle', text: number_with_delimiter(full_user.id)
-                  (#{"%.4f" % (100.0 * full_user.id / User.last_id)}%)
+                  (#{"%.2f" % (100.0 * full_user.id / User.last_id)}%)
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

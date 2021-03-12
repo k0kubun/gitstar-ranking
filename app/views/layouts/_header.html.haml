@@ -38,15 +38,15 @@
       %ul.nav.navbar-nav.navbar-right
         - if user_signed_in?
           - if current_user.admin?
-            - if star_user = LastUpdate.find_by(id: 2)&.user
+            - if star_user = (star_update = LastUpdate.star_user)&.user
               %li
                 = link_to user_path(star_user) do
-                  Star: #{number_with_delimiter(LastUpdate.find_by(id: 3)&.cursor || 0)}
-            - if full_user = LastUpdate.find_by(id: 1)&.user
+                  Star: #{number_with_delimiter(LastUpdate.star_star&.cursor || 0)}
+                  (#{distance_of_time_in_words(star_update.updated_at, Time.now)})
+            - if full_user = LastUpdate.full_user&.user
               %li
-                - last_user_id = User.order(id: :desc).limit(1).pluck(:id).first
                 = link_to user_path(full_user) do
-                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / last_user_id)}%)
+                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / User.last_id)}%)
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

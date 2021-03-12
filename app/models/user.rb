@@ -23,6 +23,10 @@ class User < ApplicationRecord
   scope :organization, -> { where(type: 'Organization') }
   scope :not_organization, -> { where(type: 'User') }
 
+  def self.last_id
+    order(id: :desc).pick(:id)
+  end
+
   def to_param
     login
   end

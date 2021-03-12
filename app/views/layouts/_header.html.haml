@@ -41,12 +41,13 @@
             - if star_user = (star_update = LastUpdate.star_user)&.user
               %li
                 = link_to user_path(star_user) do
-                  Star: #{number_with_delimiter(LastUpdate.star_star&.cursor || 0)}
+                  = fa_icon 'star', number_with_delimiter(LastUpdate.star_star&.cursor || 0)
                   (#{distance_of_time_in_words(star_update.updated_at, Time.now)})
             - if full_user = LastUpdate.full_user&.user
               %li
                 = link_to user_path(full_user) do
-                  Full: #{number_with_delimiter(full_user.id)} (#{"%.4f" % (100.0 * full_user.id / User.last_id)}%)
+                  = fa_icon 'user-circle', number_with_delimiter(full_user.id)
+                  (#{"%.4f" % (100.0 * full_user.id / User.last_id)}%)
           %li
             = link_to user_path(current_user) do
               = image_tag current_user.avatar_url, class: 'login_avatar'

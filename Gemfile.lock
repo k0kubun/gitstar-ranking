@@ -252,7 +252,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqldef (0.2.0)
+    sqldef (0.2.1)
     sqldef-rails (0.1.0)
       sqldef
     temple (0.8.2)

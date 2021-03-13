@@ -29,5 +29,7 @@ jobs:
       - run: bundle exec rake assets:precompile RAILS_ENV=production SECRET_KEY_BASE=1
 
       - run: docker-compose up -d
-      - run: bundle exec rake db:create db:migrate
+      - run: bundle exec rake db:create
+      - run: psql gitstar_ranking -c 'CREATE EXTENSION citext;'
+      - run: bundle exec rake db:migrate
       - run: bundle exec rspec

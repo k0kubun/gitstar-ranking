@@ -30,6 +30,6 @@ jobs:
 
       - run: docker-compose up -d
       - run: bundle exec rake db:create
-      - run: psql gitstar_ranking -c 'CREATE EXTENSION citext;'
+      - run: psql -U postgres -h localhost gitstar_ranking -c 'CREATE EXTENSION citext;'
       - run: bundle exec rake db:migrate
       - run: bundle exec rspec

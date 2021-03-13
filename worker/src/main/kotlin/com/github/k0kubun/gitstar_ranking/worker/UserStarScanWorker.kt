@@ -21,13 +21,15 @@ import java.util.ArrayList
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
-// Users with too many repositories. To be fixed later.
 val PENDING_USERS = listOf(
+    // Users with too many repositories. To be fixed later.
     "GITenberg",
     "gitpan",
     "the-domains",
     "wp-plugins",
     "gitter-badger",
+    // Somehow 502?
+    "Try-Git",
 )
 
 // Scan all starred users

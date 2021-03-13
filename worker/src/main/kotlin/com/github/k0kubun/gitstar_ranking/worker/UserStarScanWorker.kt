@@ -27,6 +27,7 @@ val PENDING_USERS = listOf(
     "gitpan",
     "the-domains",
     "wp-plugins",
+    "gitter-badger",
 )
 
 // Scan all starred users

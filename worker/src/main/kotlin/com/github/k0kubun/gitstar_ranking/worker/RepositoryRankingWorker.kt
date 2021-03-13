@@ -1,6 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.worker
 
-import com.github.k0kubun.gitstar_ranking.config.Config
+import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.model.Repository
 import org.skife.jdbi.v2.DBI
 import kotlin.Throws
@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory
 
 private const val PAGE_SIZE = 5000
 
-class RepositoryRankingWorker(config: Config) : Worker() {
-    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
+class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val dbi: DBI = DBI(config.database.dataSource)
 
     @Throws(Exception::class)
     override fun perform() {

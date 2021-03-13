@@ -1,6 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.worker
 
-import com.github.k0kubun.gitstar_ranking.config.Config
+import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import java.util.concurrent.BlockingQueue
 import org.skife.jdbi.v2.DBI
 import com.github.k0kubun.gitstar_ranking.github.GitHubClientBuilder
@@ -33,10 +33,10 @@ val PENDING_USERS = listOf(
 )
 
 // Scan all starred users
-class UserStarScanWorker(config: Config) : UpdateUserWorker(config.databaseConfig.dataSource) {
-    private val userStarScanQueue: BlockingQueue<Boolean> = config.queueConfig.userStarScanQueue
-    override val dbi: DBI = DBI(config.databaseConfig.dataSource)
-    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.databaseConfig.dataSource)
+class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource) {
+    private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
+    override val dbi: DBI = DBI(config.database.dataSource)
+    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dataSource)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
     @Throws(Exception::class)

@@ -1,6 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.worker
 
-import com.github.k0kubun.gitstar_ranking.config.Config
+import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.model.User
 import java.util.concurrent.BlockingQueue
 import org.skife.jdbi.v2.DBI
@@ -16,9 +16,9 @@ import java.util.ArrayList
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
-class UserRankingWorker(config: Config) : Worker() {
-    private val userRankingQueue: BlockingQueue<Boolean> = config.queueConfig.userRankingQueue
-    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
+class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val userRankingQueue: BlockingQueue<Boolean> = config.queue.userRankingQueue
+    private val dbi: DBI = DBI(config.database.dataSource)
 
     // TODO: refactor the relationship between User/Organization/RepositoryRankingWorker
     private val organizationRankingWorker: OrganizationRankingWorker = OrganizationRankingWorker(config)

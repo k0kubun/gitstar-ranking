@@ -1,6 +1,5 @@
 package com.github.k0kubun.gitstar_ranking
 
-import com.github.k0kubun.gitstar_ranking.config.Config
 import com.github.k0kubun.gitstar_ranking.worker.UpdateUserWorker
 import com.github.k0kubun.gitstar_ranking.worker.UserFullScanWorker
 import com.github.k0kubun.gitstar_ranking.worker.UserRankingWorker
@@ -21,7 +20,7 @@ private const val NUM_UPDATE_USER_WORKERS = 2
 
 class GitstarRankingApp {
     private val logger = LoggerFactory.getLogger(GitstarRankingApp::class.java)
-    private val config = Config(System.getenv())
+    private val config = GitstarRankingConfiguration()
 
     fun run() {
         val scheduler = buildAndRunScheduler()
@@ -44,13 +43,13 @@ class GitstarRankingApp {
         val scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory)
 
         // Schedule at most every 8 hours
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queueConfig.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
+        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 5, 8, TimeUnit.HOURS);
         // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
 
         // Schedule at most every 30 minutes
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queueConfig.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queueConfig.userFullScanQueue) }, 15, 30, TimeUnit.MINUTES)
+        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)
+        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userFullScanQueue) }, 15, 30, TimeUnit.MINUTES)
         return scheduler
     }
 
@@ -65,8 +64,8 @@ class GitstarRankingApp {
         }
     }
 
-    private fun buildWorkers(config: Config): WorkerManager {
-        val dataSource = config.databaseConfig.dataSource
+    private fun buildWorkers(config: GitstarRankingConfiguration): WorkerManager {
+        val dataSource = config.database.dataSource
         val workers = WorkerManager()
         repeat(NUM_UPDATE_USER_WORKERS) {
             workers.add(UpdateUserWorker(dataSource))

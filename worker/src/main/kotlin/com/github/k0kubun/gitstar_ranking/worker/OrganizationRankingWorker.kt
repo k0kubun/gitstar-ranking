@@ -1,7 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.worker
 
-import com.github.k0kubun.gitstar_ranking.config.Config
-import java.util.concurrent.BlockingQueue
+import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import org.skife.jdbi.v2.DBI
 import kotlin.Throws
 import java.lang.Exception
@@ -15,8 +14,8 @@ import java.util.ArrayList
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
-class OrganizationRankingWorker(config: Config) : Worker() {
-    private val dbi: DBI = DBI(config.databaseConfig.dataSource)
+class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val dbi: DBI = DBI(config.database.dataSource)
 
     @Throws(Exception::class)
     override fun perform() {

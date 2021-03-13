@@ -4,5 +4,5 @@
 /tmp
 /public/assets
 *.rdb
-*.sql
 .gradle
+/bin/psqldef

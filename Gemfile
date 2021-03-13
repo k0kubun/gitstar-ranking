@@ -22,10 +22,10 @@ gem 'omniauth-rails_csrf_protection'
 gem 'pg'
 gem 'puma'
 gem 'rack-user_agent'
-gem 'ridgepoler-rails'
 gem 'sassc-rails'
 gem 'sentry-raven'
 gem 'sprockets'
+gem 'sqldef-rails'
 gem 'uglifier'
 
 group :development do

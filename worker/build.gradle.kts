@@ -7,7 +7,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.github.k0kubun.gitstar_ranking.Main")
+    mainClass.set("com.github.k0kubun.gitstar_ranking.GitstarRankingAppKt")
 }
 
 repositories {

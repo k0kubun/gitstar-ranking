@@ -1,4 +1,4 @@
-CREATE TABLE public.access_tokens (
+CREATE TABLE access_tokens (
     "id" bigserial NOT NULL,
     "user_id" bigint,
     "token" text,
@@ -7,17 +7,17 @@ CREATE TABLE public.access_tokens (
     "enabled" boolean,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_access_tokens_on_enabled ON public.access_tokens USING btree (enabled);
-CREATE INDEX index_access_tokens_on_user_id ON public.access_tokens USING btree (user_id);
+CREATE INDEX index_access_tokens_on_enabled ON access_tokens (enabled);
+CREATE INDEX index_access_tokens_on_user_id ON access_tokens (user_id);
 
-CREATE TABLE public.last_updates (
+CREATE TABLE last_updates (
     "id" integer NOT NULL,
     "cursor" bigint NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
 
-CREATE TABLE public.organization_ranks (
+CREATE TABLE organization_ranks (
     "id" bigserial NOT NULL,
     "stargazers_count" bigint,
     "rank" bigint,
@@ -25,10 +25,10 @@ CREATE TABLE public.organization_ranks (
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX index_organization_ranks_on_rank ON public.organization_ranks USING btree (rank);
-CREATE UNIQUE INDEX index_organization_ranks_on_stargazers_count ON public.organization_ranks USING btree (stargazers_count);
+CREATE UNIQUE INDEX index_organization_ranks_on_rank ON organization_ranks (rank);
+CREATE UNIQUE INDEX index_organization_ranks_on_stargazers_count ON organization_ranks (stargazers_count);
 
-CREATE TABLE public.repositories (
+CREATE TABLE repositories (
     "id" bigserial NOT NULL,
     "name" text,
     "full_name" citext,
@@ -44,12 +44,12 @@ CREATE TABLE public.repositories (
     "fetched_at" timestamp with time zone,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_repositories_on_author_id_and_stargazers_count ON public.repositories USING btree (author_id, stargazers_count);
-CREATE INDEX index_repositories_on_full_name ON public.repositories USING btree (full_name);
-CREATE INDEX index_repositories_on_owner_id_and_stargazers_count ON public.repositories USING btree (owner_id, stargazers_count);
-CREATE INDEX index_repositories_on_stargazers_count ON public.repositories USING btree (stargazers_count);
+CREATE INDEX index_repositories_on_author_id_and_stargazers_count ON repositories (author_id, stargazers_count);
+CREATE INDEX index_repositories_on_full_name ON repositories (full_name);
+CREATE INDEX index_repositories_on_owner_id_and_stargazers_count ON repositories (owner_id, stargazers_count);
+CREATE INDEX index_repositories_on_stargazers_count ON repositories (stargazers_count);
 
-CREATE TABLE public.repository_ranks (
+CREATE TABLE repository_ranks (
     "id" bigserial NOT NULL,
     "stargazers_count" bigint,
     "rank" bigint,
@@ -57,10 +57,10 @@ CREATE TABLE public.repository_ranks (
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX index_repository_ranks_on_rank ON public.repository_ranks USING btree (rank);
-CREATE UNIQUE INDEX index_repository_ranks_on_stargazers_count ON public.repository_ranks USING btree (stargazers_count);
+CREATE UNIQUE INDEX index_repository_ranks_on_rank ON repository_ranks (rank);
+CREATE UNIQUE INDEX index_repository_ranks_on_stargazers_count ON repository_ranks (stargazers_count);
 
-CREATE TABLE public.update_user_jobs (
+CREATE TABLE update_user_jobs (
     "id" bigserial NOT NULL,
     "payload" text,
     "timeout_at" timestamp with time zone,
@@ -69,9 +69,9 @@ CREATE TABLE public.update_user_jobs (
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_update_user_jobs_on_timeout_at ON public.update_user_jobs USING btree (timeout_at);
+CREATE INDEX index_update_user_jobs_on_timeout_at ON update_user_jobs (timeout_at);
 
-CREATE TABLE public.user_ranks (
+CREATE TABLE user_ranks (
     "id" bigserial NOT NULL,
     "stargazers_count" bigint,
     "rank" bigint,
@@ -79,10 +79,10 @@ CREATE TABLE public.user_ranks (
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX index_user_ranks_on_rank ON public.user_ranks USING btree (rank);
-CREATE UNIQUE INDEX index_user_ranks_on_stargazers_count ON public.user_ranks USING btree (stargazers_count);
+CREATE UNIQUE INDEX index_user_ranks_on_rank ON user_ranks (rank);
+CREATE UNIQUE INDEX index_user_ranks_on_stargazers_count ON user_ranks (stargazers_count);
 
-CREATE TABLE public.users (
+CREATE TABLE users (
     "id" bigserial NOT NULL,
     "login" citext,
     "avatar_url" text,
@@ -94,5 +94,5 @@ CREATE TABLE public.users (
     "location" text,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_users_on_login ON public.users USING btree (login);
-CREATE INDEX index_users_on_stargazers_count ON public.users USING btree (stargazers_count);
+CREATE INDEX index_users_on_login ON users (login);
+CREATE INDEX index_users_on_stargazers_count ON users (stargazers_count);

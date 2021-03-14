@@ -33,7 +33,6 @@ CREATE TABLE repositories (
     "name" text,
     "full_name" citext,
     "owner_id" bigint,
-    "author_id" bigint,
     "description" text,
     "fork" boolean,
     "created_at" timestamp with time zone NOT NULL,
@@ -44,7 +43,6 @@ CREATE TABLE repositories (
     "fetched_at" timestamp with time zone,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_repositories_on_author_id_and_stargazers_count ON repositories (author_id, stargazers_count);
 CREATE INDEX index_repositories_on_full_name ON repositories (full_name);
 CREATE INDEX index_repositories_on_owner_id_and_stargazers_count ON repositories (owner_id, stargazers_count);
 CREATE INDEX index_repositories_on_stargazers_count ON repositories (stargazers_count);

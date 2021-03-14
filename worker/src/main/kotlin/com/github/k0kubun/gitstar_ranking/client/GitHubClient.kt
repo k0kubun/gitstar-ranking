@@ -10,11 +10,7 @@ import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.HttpResponse
 import com.google.api.client.http.HttpResponseException
 import com.google.api.client.http.javanet.NetHttpTransport
-import io.sentry.Sentry
-import java.io.IOException
 import java.io.StringReader
-import java.lang.ClassCastException
-import java.lang.InterruptedException
 import java.lang.RuntimeException
 import java.net.SocketTimeoutException
 import java.util.ArrayList
@@ -38,15 +34,22 @@ class GitHubClient(private val token: String) {
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
     private val logger = LoggerFactory.getLogger(GitHubClient::class.java)
 
+    val rateLimitRemaining: Int
+        get() {
+            val responseObject = graphql("query { rateLimit { remaining } }")
+            return responseObject.getJsonObject("data").getJsonObject("rateLimit").getInt("remaining")
+        }
+
     fun getLogin(userId: Long): String {
-        val responseObject = graphql(
-            """query {
-node(id:"${encodeUserId(userId)}") {
-  ... on User {
-    login
-  }
-}}"""
-        )
+        val responseObject = graphql("""
+            query {
+                node(id:"${encodeUserId(userId)}") {
+                    ... on User {
+                        login
+                    }
+                }
+            }
+        """.trimIndent())
         handleUserNodeErrors(responseObject)
         val userNode = responseObject.getJsonObject("data").getJsonObject("node")
         return if (userNode.containsKey("login")) {
@@ -59,39 +62,22 @@ node(id:"${encodeUserId(userId)}") {
     fun getPublicRepos(userId: Long, isOrganization: Boolean): List<Repository> {
         val repos: MutableList<Repository> = ArrayList()
         getPublicRepoNodes(userId, isOrganization).forEach { node ->
-            try {
-                val id = decodeRepositoryId(node.getString("id"))
-                val encodedOwnerId = node.getJsonObject("owner").getString("id")
-                val ownerId = if (isOrganization) decodeOrganizationId(encodedOwnerId) else decodeUserId(encodedOwnerId)
-                val name = node.getString("name")
-                val fullName = node.getString("nameWithOwner")
-                val description = if (node.isNull("description")) null else node.getString("description")
-                val fork = node.getBoolean("isFork")
-                val homepage = if (node.isNull("homepageUrl")) null else node.getString("homepageUrl")
-                val stargazersCount = node.getJsonObject("stargazers").getInt("totalCount")
-                val language = if (node.isNull("primaryLanguage")) null else node.getJsonObject("primaryLanguage").getString("name")
-                if (userId == java.lang.Long.valueOf(ownerId.toLong())) { // eliminate writable but not-owning repositories for some implicit consistency, like star count
-                    repos.add(Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language))
-                }
-            } catch (e: ClassCastException) {
-                Sentry.capture(e)
-                logger.debug("node: $node")
-                throw e
+            val id = decodeRepositoryId(node.getString("id"))
+            val encodedOwnerId = node.getJsonObject("owner").getString("id")
+            val ownerId = if (isOrganization) decodeOrganizationId(encodedOwnerId) else decodeUserId(encodedOwnerId)
+            val name = node.getString("name")
+            val fullName = node.getString("nameWithOwner")
+            val description = if (node.isNull("description")) null else node.getString("description")
+            val fork = node.getBoolean("isFork")
+            val homepage = if (node.isNull("homepageUrl")) null else node.getString("homepageUrl")
+            val stargazersCount = node.getJsonObject("stargazers").getInt("totalCount")
+            val language = if (node.isNull("primaryLanguage")) null else node.getJsonObject("primaryLanguage").getString("name")
+            if (userId == java.lang.Long.valueOf(ownerId.toLong())) { // eliminate writable but not-owning repositories for some implicit consistency, like star count
+                repos.add(Repository(id, ownerId, name, fullName, description, fork, homepage, stargazersCount, language))
             }
         }
         return repos
     }
-
-    // TODO: handle error object
-    val rateLimitRemaining: Int
-        get() = try {
-            val responseObject = graphql("query { rateLimit { remaining } }")
-            // TODO: handle error object
-            responseObject.getJsonObject("data").getJsonObject("rateLimit").getInt("remaining")
-        } catch (e: IOException) {
-            Sentry.capture(e)
-            0
-        }
 
     fun getUserWithLogin(login: String): User {
         val request = requestFactory.buildGetRequest(GenericUrl("$API_ENDPOINT/users/$login"))
@@ -99,7 +85,6 @@ node(id:"${encodeUserId(userId)}") {
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
-        // TODO: Handle error status code
         val userObject = Json.createReader(StringReader(response.parseAsString())).readObject()
         val user = User(java.lang.Long.valueOf(userObject.getInt("id").toLong()), userObject.getString("type"))
         user.login = userObject.getString("login")
@@ -113,7 +98,6 @@ node(id:"${encodeUserId(userId)}") {
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
-        // TODO: Handle error status code
         val userObjects = Json.createReader(StringReader(response.parseAsString())).readArray().getValuesAs(JsonObject::class.java)
         val users: MutableList<User> = ArrayList()
         for (userObject in userObjects) {
@@ -137,7 +121,6 @@ node(id:"${encodeUserId(userId)}") {
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
-        // TODO: Handle error status code
         val responseObject = Json.createReader(StringReader(response.parseAsString())).readObject()
         if (responseObject.containsKey("errors")) {
             logger.debug("errors with query:\n$query")
@@ -154,51 +137,51 @@ node(id:"${encodeUserId(userId)}") {
             if (cursor != null) {
                 after = " after:\"$cursor\""
             }
-            val query = """query {
-node(id:"${encodeUserId(userId)}") {
-  ... on ${if (isOrganization) "Organization" else "User"} {
-    repositories(first:$PAGE_SIZE$after privacy:PUBLIC affiliations:OWNER) {
-      edges {
-        cursor
-        node {
-          ... on Repository {
-            id
-            owner {
-              id
-            }
-            name
-            nameWithOwner
-            description
-            isFork
-            homepageUrl
-            stargazers {
-              totalCount
-            }
-            primaryLanguage {
-              name
-            }
-          }
-        }
-      }
-    }
-  }
-}}"""
+            val query = """
+                query {
+                    node(id:"${encodeUserId(userId)}") {
+                        ... on ${if (isOrganization) "Organization" else "User"} {
+                            repositories(first:$PAGE_SIZE$after privacy:PUBLIC affiliations:OWNER) {
+                                edges {
+                                    cursor
+                                    node {
+                                        ... on Repository {
+                                            id
+                                            owner {
+                                                id
+                                            }
+                                            name
+                                            nameWithOwner
+                                            description
+                                            isFork
+                                            homepageUrl
+                                            stargazers {
+                                                totalCount
+                                            }
+                                            primaryLanguage {
+                                                name
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            """.trimIndent()
             val responseObject = graphql(query)
             handleUserNodeErrors(responseObject)
             val node = responseObject.getJsonObject("data").getJsonObject("node")
             if (!node.containsKey("repositories")) {
-                throw NodeNotFoundException("""
-    $query
-    $responseObject
-    """.trimIndent())
+                throw NodeNotFoundException("$query\n$responseObject")
             }
             val edges = node.getJsonObject("repositories").getJsonArray("edges").getValuesAs(JsonObject::class.java)
-            for (edge in edges) {
+            edges.forEach { edge ->
                 nodes.add(edge.getJsonObject("node"))
             }
             if (edges.size == PAGE_SIZE) {
                 cursor = edges[PAGE_SIZE - 1].getString("cursor")
-                logger.debug("Paginate user_id: ${userId} with cursor: $cursor size: ${nodes.size}")
+                logger.debug("Paginate user_id: $userId with cursor: $cursor size: ${nodes.size}")
             } else {
                 break
             }
@@ -211,41 +194,43 @@ node(id:"${encodeUserId(userId)}") {
         return Base64.getEncoder().encodeToString(unencoded.toByteArray())
     }
 
-    // TODO: Use Long
-    private fun decodeUserId(encoded: String): Int {
+    private fun decodeUserId(encoded: String): Int { // TODO: Use Long
         val decoded = String(Base64.getDecoder().decode(encoded))
-        return if (decoded.startsWith("04:User")) {
-            Integer.valueOf(decoded.replaceFirst("04:User".toRegex(), ""))
-        } else if (decoded.startsWith("012:Organization")) {
-            Integer.valueOf(decoded.replaceFirst("012:Organization".toRegex(), ""))
-        } else {
-            throw RuntimeException(String.format("'%s' does not have expected prefix for userId", decoded))
+        return when {
+            decoded.startsWith("04:User") -> {
+                decoded.replaceFirst("04:User".toRegex(), "").toInt()
+            }
+            decoded.startsWith("012:Organization") -> {
+                decoded.replaceFirst("012:Organization".toRegex(), "").toInt()
+            }
+            else -> {
+                throw RuntimeException("'$decoded' does not have expected prefix for userId")
+            }
         }
     }
 
     private fun decodeRepositoryId(encoded: String): Long {
         val decoded = String(Base64.getDecoder().decode(encoded))
         return if (decoded.startsWith("010:Repository")) {
-            java.lang.Long.valueOf(decoded.replaceFirst("010:Repository".toRegex(), ""))
+            decoded.replaceFirst("010:Repository".toRegex(), "").toLong()
         } else {
-            throw RuntimeException(String.format("'%s' does not have expected prefix for repositoryId", decoded))
+            throw RuntimeException("'$decoded' does not have expected prefix for repositoryId")
         }
     }
 
-    // TODO: Use Long
-    private fun decodeOrganizationId(encoded: String): Int {
+    private fun decodeOrganizationId(encoded: String): Int { // TODO: Use Long
         val decoded = String(Base64.getDecoder().decode(encoded))
         return if (decoded.startsWith("012:Organization")) {
-            Integer.valueOf(decoded.replaceFirst("012:Organization".toRegex(), ""))
+            decoded.replaceFirst("012:Organization".toRegex(), "").toInt()
         } else {
-            throw RuntimeException(String.format("'%s' does not have expected prefix for organizationId", decoded))
+            throw RuntimeException("'$decoded' does not have expected prefix for organizationId")
         }
     }
 
     private fun handleUserNodeErrors(responseObject: JsonObject) {
         if (responseObject.containsKey("errors")) {
             val errors = responseObject.getJsonArray("errors").getValuesAs(JsonObject::class.java)
-            for (error in errors) { // TODO: Log suppressed errors
+            errors.forEach { error -> // TODO: Log suppressed errors
                 if (error.containsKey("type") && error.getString("type") == "NOT_FOUND" && error.containsKey("path")) {
                     for (path in error.getJsonArray("path").getValuesAs(JsonString::class.java)) {
                         if (path.string == "node") {
@@ -264,22 +249,14 @@ node(id:"${encodeUserId(userId)}") {
                 return request.execute()
             } catch (e: HttpResponseException) {
                 if (e.statusCode == 502) {
-                    logger.debug("retrying 502: ${e.message}, i=" + i)
-                    try {
-                        TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
-                    } catch (ie: InterruptedException) {
-                        Sentry.capture(ie)
-                    }
+                    logger.debug("retrying 502: ${e.message}, i=$i")
+                    TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
                 } else {
                     throw e
                 }
             } catch (e: SocketTimeoutException) {
-                logger.debug("retrying socket timeout: ${e.message}, i=" + i)
-                try {
-                    TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
-                } catch (ie: InterruptedException) {
-                    Sentry.capture(ie)
-                }
+                logger.debug("retrying socket timeout: ${e.message}, i=$i")
+                TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
             }
         }
         return request.execute()

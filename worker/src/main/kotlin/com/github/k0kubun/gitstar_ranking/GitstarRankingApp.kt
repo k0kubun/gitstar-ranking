@@ -8,6 +8,7 @@ import com.github.k0kubun.gitstar_ranking.workers.WorkerManager
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import io.sentry.Sentry
 import java.lang.InterruptedException
+import java.lang.RuntimeException
 import java.lang.Thread
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ExecutorService
@@ -19,11 +20,11 @@ import org.slf4j.LoggerFactory
 private const val NUM_UPDATE_USER_WORKERS = 2
 
 class GitstarRankingApp {
-    private val logger = LoggerFactory.getLogger(GitstarRankingApp::class.java)
+    private val logger = LoggerFactory.getLogger(GitstarRankingApp::class.simpleName)
     private val config = GitstarRankingConfiguration()
 
-    fun run() {
-        val scheduler = buildAndRunScheduler()
+    fun run(schedule: Boolean) {
+        val scheduler = buildAndRunScheduler(schedule)
         val workers = buildWorkers(config)
         workers.start()
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -32,7 +33,7 @@ class GitstarRankingApp {
         })
     }
 
-    private fun buildAndRunScheduler(): ScheduledExecutorService {
+    private fun buildAndRunScheduler(schedule: Boolean): ScheduledExecutorService {
         val threadFactory = ThreadFactoryBuilder()
             .setNameFormat("scheduler-%d")
             .setUncaughtExceptionHandler { _: Thread?, e: Throwable ->
@@ -41,6 +42,7 @@ class GitstarRankingApp {
             }
             .build()
         val scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory)
+        if (!schedule) return scheduler;
 
         // Schedule at most every 8 hours
         scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
@@ -95,6 +97,13 @@ class GitstarRankingApp {
     }
 }
 
-fun main() {
-    GitstarRankingApp().run()
+fun main(args: Array<String>) {
+    var schedule = true
+    args.forEach {
+        when (it) {
+            "--no-schedule" -> schedule = false
+            else -> throw RuntimeException("Unexpected argument '$it'")
+        }
+    }
+    GitstarRankingApp().run(schedule)
 }

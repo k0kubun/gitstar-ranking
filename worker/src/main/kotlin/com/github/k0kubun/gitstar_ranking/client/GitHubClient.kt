@@ -23,6 +23,12 @@ import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.Status.BAD_REQUEST
+import javax.ws.rs.core.Response.Status.FORBIDDEN
+import javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR
+import javax.ws.rs.core.Response.Status.NOT_FOUND
+import javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE
+import javax.ws.rs.core.Response.Status.UNAUTHORIZED
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.Policy
 import net.jodah.failsafe.RetryPolicy
@@ -159,12 +165,12 @@ class GitHubClient(private val token: String) {
 
     private fun checkStatus(response: Response) {
         when (response.status) {
-            Response.Status.BAD_REQUEST.statusCode -> throw BadRequestException(response)
-            Response.Status.UNAUTHORIZED.statusCode -> throw NotAuthorizedException(response)
-            Response.Status.FORBIDDEN.statusCode -> throw ForbiddenException(response)
-            Response.Status.NOT_FOUND.statusCode -> throw NotFoundException(response)
-            Response.Status.INTERNAL_SERVER_ERROR.statusCode -> throw InternalServerErrorException(response)
-            Response.Status.SERVICE_UNAVAILABLE.statusCode -> throw ServiceUnavailableException(response)
+            BAD_REQUEST.statusCode -> throw BadRequestException(response)
+            UNAUTHORIZED.statusCode -> throw NotAuthorizedException(response)
+            FORBIDDEN.statusCode -> throw ForbiddenException(response)
+            NOT_FOUND.statusCode -> throw NotFoundException(response)
+            INTERNAL_SERVER_ERROR.statusCode -> throw InternalServerErrorException(response)
+            SERVICE_UNAVAILABLE.statusCode -> throw ServiceUnavailableException(response)
             in 300..399 -> throw RedirectionException(response)
             in 400..499 -> throw ClientErrorException(response)
             in 500..599 -> throw ServerErrorException(response)

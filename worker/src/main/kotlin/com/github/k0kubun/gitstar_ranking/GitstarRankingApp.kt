@@ -1,10 +1,10 @@
 package com.github.k0kubun.gitstar_ranking
 
-import com.github.k0kubun.gitstar_ranking.worker.UpdateUserWorker
-import com.github.k0kubun.gitstar_ranking.worker.UserFullScanWorker
-import com.github.k0kubun.gitstar_ranking.worker.UserRankingWorker
-import com.github.k0kubun.gitstar_ranking.worker.UserStarScanWorker
-import com.github.k0kubun.gitstar_ranking.worker.WorkerManager
+import com.github.k0kubun.gitstar_ranking.workers.UpdateUserWorker
+import com.github.k0kubun.gitstar_ranking.workers.UserFullScanWorker
+import com.github.k0kubun.gitstar_ranking.workers.UserRankingWorker
+import com.github.k0kubun.gitstar_ranking.workers.UserStarScanWorker
+import com.github.k0kubun.gitstar_ranking.workers.WorkerManager
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import io.sentry.Sentry
 import java.lang.InterruptedException

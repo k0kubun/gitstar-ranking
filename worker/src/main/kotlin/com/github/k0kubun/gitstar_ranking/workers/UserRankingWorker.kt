@@ -18,27 +18,15 @@ private const val ITERATE_MIN_STARS = 10
 
 class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val logger = LoggerFactory.getLogger(UserRankingWorker::class.simpleName)
-    private val userRankingQueue: BlockingQueue<Boolean> = config.queue.userRankingQueue
     private val dbi: DBI = DBI(config.database.dataSource)
 
-    // TODO: refactor the relationship between User/Organization/RepositoryRankingWorker
-    private val organizationRankingWorker: OrganizationRankingWorker = OrganizationRankingWorker(config)
-    private val repositoryRankingWorker: RepositoryRankingWorker = RepositoryRankingWorker(config)
-
     override fun perform() {
-        while (userRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
-            if (isStopped) {
-                return
-            }
-        }
         logger.info("----- started UserRankingWorker -----")
         dbi.open().use { handle ->
             val lastRank = updateUpperRanking(handle)
             lastRank?.let { updateLowerRanking(handle, it) }
         }
         logger.info("----- finished UserRankingWorker -----")
-        organizationRankingWorker.perform()
-        repositoryRankingWorker.perform()
     }
 
     private fun updateUpperRanking(handle: Handle): UserRank? {

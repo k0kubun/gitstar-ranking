@@ -28,7 +28,7 @@ data class DatabaseConfiguration(
 }
 
 data class QueueConfiguration(
-    val userRankingQueue: BlockingQueue<Boolean> = LinkedBlockingQueue(),
+    val rankingQueue: BlockingQueue<Boolean> = LinkedBlockingQueue(),
     val userStarScanQueue: BlockingQueue<Boolean> = LinkedBlockingQueue(),
     val userFullScanQueue: BlockingQueue<Boolean> = LinkedBlockingQueue(),
 )

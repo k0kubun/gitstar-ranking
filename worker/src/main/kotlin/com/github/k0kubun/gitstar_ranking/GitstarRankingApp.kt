@@ -1,8 +1,8 @@
 package com.github.k0kubun.gitstar_ranking
 
+import com.github.k0kubun.gitstar_ranking.workers.RankingWorker
 import com.github.k0kubun.gitstar_ranking.workers.UpdateUserWorker
 import com.github.k0kubun.gitstar_ranking.workers.UserFullScanWorker
-import com.github.k0kubun.gitstar_ranking.workers.UserRankingWorker
 import com.github.k0kubun.gitstar_ranking.workers.UserStarScanWorker
 import com.github.k0kubun.gitstar_ranking.workers.WorkerManager
 import com.google.common.util.concurrent.ThreadFactoryBuilder
@@ -45,7 +45,7 @@ class GitstarRankingApp {
         if (!schedule) return scheduler
 
         // Schedule at most every 8 hours
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
+        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.rankingQueue) }, 1, 8, TimeUnit.HOURS)
 
         // Schedule at most every 30 minutes
         scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)
@@ -65,9 +65,9 @@ class GitstarRankingApp {
         repeat(NUM_UPDATE_USER_WORKERS) {
             workers.add(UpdateUserWorker(dataSource))
         }
-        workers.add(UserRankingWorker(config))
         workers.add(UserStarScanWorker(config))
         workers.add(UserFullScanWorker(config))
+        workers.add(RankingWorker(config))
         return workers
     }
 

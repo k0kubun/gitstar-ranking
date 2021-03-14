@@ -10,7 +10,7 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 8
-  username: postgres
+  username: k0kubun
   password: <%= password %>
   host: 127.0.0.1
 

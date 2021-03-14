@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:12
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: k0kubun
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - ./tmp/postgresql:/var/lib/postgresql/data

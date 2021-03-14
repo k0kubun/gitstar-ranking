@@ -94,11 +94,6 @@ fun main(args: Array<String>) {
     Sentry.init { options ->
         options.dsn = System.getenv("SENTRY_DSN")
     }
-    try {
-        throw Exception("This is a test.")
-    } catch (e: Exception) {
-        Sentry.captureException(e)
-    }
 
     var schedule = true
     args.forEach {

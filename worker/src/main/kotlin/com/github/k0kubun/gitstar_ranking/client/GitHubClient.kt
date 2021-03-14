@@ -26,13 +26,13 @@ private const val PAGE_SIZE = 100
 private const val API_ENDPOINT = "https://api.github.com"
 private const val GRAPHQL_ENDPOINT = "$API_ENDPOINT/graphql"
 
-class NodeNotFoundException(message: String?) : RuntimeException(message)
-class UserNotFoundException(message: String?) : RuntimeException(message)
-class GraphQLUnhandledException(message: String?) : RuntimeException(message)
+class NodeNotFoundException(message: String) : RuntimeException(message)
+class UserNotFoundException(message: String) : RuntimeException(message)
+class GraphQLUnhandledException(message: String) : RuntimeException(message)
 
 class GitHubClient(private val token: String) {
+    private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
-    private val logger = LoggerFactory.getLogger(GitHubClient::class.java)
 
     val rateLimitRemaining: Int
         get() {

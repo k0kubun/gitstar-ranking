@@ -12,16 +12,19 @@ import org.skife.jdbi.v2.Handle
 import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
+private const val ITERATE_MIN_STARS = 10
+
 class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val logger = LoggerFactory.getLogger(OrganizationRankingWorker::class.simpleName)
     private val dbi: DBI = DBI(config.database.dataSource)
 
     override fun perform() {
-        LOG.info("----- started OrganizationRankingWorker -----")
+        logger.info("----- started OrganizationRankingWorker -----")
         dbi.open().use { handle ->
             val lastRank = updateUpperRanking(handle)
             lastRank?.let { updateLowerRanking(handle, it) }
         }
-        LOG.info("----- finished OrganizationRankingWorker -----")
+        logger.info("----- finished OrganizationRankingWorker -----")
     }
 
     private fun updateUpperRanking(handle: Handle): OrganizationRank? {
@@ -37,15 +40,19 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
                 return null
             }
             for (org in orgs) {
-                if (currentRank == null) {
-                    currentRank = OrganizationRank(org.stargazersCount, 1)
-                    currentRankNum = 1
-                } else if (currentRank.stargazersCount == org.stargazersCount) {
-                    currentRankNum++
-                } else {
-                    commitPendingRanks.add(currentRank)
-                    currentRank = OrganizationRank(org.stargazersCount, currentRank.rank + currentRankNum)
-                    currentRankNum = 1
+                when {
+                    currentRank == null -> {
+                        currentRank = OrganizationRank(org.stargazersCount, 1)
+                        currentRankNum = 1
+                    }
+                    currentRank.stargazersCount == org.stargazersCount -> {
+                        currentRankNum++
+                    }
+                    else -> {
+                        commitPendingRanks.add(currentRank)
+                        currentRank = OrganizationRank(org.stargazersCount, currentRank.rank + currentRankNum)
+                        currentRankNum = 1
+                    }
                 }
             }
             if (commitPendingRanks.isNotEmpty()) {
@@ -53,9 +60,8 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
-            LOG.info("OrganizationRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
-                "/" + Integer.valueOf(count).toString() + " rows, rank " + Integer.valueOf(currentRank.rank).toString() + ", " +
-                Integer.valueOf(currentRank.stargazersCount).toString() + " stars)")
+            logger.info("OrganizationRankingWorker (${calcProgress(rows, count)}, " +
+                "$rows/$count rows, rank ${currentRank.rank}, ${currentRank.stargazersCount} stars)")
 
             // Switch the way to calculate ranking under 10 stars
             if (currentRank.stargazersCount <= ITERATE_MIN_STARS) {
@@ -70,7 +76,7 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         orgRanks.add(lastOrgRank)
         var lastRank = lastOrgRank.rank
         for (lastStars in lastOrgRank.stargazersCount downTo 1) {
-            LOG.info("OrganizationRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
+            logger.info("OrganizationRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
             val count = handle.attach(OrganizationDao::class.java).countOrganizationsHavingStars(lastStars)
             orgRanks.add(OrganizationRank(lastStars - 1, lastRank + count))
             lastRank += count
@@ -97,10 +103,5 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
 
     private fun calcProgress(child: Int, parent: Int): String {
         return String.format("%.3f%%", child.toFloat() / parent.toFloat())
-    }
-
-    companion object {
-        private const val ITERATE_MIN_STARS = 10
-        private val LOG = LoggerFactory.getLogger(OrganizationRankingWorker::class.java)
     }
 }

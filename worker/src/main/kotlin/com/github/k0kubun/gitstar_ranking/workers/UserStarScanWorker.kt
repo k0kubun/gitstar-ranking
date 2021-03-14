@@ -1,26 +1,22 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import java.util.concurrent.BlockingQueue
-import org.skife.jdbi.v2.DBI
-import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
-import kotlin.Throws
-import java.lang.Exception
-import java.util.concurrent.TimeUnit
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
+import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateDao
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_STARS
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.UserDao
-import org.skife.jdbi.v2.TransactionStatus
-import java.io.IOException
-import java.lang.InterruptedException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.ArrayList
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.TimeUnit
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 val PENDING_USERS = listOf(
@@ -34,14 +30,19 @@ val PENDING_USERS = listOf(
     "Try-Git",
 )
 
+private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
+private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
+private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
+private const val BATCH_SIZE = 100
+
 // Scan all starred users
 class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource) {
+    private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
     override val dbi: DBI = DBI(config.database.dataSource)
     override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dataSource)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
-    @Throws(Exception::class)
     override fun perform() {
         while (userStarScanQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
@@ -49,7 +50,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             }
         }
         val client = clientBuilder.buildForUser(TOKEN_USER_ID)
-        LOG.info(String.format("----- started UserStarScanWorker (API: %s/5000) -----", client.rateLimitRemaining))
+        logger.info("----- started UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
         dbi.open().use { handle ->
             var numUsers = 1000 // 2 * (1000 / 30 min) ≒ 4000 / hour
             var numChecks = 2000 // Avoid issuing too many queries by skips
@@ -72,7 +73,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                                 conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_USER_ID)
                                 conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_STARS)
                             }
-                            LOG.info(String.format("--- completed and reset UserStarScanWorker (API: %s/5000) ---", client.rateLimitRemaining))
+                            logger.info("--- completed and reset UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) ---")
                             return
                         }
                         lastUpdatedId = 0
@@ -80,28 +81,28 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 }
 
                 // Update users in the batch
-                LOG.info(String.format("Batch size: %d (stars: %d)", users.size, stars))
+                logger.info("Batch size: ${users.size} (stars: $stars)")
                 for (user in users) {
                     if (PENDING_USERS.contains(user.login)) {
-                        LOG.info("Skipping a user with too many repositories: " + user.login)
+                        logger.info("Skipping a user with too many repositories: ${user.login}")
                         continue
                     }
 
                     // Check rate limit
                     val remaining = client.rateLimitRemaining
-                    LOG.info(String.format("API remaining: %d/5000 (numUsers: %d, numChecks: %d)", remaining, numUsers, numChecks))
+                    logger.info("API remaining: $remaining/5000 (numUsers: $numUsers, numChecks: $numChecks)")
                     if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                        LOG.info(String.format("API remaining is smaller than %d. Stopping.", remaining))
+                        logger.info("API remaining is smaller than $remaining. Stopping.")
                         numChecks = 0
                         break
                     }
                     val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
                         updateUser(handle, user, client)
-                        LOG.info(String.format("[%s] userId = %d (stars: %d)", user.login, user.id, user.stargazersCount))
+                        logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
                         numUsers--
                     } else {
-                        LOG.info(String.format("Skip up-to-date user (id: %d, login: %s, updatedAt: %s)", user.id, user.login, updatedAt.toString()))
+                        logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${updatedAt})")
                     }
                     numChecks--
                     if (lastUpdatedId < user.id) {
@@ -121,25 +122,11 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 }
             }
         }
-        LOG.info(String.format("----- finished UserStarScanWorker (API: %s/5000) -----", client.rateLimitRemaining))
+        logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    @Throws(IOException::class)
     override fun updateUser(handle: Handle, user: User, client: GitHubClient) {
         super.updateUser(handle, user, client)
-        try {
-            Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
-        } catch (e: InterruptedException) {
-            // suppress for override
-        }
+        Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
     }
-
-    companion object {
-        private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
-        private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
-        private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
-        private const val BATCH_SIZE = 100
-        private val LOG = LoggerFactory.getLogger(UserStarScanWorker::class.java)
-    }
-
 }

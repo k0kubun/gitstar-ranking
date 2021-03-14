@@ -2,7 +2,6 @@ package com.github.k0kubun.gitstar_ranking.workers
 
 import org.skife.jdbi.v2.DBI
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
-import kotlin.Throws
 import java.lang.Exception
 import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
 import java.util.concurrent.TimeUnit
@@ -11,7 +10,6 @@ import java.lang.RuntimeException
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.db.UserDao
 import io.sentry.Sentry
-import java.io.IOException
 import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
 import com.github.k0kubun.gitstar_ranking.client.UserNotFoundException
@@ -25,12 +23,14 @@ import javax.sql.DataSource
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
+private const val TIMEOUT_MINUTES = 1
+
 open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
+    private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.java)
     open val dbi: DBI = DBI(dataSource)
     open val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(dataSource)
 
     // Dequeue a record from update_user_jobs and call updateUser().
-    @Throws(Exception::class)
     override fun perform() {
         dbi.open().use { handle ->
             dbi.open().use { lockHandle ->
@@ -60,14 +60,13 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                     }
                     lock.withUserUpdate(userId) {
                         val user = handle.attach(UserDao::class.java).find(userId)!!
-                        LOG.info("UpdateUserWorker started: (userId = " + userId + ", login = " + user.login + ")")
+                        logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
                         updateUser(handle, user, client)
-                        LOG.info("UpdateUserWorker finished: (userId = " + userId + ", login = " + user.login + ")")
+                        logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})")
                     }
                 } catch (e: Exception) {
                     Sentry.capture(e)
-                    LOG.error("Error in UpdateUserWorker! (userId = " + job.userId + "): " + e.toString() + ": " + e.message)
-                    // e.printStackTrace();
+                    logger.error("Error in UpdateUserWorker! (userId = " + job.userId + "): " + e.toString() + ": " + e.message)
                 } finally {
                     dao.delete(job.id)
                 }
@@ -76,7 +75,6 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
     }
 
     // Create a pre-required user record for a give userName.
-    @Throws(IOException::class)
     private fun createUser(handle: Handle, userName: String, client: GitHubClient): Long {
         val user = client.getUserWithLogin(userName)
         val users: MutableList<User> = ArrayList()
@@ -89,19 +87,18 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    @Throws(IOException::class)
     open fun updateUser(handle: Handle, user: User, client: GitHubClient) {
         val userId = user.id
         val login = user.login
         try {
-            LOG.debug("[$login] finished: find User")
+            logger.debug("[$login] finished: find User")
             if (!user.isOrganization) {
                 val newLogin = client.getLogin(userId)
                 handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
-                LOG.debug("[$login] finished: update Login")
+                logger.debug("[$login] finished: update Login")
             }
             val repos = client.getPublicRepos(userId, user.isOrganization)
-            LOG.debug("[$login] finished: getPublicRepos")
+            logger.debug("[$login] finished: getPublicRepos")
             val repoIds: MutableList<Long> = ArrayList()
             for (repo in repos) {
                 repoIds.add(repo.id)
@@ -113,14 +110,14 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                     conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
                 }
                 conn.attach(RepositoryDao::class.java).bulkInsert(repos)
-                LOG.debug("[$login] finished: bulkInsert")
+                logger.debug("[$login] finished: bulkInsert")
                 conn.attach(UserDao::class.java).updateStars(userId, calcTotalStars(repos))
-                LOG.debug("[$login] finished: updateStars")
+                logger.debug("[$login] finished: updateStars")
             }
-            LOG.info("[" + login + "] imported repos: " + repos.size)
+            logger.info("[$login] imported repos: ${repos.size}")
         } catch (e: UserNotFoundException) {
-            LOG.error("UserNotFoundException error: " + e.message)
-            LOG.info("delete user: $userId")
+            logger.error("UserNotFoundException error: ${e.message}")
+            logger.info("delete user: $userId")
             handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                 conn.attach(UserDao::class.java).delete(userId)
                 conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
@@ -139,14 +136,9 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
 
     private fun calcTotalStars(repos: List<Repository>): Int {
         var totalStars = 0
-        for (repo in repos) {
+        repos.forEach { repo ->
             totalStars += repo.stargazersCount
         }
         return totalStars
-    }
-
-    companion object {
-        private const val TIMEOUT_MINUTES = 1
-        private val LOG = LoggerFactory.getLogger(UpdateUserWorker::class.java)
     }
 }

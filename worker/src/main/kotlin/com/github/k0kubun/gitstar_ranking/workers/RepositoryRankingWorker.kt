@@ -3,6 +3,7 @@ package com.github.k0kubun.gitstar_ranking.workers
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.RepositoryRank
+import com.github.k0kubun.gitstar_ranking.db.PaginatedRepositories
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
 import com.github.k0kubun.gitstar_ranking.db.RepositoryRankDao
 import java.util.ArrayList
@@ -11,18 +12,19 @@ import org.skife.jdbi.v2.Handle
 import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
-private const val PAGE_SIZE = 5000
+private const val ITERATE_MIN_STARS = 10
 
 class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val logger = LoggerFactory.getLogger(RepositoryRankingWorker::class.simpleName)
     private val dbi: DBI = DBI(config.database.dataSource)
 
     override fun perform() {
-        LOG.info("----- started RepositoryRankingWorker -----")
+        logger.info("----- started RepositoryRankingWorker -----")
         dbi.open().use { handle ->
             val lastRank = updateUpperRanking(handle)
             lastRank?.let { updateLowerRanking(handle, it) }
         }
-        LOG.info("----- finished RepositoryRankingWorker -----")
+        logger.info("----- finished RepositoryRankingWorker -----")
     }
 
     private fun updateUpperRanking(handle: Handle): RepositoryRank? {
@@ -54,7 +56,7 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
-            LOG.info("RepositoryRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
+            logger.info("RepositoryRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
                 "/" + Integer.valueOf(count).toString() + " rows, rank " + Integer.valueOf(currentRank.rank).toString() + ", " +
                 Integer.valueOf(currentRank.stargazersCount).toString() + " stars)")
 
@@ -71,7 +73,7 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         repoRanks.add(lastRepoRank)
         var lastRank = lastRepoRank.rank
         for (lastStars in lastRepoRank.stargazersCount downTo 1) {
-            LOG.info("RepositoryRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
+            logger.info("RepositoryRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
             val count = handle.attach(RepositoryDao::class.java).countReposHavingStars(lastStars)
             repoRanks.add(RepositoryRank(lastStars - 1, lastRank + count))
             lastRank += count
@@ -98,37 +100,5 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
 
     private fun calcProgress(child: Int, parent: Int): String {
         return String.format("%.3f%%", child.toFloat() / parent.toFloat())
-    }
-
-    // This class does cursor-based-pagination for repositories order by stargazers_count DESC.
-    inner class PaginatedRepositories(handle: Handle) {
-        private val repoDao: RepositoryDao = handle.attach(RepositoryDao::class.java)
-        private var lastMinStars: Int?
-        private var lastMinId: Long?
-        fun nextRepos(): List<Repository> {
-            val repos: List<Repository>
-            repos = if (lastMinId == null && lastMinStars == null) {
-                repoDao.starsDescFirstRepos(PAGE_SIZE)
-            } else {
-                repoDao.starsDescReposAfter(lastMinStars, lastMinId, PAGE_SIZE)
-            }
-            if (repos.isEmpty()) {
-                return repos
-            }
-            val lastRepo = repos[repos.size - 1]
-            lastMinStars = lastRepo.stargazersCount
-            lastMinId = lastRepo.id
-            return repos
-        }
-
-        init {
-            lastMinStars = null
-            lastMinId = null
-        }
-    }
-
-    companion object {
-        private const val ITERATE_MIN_STARS = 10
-        private val LOG = LoggerFactory.getLogger(RepositoryRankingWorker::class.java)
     }
 }

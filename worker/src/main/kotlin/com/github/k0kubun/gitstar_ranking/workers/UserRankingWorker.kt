@@ -14,7 +14,10 @@ import org.skife.jdbi.v2.Handle
 import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
+private const val ITERATE_MIN_STARS = 10
+
 class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
+    private val logger = LoggerFactory.getLogger(UserRankingWorker::class.simpleName)
     private val userRankingQueue: BlockingQueue<Boolean> = config.queue.userRankingQueue
     private val dbi: DBI = DBI(config.database.dataSource)
 
@@ -28,12 +31,12 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 return
             }
         }
-        LOG.info("----- started UserRankingWorker -----")
+        logger.info("----- started UserRankingWorker -----")
         dbi.open().use { handle ->
             val lastRank = updateUpperRanking(handle)
             lastRank?.let { updateLowerRanking(handle, it) }
         }
-        LOG.info("----- finished UserRankingWorker -----")
+        logger.info("----- finished UserRankingWorker -----")
         organizationRankingWorker.perform()
         repositoryRankingWorker.perform()
     }
@@ -62,14 +65,13 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                     currentRankNum = 1
                 }
             }
-            if (!commitPendingRanks.isEmpty()) {
+            if (commitPendingRanks.isNotEmpty()) {
                 commitRanks(handle, commitPendingRanks)
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
-            LOG.info("UserRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
-                "/" + Integer.valueOf(count).toString() + " rows, rank " + Integer.valueOf(currentRank.rank).toString() + ", " +
-                Integer.valueOf(currentRank.stargazersCount).toString() + " stars)")
+            logger.info("UserRankingWorker (${calcProgress(rows, count)}, $rows/$count rows, " +
+                "rank ${currentRank.rank}, ${currentRank.stargazersCount} stars)")
 
             // Switch the way to calculate ranking under 10 stars
             if (currentRank.stargazersCount <= ITERATE_MIN_STARS) {
@@ -84,7 +86,7 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         userRanks.add(lastUserRank)
         var lastRank = lastUserRank.rank
         for (lastStars in lastUserRank.stargazersCount downTo 1) {
-            LOG.info("UserRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
+            logger.info("UserRankingWorker for ${lastStars - 1}")
             val count = handle.attach(UserDao::class.java).countUsersHavingStars(lastStars)
             userRanks.add(UserRank(lastStars - 1, lastRank + count))
             lastRank += count
@@ -112,10 +114,5 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
 
     private fun calcProgress(child: Int, parent: Int): String {
         return String.format("%.3f%%", child.toFloat() / parent.toFloat())
-    }
-
-    companion object {
-        private const val ITERATE_MIN_STARS = 10
-        private val LOG = LoggerFactory.getLogger(UserRankingWorker::class.java)
     }
 }

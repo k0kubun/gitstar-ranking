@@ -24,7 +24,7 @@ class WorkerManager {
     fun start() {
         val executor = Executors.newFixedThreadPool(workers.size,
             ThreadFactoryBuilder()
-                .setNameFormat("github-ranking-worker-%d")
+                .setNameFormat("worker-%d")
                 .setUncaughtExceptionHandler { _: Thread?, e: Throwable ->
                     Sentry.capture(e)
                     logger.error("Uncaught exception at worker: " + e.message)

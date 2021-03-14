@@ -17,7 +17,6 @@ repositories {
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
     implementation("com.google.guava:guava:30.1-jre")
-    implementation("com.google.http-client:google-http-client:1.22.0")
     implementation("io.sentry:sentry:4.3.0")
     implementation("net.jodah:failsafe:2.4.0")
     implementation("org.antlr:stringtemplate:3.2.1") // Using ST3 because ST4 isn"t supported by JDBI 2

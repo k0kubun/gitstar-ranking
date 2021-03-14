@@ -12,7 +12,6 @@ import com.github.k0kubun.gitstar_ranking.db.UserDao
 import io.sentry.Sentry
 import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
-import com.github.k0kubun.gitstar_ranking.client.UserNotFoundException
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
 import java.sql.Timestamp
@@ -20,6 +19,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.ArrayList
 import javax.sql.DataSource
+import javax.ws.rs.NotFoundException
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
@@ -50,7 +50,6 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                 val job = dao.fetchByTimeout(timeoutAt)
                     ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
 
-                // TODO: Log elapsed time
                 try {
                     val client = clientBuilder.buildForUser(job.tokenUserId)
                     val userId: Long = if (job.userName == null) {
@@ -62,7 +61,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                         val user = handle.attach(UserDao::class.java).find(userId)!!
                         logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
                         updateUser(handle, user, client)
-                        logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})")
+                        logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
                     }
                 } catch (e: Exception) {
                     Sentry.captureException(e)
@@ -89,35 +88,36 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
     // TODO: Requeue if GitHub API limit exceeded
     open fun updateUser(handle: Handle, user: User, client: GitHubClient) {
         val userId = user.id
-        val login = user.login
         try {
-            if (!user.isOrganization) {
-                val newLogin = client.getLogin(userId)
+            val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
+            if (user.login != newLogin) {
                 handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
             }
-            val repos = client.getPublicRepos(userId, user.isOrganization)
-            val repoIds: MutableList<Long> = ArrayList()
-            for (repo in repos) {
-                repoIds.add(repo.id)
-            }
-            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                if (repoIds.size > 0) {
-                    conn.attach(RepositoryDao::class.java).deleteAllOwnedByExcept(userId, repoIds) // Delete obsolete ones
-                } else {
-                    conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
-                }
-                conn.attach(RepositoryDao::class.java).bulkInsert(repos)
-                conn.attach(UserDao::class.java).updateStars(userId, calcTotalStars(repos))
-            }
-            logger.info("[$login] imported repos: ${repos.size}")
-        } catch (e: UserNotFoundException) {
-            logger.error("UserNotFoundException error: ${e.message}")
-            logger.info("delete user: $userId")
+        } catch (e: NotFoundException) {
+            logger.error("User NotFoundException: ${e.message}")
+            logger.info("Deleting user id: $userId, login: ${user.login}")
             handle.useTransaction { conn: Handle, _: TransactionStatus? ->
                 conn.attach(UserDao::class.java).delete(userId)
                 conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
             }
+            return
         }
+
+        val repos = client.getPublicRepos(userId)
+        val repoIds: MutableList<Long> = ArrayList()
+        for (repo in repos) {
+            repoIds.add(repo.id)
+        }
+        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
+            if (repoIds.size > 0) {
+                conn.attach(RepositoryDao::class.java).deleteAllOwnedByExcept(userId, repoIds) // Delete obsolete ones
+            } else {
+                conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
+            }
+            conn.attach(RepositoryDao::class.java).bulkInsert(repos)
+            conn.attach(UserDao::class.java).updateStars(userId, calcTotalStars(repos))
+        }
+        logger.info("[${user.login}] imported repos: ${repos.size}")
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.

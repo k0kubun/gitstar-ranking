@@ -29,7 +29,7 @@ CREATE UNIQUE INDEX index_organization_ranks_on_rank ON organization_ranks (rank
 CREATE UNIQUE INDEX index_organization_ranks_on_stargazers_count ON organization_ranks (stargazers_count);
 
 CREATE TABLE repositories (
-    "id" bigserial NOT NULL,
+    "id" bigint NOT NULL,
     "name" text NOT NULL,
     "full_name" citext NOT NULL,
     "owner_id" bigint NOT NULL,
@@ -81,7 +81,7 @@ CREATE UNIQUE INDEX index_user_ranks_on_rank ON user_ranks (rank);
 CREATE UNIQUE INDEX index_user_ranks_on_stargazers_count ON user_ranks (stargazers_count);
 
 CREATE TABLE users (
-    "id" bigserial NOT NULL,
+    "id" bigint NOT NULL,
     "login" citext NOT NULL,
     "avatar_url" text,
     "type" text NOT NULL,

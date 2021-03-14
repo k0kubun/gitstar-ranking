@@ -1,21 +1,19 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import java.util.concurrent.BlockingQueue
-import org.skife.jdbi.v2.DBI
-import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
-import kotlin.Throws
-import java.lang.Exception
-import java.util.concurrent.TimeUnit
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
+import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
-import com.github.k0kubun.gitstar_ranking.db.UserDao
+import com.github.k0kubun.gitstar_ranking.db.FULL_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateDao
-import java.io.IOException
+import com.github.k0kubun.gitstar_ranking.db.UserDao
 import java.lang.InterruptedException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.TimeUnit
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
@@ -25,7 +23,6 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
     override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dataSource)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
-    @Throws(Exception::class)
     override fun perform() {
         while (userFullScanQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {
@@ -40,7 +37,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             // 2 * (1000 / 30 min) ≒ 4000 / hour
             var i = 0
             while (i < 10) {
-                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(LastUpdateDao.FULL_SCAN_USER_ID)
+                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(FULL_SCAN_USER_ID)
                 val users = client.getUsersSince(lastUpdatedId)
                 if (users.isEmpty()) {
                     break
@@ -75,14 +72,13 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                         break
                     }
                 }
-                handle.attach(LastUpdateDao::class.java).updateCursor(LastUpdateDao.FULL_SCAN_USER_ID, lastUpdatedId)
+                handle.attach(LastUpdateDao::class.java).updateCursor(FULL_SCAN_USER_ID, lastUpdatedId)
                 i++
             }
         }
         LOG.info(String.format("----- finished UserFullScanWorker (API: %s/5000) -----", client.rateLimitRemaining))
     }
 
-    @Throws(IOException::class)
     override fun updateUser(handle: Handle, user: User, client: GitHubClient) {
         super.updateUser(handle, user, client)
         try {

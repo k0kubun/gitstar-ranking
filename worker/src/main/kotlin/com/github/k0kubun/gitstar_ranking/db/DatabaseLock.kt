@@ -1,12 +1,17 @@
 package com.github.k0kubun.gitstar_ranking.db
 
-import org.skife.jdbi.v2.TransactionStatus
-import kotlin.Throws
-import java.io.IOException
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
+
+private const val SHARED_KEY: Long = 0
+private const val UPDATE_USER_JOBS_LOCK = 0.toChar()
+private const val USER_UPDATE_LOCK = 1.toChar()
 
 class DatabaseLock(lockHandle: Handle) {
-    private val lockHandle: Handle
+    private val lockHandle: Handle = lockHandle.apply {
+        connection.autoCommit = false
+    }
+
     fun withUserUpdate(userId: Long, callback: UserUpdateCallback) {
         lockHandle.useTransaction { conn: Handle, _: TransactionStatus? ->
             val dao = conn.attach(LockDao::class.java)
@@ -31,22 +36,10 @@ class DatabaseLock(lockHandle: Handle) {
     }
 
     fun interface UserUpdateCallback {
-        @Throws(IOException::class)
         fun withLock()
     }
 
     fun interface UpdateUserJobCallback {
         fun withLock(): Long
-    }
-
-    companion object {
-        private const val SHARED_KEY: Long = 0
-        private const val UPDATE_USER_JOBS_LOCK = 0.toChar()
-        private const val USER_UPDATE_LOCK = 1.toChar()
-    }
-
-    init {
-        lockHandle.connection.autoCommit = false
-        this.lockHandle = lockHandle
     }
 }

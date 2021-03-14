@@ -5,8 +5,6 @@ import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlQuery
 import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
 import org.skife.jdbi.v2.tweak.ResultSetMapper
-import kotlin.Throws
-import java.sql.SQLException
 import java.sql.ResultSet
 import org.skife.jdbi.v2.StatementContext
 import java.io.StringReader

@@ -4,6 +4,10 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlUpdate
 
+const val FULL_SCAN_USER_ID = 1
+const val STAR_SCAN_USER_ID = 2
+const val STAR_SCAN_STARS = 3
+
 interface LastUpdateDao {
     @SqlQuery("select cursor from last_updates where id = :key")
     fun getCursor(@Bind("key") key: Int): Long
@@ -15,10 +19,4 @@ interface LastUpdateDao {
 
     @SqlQuery("delete from last_updates where id = :key")
     fun resetCursor(@Bind("key") key: Int): Long
-
-    companion object {
-        const val FULL_SCAN_USER_ID = 1
-        const val STAR_SCAN_USER_ID = 2
-        const val STAR_SCAN_STARS = 3
-    }
 }

@@ -1,20 +1,18 @@
 package com.github.k0kubun.gitstar_ranking.db
 
 import com.github.k0kubun.gitstar_ranking.core.Repository
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator
-import org.skife.jdbi.v2.sqlobject.SqlQuery
-import org.skife.jdbi.v2.sqlobject.Bind
-import org.skife.jdbi.v2.sqlobject.SqlBatch
-import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
-import org.skife.jdbi.v2.sqlobject.BindBean
-import org.skife.jdbi.v2.sqlobject.SqlUpdate
-import org.skife.jdbi.v2.unstable.BindIn
-import org.skife.jdbi.v2.tweak.ResultSetMapper
-import kotlin.Throws
-import java.sql.SQLException
 import java.sql.ResultSet
 import org.skife.jdbi.v2.StatementContext
+import org.skife.jdbi.v2.sqlobject.Bind
+import org.skife.jdbi.v2.sqlobject.BindBean
+import org.skife.jdbi.v2.sqlobject.SqlBatch
+import org.skife.jdbi.v2.sqlobject.SqlQuery
+import org.skife.jdbi.v2.sqlobject.SqlUpdate
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator
+import org.skife.jdbi.v2.tweak.ResultSetMapper
+import org.skife.jdbi.v2.unstable.BindIn
 
 @UseStringTemplate3StatementLocator
 interface RepositoryDao {
@@ -47,7 +45,6 @@ interface RepositoryDao {
     @SqlUpdate("delete from repositories where owner_id = :userId and id not in (<ids>)")
     fun deleteAllOwnedByExcept(@Bind("userId") userId: Long?, @BindIn("ids") ids: List<Long?>?): Long
     class RepositoryStarMapper : ResultSetMapper<Repository> {
-        @Throws(SQLException::class)
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): Repository {
             return Repository(id = r.getLong("id"), stargazersCount = r.getInt("stargazers_count"))
         }

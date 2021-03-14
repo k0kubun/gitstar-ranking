@@ -1,20 +1,18 @@
 package com.github.k0kubun.gitstar_ranking.db
 
 import com.github.k0kubun.gitstar_ranking.core.User
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator
-import org.skife.jdbi.v2.sqlobject.SqlQuery
-import org.skife.jdbi.v2.sqlobject.Bind
-import org.skife.jdbi.v2.sqlobject.SqlUpdate
-import org.skife.jdbi.v2.sqlobject.SqlBatch
-import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
-import org.skife.jdbi.v2.sqlobject.BindBean
-import org.skife.jdbi.v2.tweak.ResultSetMapper
-import kotlin.Throws
-import java.sql.SQLException
 import java.sql.ResultSet
 import java.sql.Timestamp
 import org.skife.jdbi.v2.StatementContext
+import org.skife.jdbi.v2.sqlobject.Bind
+import org.skife.jdbi.v2.sqlobject.BindBean
+import org.skife.jdbi.v2.sqlobject.SqlBatch
+import org.skife.jdbi.v2.sqlobject.SqlQuery
+import org.skife.jdbi.v2.sqlobject.SqlUpdate
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator
+import org.skife.jdbi.v2.tweak.ResultSetMapper
 
 @UseStringTemplate3StatementLocator
 interface UserDao {
@@ -70,7 +68,6 @@ interface UserDao {
     @SqlUpdate("delete from users where id = :id")
     fun delete(@Bind("id") id: Long?): Long
     class UserMapper : ResultSetMapper<User> {
-        @Throws(SQLException::class)
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
             val user = User(r.getLong("id"), r.getString("type"))
             user.login = r.getString("login")
@@ -79,7 +76,6 @@ interface UserDao {
     }
 
     class UserStarMapper : ResultSetMapper<User> {
-        @Throws(SQLException::class)
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
             val user = User(r.getInt("id").toLong(), r.getString("type"))
             user.login = r.getString("login")

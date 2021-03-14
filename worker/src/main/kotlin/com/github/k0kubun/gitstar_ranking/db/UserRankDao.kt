@@ -1,11 +1,11 @@
 package com.github.k0kubun.gitstar_ranking.db
 
-import org.skife.jdbi.v2.sqlobject.SqlUpdate
-import org.skife.jdbi.v2.sqlobject.Bind
-import org.skife.jdbi.v2.sqlobject.SqlBatch
-import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
-import org.skife.jdbi.v2.sqlobject.BindBean
 import com.github.k0kubun.gitstar_ranking.core.UserRank
+import org.skife.jdbi.v2.sqlobject.Bind
+import org.skife.jdbi.v2.sqlobject.BindBean
+import org.skife.jdbi.v2.sqlobject.SqlBatch
+import org.skife.jdbi.v2.sqlobject.SqlUpdate
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize
 
 interface UserRankDao {
     @SqlUpdate("delete from user_ranks where stargazers_count between :min and :max")

@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateDao
+import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_STARS
+import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.UserDao
 import org.skife.jdbi.v2.TransactionStatus
 import java.io.IOException
@@ -53,8 +55,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             var numChecks = 2000 // Avoid issuing too many queries by skips
             while (numUsers > 0 && numChecks > 0 && !isStopped) {
                 // Find a current cursor
-                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(LastUpdateDao.STAR_SCAN_USER_ID)
-                var stars = handle.attach(LastUpdateDao::class.java).getCursor(LastUpdateDao.STAR_SCAN_STARS)
+                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(STAR_SCAN_USER_ID)
+                var stars = handle.attach(LastUpdateDao::class.java).getCursor(STAR_SCAN_STARS)
                 if (stars == 0L) {
                     stars = handle.attach(UserDao::class.java).maxStargazersCount()
                 }
@@ -67,8 +69,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                         stars = handle.attach(UserDao::class.java).nextStargazersCount(stars)
                         if (stars == 0L) {
                             handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                                conn.attach(LastUpdateDao::class.java).resetCursor(LastUpdateDao.STAR_SCAN_USER_ID)
-                                conn.attach(LastUpdateDao::class.java).resetCursor(LastUpdateDao.STAR_SCAN_STARS)
+                                conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_USER_ID)
+                                conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_STARS)
                             }
                             LOG.info(String.format("--- completed and reset UserStarScanWorker (API: %s/5000) ---", client.rateLimitRemaining))
                             return
@@ -114,8 +116,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 val nextUpdatedId = lastUpdatedId
                 val nextStars = stars
                 handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                    conn.attach(LastUpdateDao::class.java).updateCursor(LastUpdateDao.STAR_SCAN_USER_ID, nextUpdatedId)
-                    conn.attach(LastUpdateDao::class.java).updateCursor(LastUpdateDao.STAR_SCAN_STARS, nextStars)
+                    conn.attach(LastUpdateDao::class.java).updateCursor(STAR_SCAN_USER_ID, nextUpdatedId)
+                    conn.attach(LastUpdateDao::class.java).updateCursor(STAR_SCAN_STARS, nextStars)
                 }
             }
         }

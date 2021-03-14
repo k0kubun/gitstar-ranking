@@ -34,7 +34,7 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         val commitPendingRanks: MutableList<OrganizationRank> = ArrayList() // listed in stargazers_count DESC
         var currentRank: OrganizationRank? = null
         var currentRankNum = 0
-        while (!paginatedOrgs.nextOrgs().also { orgs = it }.isEmpty()) {
+        while (paginatedOrgs.nextOrgs().also { orgs = it }.isNotEmpty()) {
             // Shutdown immediately if requested, even if it's in progress.
             if (isStopped) {
                 return null
@@ -76,7 +76,7 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         orgRanks.add(lastOrgRank)
         var lastRank = lastOrgRank.rank
         for (lastStars in lastOrgRank.stargazersCount downTo 1) {
-            logger.info("OrganizationRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
+            logger.info("OrganizationRankingWorker for ${lastStars - 1}")
             val count = handle.attach(OrganizationDao::class.java).countOrganizationsHavingStars(lastStars)
             orgRanks.add(OrganizationRank(lastStars - 1, lastRank + count))
             lastRank += count

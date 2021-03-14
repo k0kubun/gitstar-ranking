@@ -26,7 +26,7 @@ class WorkerManager {
             ThreadFactoryBuilder()
                 .setNameFormat("worker-%d")
                 .setUncaughtExceptionHandler { _: Thread?, e: Throwable ->
-                    Sentry.capture(e)
+                    Sentry.captureException(e)
                     logger.error("Uncaught exception at worker: " + e.message)
                 }.build())
         logger.info("Starting workers...")
@@ -48,13 +48,13 @@ class WorkerManager {
                 i++
                 logger.info("Stopped worker ($i/${futures.size})")
             } catch (e: TimeoutException) {
-                Sentry.capture(e)
+                Sentry.captureException(e)
                 logger.error("Timed out to stop worker!: ${e.message}")
             } catch (e: InterruptedException) {
-                Sentry.capture(e)
+                Sentry.captureException(e)
                 logger.error("Interrupted on stopping worker!: ${e.message}")
             } catch (e: ExecutionException) {
-                Sentry.capture(e)
+                Sentry.captureException(e)
                 logger.error("Execution failed on stopping worker!: ${e.message}")
             }
         }

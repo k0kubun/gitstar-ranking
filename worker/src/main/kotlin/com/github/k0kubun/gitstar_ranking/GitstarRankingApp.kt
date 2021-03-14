@@ -37,7 +37,7 @@ class GitstarRankingApp {
         val threadFactory = ThreadFactoryBuilder()
             .setNameFormat("scheduler-%d")
             .setUncaughtExceptionHandler { _: Thread?, e: Throwable ->
-                Sentry.capture(e)
+                Sentry.captureException(e)
                 logger.error("Uncaught exception at scheduler: " + e.message)
             }
             .build()
@@ -82,7 +82,7 @@ class GitstarRankingApp {
                 }
             }
         } catch (e: InterruptedException) {
-            Sentry.capture(e)
+            Sentry.captureException(e)
             logger.error("Scheduler shutdown interrupted: " + e.message)
             executor.shutdownNow()
             Thread.currentThread().interrupt()

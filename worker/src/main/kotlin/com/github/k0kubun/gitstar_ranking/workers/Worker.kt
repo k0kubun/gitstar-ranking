@@ -34,7 +34,7 @@ abstract class Worker : Callable<Void?> {
     }
 
     private fun handleException(e: Exception) {
-        Sentry.capture(e)
+        Sentry.captureException(e)
         logger.error("Unhandled exception!: ${e.message}")
     }
 }

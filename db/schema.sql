@@ -60,7 +60,7 @@ CREATE UNIQUE INDEX index_repository_ranks_on_stargazers_count ON repository_ran
 
 CREATE TABLE update_user_jobs (
     "id" bigserial NOT NULL,
-    "payload" text,
+    "payload" text NOT NULL,
     "timeout_at" timestamp with time zone,
     "owner" bigint,
     "created_at" timestamp with time zone NOT NULL,
@@ -82,9 +82,9 @@ CREATE UNIQUE INDEX index_user_ranks_on_stargazers_count ON user_ranks (stargaze
 
 CREATE TABLE users (
     "id" bigserial NOT NULL,
-    "login" citext,
+    "login" citext NOT NULL,
     "avatar_url" text,
-    "type" text,
+    "type" text NOT NULL,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     "queued_at" timestamp with time zone,

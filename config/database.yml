@@ -1,9 +1,17 @@
+<% password = ENV.fetch('DATABASE_PASSWORD') do
+  # For db:migrate convenience on servers
+  if system('systemctl --user --quiet is-active gitstar-ranking-server')
+    env = `systemctl --user show gitstar-ranking-server`.lines.find { |l| l.start_with?('Environment=') }
+    env = env.sub!(/\AEnvironment=/).chomp.split(' ').map { |e| e.split('=', 2) }.to_h
+    env['DATABASE_PASSWORD']
+  end
+end %>
 default: &default
   adapter: postgresql
   encoding: unicode
   pool: 8
   username: postgres
-  password:
+  password: <%= password %>
   host: 127.0.0.1
 
 development:

@@ -19,8 +19,8 @@ CREATE TABLE last_updates (
 
 CREATE TABLE organization_ranks (
     "id" bigserial NOT NULL,
-    "stargazers_count" bigint,
-    "rank" bigint,
+    "stargazers_count" bigint NOT NULL,
+    "rank" bigint NOT NULL,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
@@ -49,8 +49,8 @@ CREATE INDEX index_repositories_on_stargazers_count ON repositories (stargazers_
 
 CREATE TABLE repository_ranks (
     "id" bigserial NOT NULL,
-    "stargazers_count" bigint,
-    "rank" bigint,
+    "stargazers_count" bigint NOT NULL,
+    "rank" bigint NOT NULL,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
@@ -71,8 +71,8 @@ CREATE INDEX index_update_user_jobs_on_timeout_at ON update_user_jobs (timeout_a
 
 CREATE TABLE user_ranks (
     "id" bigserial NOT NULL,
-    "stargazers_count" bigint,
-    "rank" bigint,
+    "stargazers_count" bigint NOT NULL,
+    "rank" bigint NOT NULL,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")

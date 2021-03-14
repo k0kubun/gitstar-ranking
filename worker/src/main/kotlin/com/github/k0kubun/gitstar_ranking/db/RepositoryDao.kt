@@ -49,7 +49,7 @@ interface RepositoryDao {
     class RepositoryStarMapper : ResultSetMapper<Repository> {
         @Throws(SQLException::class)
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): Repository {
-            return Repository(r.getLong("id"), r.getInt("stargazers_count"))
+            return Repository(id = r.getLong("id"), stargazersCount = r.getInt("stargazers_count"))
         }
     }
 }

@@ -28,13 +28,13 @@ interface UpdateUserJobDao {
     @SqlUpdate("delete from update_user_jobs where id = :id")
     fun delete(@Bind("id") id: Int?): Long
     class UpdateUserJobMapper : ResultSetMapper<UpdateUserJob> {
-        @Throws(SQLException::class)
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): UpdateUserJob {
             // Payload is built in: app/models/update_user_job.rb
             val payload = Json.createReader(StringReader(r.getString("payload"))).readObject()
+            val userId = java.lang.Long.valueOf(payload.getInt("user_id", 0).toLong())
             return UpdateUserJob(
                 id = r.getInt("id"),
-                userId = java.lang.Long.valueOf(payload.getInt("user_id", 0).toLong()),
+                userId = if (userId != 0L) userId else null,
                 userName = payload.getString("user_name", null),
                 tokenUserId = java.lang.Long.valueOf(payload.getInt("token_user_id").toLong()),
             )

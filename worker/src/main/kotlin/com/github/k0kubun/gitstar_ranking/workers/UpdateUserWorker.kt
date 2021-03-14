@@ -65,7 +65,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                     }
                 } catch (e: Exception) {
                     Sentry.captureException(e)
-                    logger.error("Error in UpdateUserWorker! (userId = " + job.userId + "): " + e.toString() + ": " + e.message)
+                    logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
                 } finally {
                     dao.delete(job.id)
                 }

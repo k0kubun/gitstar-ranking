@@ -34,7 +34,7 @@ CREATE TABLE repositories (
     "full_name" citext NOT NULL,
     "owner_id" bigint NOT NULL,
     "description" text,
-    "fork" boolean NOT NULL,
+    "fork" boolean,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     "homepage" text,

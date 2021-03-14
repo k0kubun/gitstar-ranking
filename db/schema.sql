@@ -1,7 +1,7 @@
 CREATE TABLE access_tokens (
     "id" bigserial NOT NULL,
-    "user_id" bigint,
-    "token" text,
+    "user_id" bigint NOT NULL,
+    "token" text NOT NULL,
     "created_at" timestamp with time zone NOT NULL,
     "updated_at" timestamp with time zone NOT NULL,
     "enabled" boolean,

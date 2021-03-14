@@ -8,7 +8,7 @@ CREATE TABLE access_tokens (
     PRIMARY KEY ("id")
 );
 CREATE INDEX index_access_tokens_on_enabled ON access_tokens (enabled);
-CREATE INDEX index_access_tokens_on_user_id ON access_tokens (user_id);
+CREATE UNIQUE INDEX index_access_tokens_on_user_id ON access_tokens (user_id);
 
 CREATE TABLE last_updates (
     "id" integer NOT NULL,

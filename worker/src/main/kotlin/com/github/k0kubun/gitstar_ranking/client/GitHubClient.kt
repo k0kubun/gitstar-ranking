@@ -1,37 +1,34 @@
 package com.github.k0kubun.gitstar_ranking.client
 
-import kotlin.Throws
-import java.io.IOException
-import java.lang.ClassCastException
-import io.sentry.Sentry
-import com.google.api.client.http.GenericUrl
-import java.io.StringReader
-import com.google.api.client.http.ByteArrayContent
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
+import com.google.api.client.http.ByteArrayContent
+import com.google.api.client.http.GenericUrl
 import com.google.api.client.http.HttpHeaders
 import com.google.api.client.http.HttpRequest
 import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.HttpResponse
 import com.google.api.client.http.HttpResponseException
-import java.lang.RuntimeException
-import java.util.concurrent.TimeUnit
-import java.lang.InterruptedException
-import java.net.SocketTimeoutException
 import com.google.api.client.http.javanet.NetHttpTransport
+import io.sentry.Sentry
+import java.io.IOException
+import java.io.StringReader
+import java.lang.ClassCastException
+import java.lang.InterruptedException
+import java.lang.RuntimeException
+import java.net.SocketTimeoutException
 import java.util.ArrayList
 import java.util.Base64
+import java.util.concurrent.TimeUnit
 import javax.json.Json
 import javax.json.JsonObject
 import javax.json.JsonString
+import kotlin.Throws
 import org.slf4j.LoggerFactory
 
-class GitHubClient(private val tokenFactory: AccessTokenFactory) {
+class GitHubClient(private val token: String) {
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
 
-    constructor(token: String) : this(StaticTokenFactory(token))
-
-    @Throws(IOException::class)
     fun getLogin(userId: Long): String {
         val responseObject = graphql(
             """query {
@@ -50,7 +47,6 @@ node(id:"${encodeUserId(userId)}") {
         }
     }
 
-    @Throws(IOException::class)
     fun getPublicRepos(userId: Long, isOrganization: Boolean): List<Repository> {
         val repos: MutableList<Repository> = ArrayList()
         for (node in getPublicRepoNodes(userId, isOrganization)) {
@@ -88,11 +84,10 @@ node(id:"${encodeUserId(userId)}") {
             0
         }
 
-    @Throws(IOException::class)
     fun getUserWithLogin(login: String): User {
         val request = requestFactory.buildGetRequest(GenericUrl(API_ENDPOINT + "/users/" + login))
         val headers = HttpHeaders()
-        headers.authorization = "bearer " + tokenFactory.token
+        headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
         // TODO: Handle error status code
@@ -103,11 +98,10 @@ node(id:"${encodeUserId(userId)}") {
         return user
     }
 
-    @Throws(IOException::class)
     fun getUsersSince(since: Long): List<User> {
         val request = requestFactory.buildGetRequest(GenericUrl(API_ENDPOINT + "/users?per_page=100&since=" + since))
         val headers = HttpHeaders()
-        headers.authorization = "bearer " + tokenFactory.token
+        headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
         // TODO: Handle error status code
@@ -132,7 +126,7 @@ node(id:"${encodeUserId(userId)}") {
             GenericUrl(GRAPHQL_ENDPOINT),
             ByteArrayContent.fromString("application/json", payload))
         val headers = HttpHeaders()
-        headers.authorization = "bearer " + tokenFactory.token
+        headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
         // TODO: Handle error status code
@@ -257,7 +251,6 @@ node(id:"${encodeUserId(userId)}") {
         }
     }
 
-    @Throws(IOException::class)
     private fun executeWithRetry(request: HttpRequest): HttpResponse {
         for (i in 0 until MAX_RETRY) {
             try {

@@ -46,8 +46,6 @@ class GitstarRankingApp {
 
         // Schedule at most every 8 hours
         scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
-        // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getRepoRankingQueue()); }, 5, 8, TimeUnit.HOURS);
-        // scheduler.scheduleWithFixedDelay(() -> { scheduleIfEmpty(config.getQueueConfig().getOrgRankingQueue()); }, 7, 8, TimeUnit.HOURS);
 
         // Schedule at most every 30 minutes
         scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)

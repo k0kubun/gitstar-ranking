@@ -1,23 +1,20 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import org.skife.jdbi.v2.DBI
-import kotlin.Throws
-import java.lang.Exception
+import com.github.k0kubun.gitstar_ranking.core.Organization
 import com.github.k0kubun.gitstar_ranking.core.OrganizationRank
 import com.github.k0kubun.gitstar_ranking.db.OrganizationDao
-import com.github.k0kubun.gitstar_ranking.db.PaginatedOrganizations
-import com.github.k0kubun.gitstar_ranking.core.Organization
-import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.OrganizationRankDao
+import com.github.k0kubun.gitstar_ranking.db.PaginatedOrganizations
 import java.util.ArrayList
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val dbi: DBI = DBI(config.database.dataSource)
 
-    @Throws(Exception::class)
     override fun perform() {
         LOG.info("----- started OrganizationRankingWorker -----")
         dbi.open().use { handle ->
@@ -106,5 +103,4 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         private const val ITERATE_MIN_STARS = 10
         private val LOG = LoggerFactory.getLogger(OrganizationRankingWorker::class.java)
     }
-
 }

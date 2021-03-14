@@ -2,18 +2,16 @@ package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.core.User
-import java.util.concurrent.BlockingQueue
-import org.skife.jdbi.v2.DBI
-import kotlin.Throws
-import java.lang.Exception
-import java.util.concurrent.TimeUnit
 import com.github.k0kubun.gitstar_ranking.core.UserRank
-import com.github.k0kubun.gitstar_ranking.db.UserDao
 import com.github.k0kubun.gitstar_ranking.db.PaginatedUsers
-import org.skife.jdbi.v2.TransactionStatus
+import com.github.k0kubun.gitstar_ranking.db.UserDao
 import com.github.k0kubun.gitstar_ranking.db.UserRankDao
 import java.util.ArrayList
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.TimeUnit
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
@@ -24,7 +22,6 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val organizationRankingWorker: OrganizationRankingWorker = OrganizationRankingWorker(config)
     private val repositoryRankingWorker: RepositoryRankingWorker = RepositoryRankingWorker(config)
 
-    @Throws(Exception::class)
     override fun perform() {
         while (userRankingQueue.poll(5, TimeUnit.SECONDS) == null) {
             if (isStopped) {

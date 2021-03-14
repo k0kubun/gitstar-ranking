@@ -2,15 +2,13 @@ package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.core.Repository
-import org.skife.jdbi.v2.DBI
-import kotlin.Throws
-import java.lang.Exception
 import com.github.k0kubun.gitstar_ranking.core.RepositoryRank
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
-import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.RepositoryRankDao
 import java.util.ArrayList
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 private const val PAGE_SIZE = 5000
@@ -18,7 +16,6 @@ private const val PAGE_SIZE = 5000
 class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val dbi: DBI = DBI(config.database.dataSource)
 
-    @Throws(Exception::class)
     override fun perform() {
         LOG.info("----- started RepositoryRankingWorker -----")
         dbi.open().use { handle ->
@@ -134,5 +131,4 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         private const val ITERATE_MIN_STARS = 10
         private val LOG = LoggerFactory.getLogger(RepositoryRankingWorker::class.java)
     }
-
 }

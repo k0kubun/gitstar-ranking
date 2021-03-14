@@ -4,7 +4,7 @@ import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
-import com.github.k0kubun.gitstar_ranking.db.LastUpdateDao
+import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_STARS
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.UserDao
@@ -14,9 +14,9 @@ import java.time.temporal.ChronoUnit
 import java.util.ArrayList
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
+import org.jooq.impl.DSL
 import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
-import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 val PENDING_USERS = listOf(
@@ -40,6 +40,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
     private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
     override val dbi: DBI = DBI(config.database.dataSource)
+    private val database = config.database.dslContext
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
@@ -56,8 +57,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             var numChecks = 2000 // Avoid issuing too many queries by skips
             while (numUsers > 0 && numChecks > 0 && !isStopped) {
                 // Find a current cursor
-                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(STAR_SCAN_USER_ID)
-                var stars = handle.attach(LastUpdateDao::class.java).getCursor(STAR_SCAN_STARS)
+                var lastUpdatedId = LastUpdateQuery(database).findCursor(key = STAR_SCAN_USER_ID) ?: 0L
+                var stars = LastUpdateQuery(database).findCursor(key = STAR_SCAN_STARS) ?: 0L
                 if (stars == 0L) {
                     stars = handle.attach(UserDao::class.java).maxStargazersCount()
                 }
@@ -65,14 +66,11 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 // Query a next batch
                 var users: List<User> = ArrayList()
                 while (users.isEmpty()) {
-                    users = handle.attach(UserDao::class.java).usersWithStarsAfter(stars, lastUpdatedId, Math.min(numUsers, BATCH_SIZE))
+                    users = handle.attach(UserDao::class.java).usersWithStarsAfter(stars, lastUpdatedId, numUsers.coerceAtMost(BATCH_SIZE))
                     if (users.isEmpty()) {
                         stars = handle.attach(UserDao::class.java).nextStargazersCount(stars)
                         if (stars == 0L) {
-                            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                                conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_USER_ID)
-                                conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_STARS)
-                            }
+                            LastUpdateQuery(database).delete(key = listOf(STAR_SCAN_USER_ID, STAR_SCAN_STARS))
                             logger.info("--- completed and reset UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) ---")
                             return
                         }
@@ -116,9 +114,9 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 // Update the counter
                 val nextUpdatedId = lastUpdatedId
                 val nextStars = stars
-                handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                    conn.attach(LastUpdateDao::class.java).updateCursor(STAR_SCAN_USER_ID, nextUpdatedId)
-                    conn.attach(LastUpdateDao::class.java).updateCursor(STAR_SCAN_STARS, nextStars)
+                database.transaction { tx ->
+                    LastUpdateQuery(DSL.using(tx)).update(key = STAR_SCAN_USER_ID, cursor = nextUpdatedId)
+                    LastUpdateQuery(DSL.using(tx)).update(key = STAR_SCAN_STARS, cursor = nextStars)
                 }
             }
         }

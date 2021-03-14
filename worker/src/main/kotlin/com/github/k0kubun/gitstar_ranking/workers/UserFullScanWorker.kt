@@ -5,7 +5,7 @@ import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.FULL_SCAN_USER_ID
-import com.github.k0kubun.gitstar_ranking.db.LastUpdateDao
+import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.UserDao
 import java.sql.Timestamp
 import java.time.Instant
@@ -25,6 +25,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
     private val userFullScanQueue: BlockingQueue<Boolean> = config.queue.userFullScanQueue
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
     override val dbi: DBI = DBI(config.database.dataSource)
+    private val database = config.database.dslContext
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
 
     override fun perform() {
@@ -41,7 +42,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             // 2 * (1000 / 30 min) ≒ 4000 / hour
             var i = 0
             while (i < 10) {
-                var lastUpdatedId = handle.attach(LastUpdateDao::class.java).getCursor(FULL_SCAN_USER_ID)
+                var lastUpdatedId = LastUpdateQuery(database).findCursor(key = FULL_SCAN_USER_ID) ?: 0L
                 val users = client.getUsersSince(lastUpdatedId)
                 if (users.isEmpty()) {
                     break
@@ -75,7 +76,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                         break
                     }
                 }
-                handle.attach(LastUpdateDao::class.java).updateCursor(FULL_SCAN_USER_ID, lastUpdatedId)
+                LastUpdateQuery(database).update(key = FULL_SCAN_USER_ID, cursor = lastUpdatedId)
                 i++
             }
         }

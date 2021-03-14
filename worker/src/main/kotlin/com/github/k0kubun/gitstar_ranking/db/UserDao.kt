@@ -31,7 +31,7 @@ interface UserDao {
     fun updateLogin(@Bind("id") id: Long?, @Bind("login") login: String?): Long
 
     @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp(0) where id = :id")
-    fun updateStars(@Bind("id") id: Long?, @Bind("stargazersCount") stargazersCount: Int?): Long
+    fun updateStars(@Bind("id") id: Long?, @Bind("stargazersCount") stargazersCount: Long?): Long
 
     @SqlQuery("select id from users order by id desc limit 1")
     fun lastId(): Long
@@ -43,7 +43,7 @@ interface UserDao {
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
         "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(UserStarMapper::class)
-    fun starsDescUsersAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<User>
+    fun starsDescUsersAfter(@Bind("stargazersCount") stargazersCount: Long?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<User>
 
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users " +
         "where stargazers_count = :stargazersCount and :id \\< id order by id asc limit :limit")
@@ -54,10 +54,10 @@ interface UserDao {
     fun nextStargazersCount(@Bind("stargazersCount") stargazersCount: Long): Long
 
     @SqlQuery("select count(1) from users where type = 'User'")
-    fun countUsers(): Int
+    fun countUsers(): Long
 
     @SqlQuery("select count(1) from users where type = 'User' and stargazers_count = :stargazersCount")
-    fun countUsersHavingStars(@Bind("stargazersCount") stargazersCount: Int): Int
+    fun countUsersHavingStars(@Bind("stargazersCount") stargazersCount: Long): Long
 
     @SqlBatch("insert into users (id, type, login, avatar_url, created_at, updated_at) " +
         "values (:id, :type, :login, :avatarUrl, current_timestamp(0), current_timestamp(0)) " +
@@ -84,7 +84,7 @@ interface UserDao {
                 type = r.getString("type"),
                 login = r.getString("login"),
             ).apply {
-                stargazersCount = r.getInt("stargazers_count")
+                stargazersCount = r.getLong("stargazers_count")
                 updatedAt = r.getTimestamp("updated_at")
             }
         }

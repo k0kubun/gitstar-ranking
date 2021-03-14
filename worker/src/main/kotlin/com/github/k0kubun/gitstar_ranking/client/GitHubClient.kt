@@ -68,13 +68,13 @@ private data class RepositoryResponse(
 ) {
     val repository = Repository(
         id = id,
-        ownerId = owner.id.toInt(),
+        ownerId = owner.id,
         name = name,
         fullName = fullName,
         description = description,
         fork = fork,
         homepage = homepage,
-        stargazersCount = stargazersCount.toInt(),
+        stargazersCount = stargazersCount,
         language = language,
     )
 }

@@ -8,7 +8,7 @@ private const val PAGE_SIZE = 5000
 // This class does cursor-based-pagination for users order by stargazers_count DESC.
 class PaginatedUsers(handle: Handle) {
     private val userDao: UserDao = handle.attach(UserDao::class.java)
-    private var lastMinStars: Int? = null
+    private var lastMinStars: Long? = null
     private var lastMinId: Long? = null
 
     fun nextUsers(): List<User> {

@@ -8,7 +8,7 @@ private const val PAGE_SIZE = 5000
 // This class does cursor-based-pagination for repositories order by stargazers_count DESC.
 class PaginatedRepositories(handle: Handle) {
     private val repoDao: RepositoryDao = handle.attach(RepositoryDao::class.java)
-    private var lastMinStars: Int? = null
+    private var lastMinStars: Long? = null
     private var lastMinId: Long? = null
 
     fun nextRepos(): List<Repository> {

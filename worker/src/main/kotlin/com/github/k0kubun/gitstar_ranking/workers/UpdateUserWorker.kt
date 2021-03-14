@@ -129,8 +129,8 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
         return Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(TIMEOUT_MINUTES.toLong()))
     }
 
-    private fun calcTotalStars(repos: List<Repository>): Int {
-        var totalStars = 0
+    private fun calcTotalStars(repos: List<Repository>): Long {
+        var totalStars = 0L
         repos.forEach { repo ->
             totalStars += repo.stargazersCount
         }

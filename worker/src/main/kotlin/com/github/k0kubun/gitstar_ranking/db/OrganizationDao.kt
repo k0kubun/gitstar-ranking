@@ -16,19 +16,19 @@ interface OrganizationDao {
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'Organization' and " +
         "(stargazers_count, id) < (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
     @Mapper(OrganizationMapper::class)
-    fun starsDescOrgsAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Int?, @Bind("limit") limit: Int?): List<Organization>
+    fun starsDescOrgsAfter(@Bind("stargazersCount") stargazersCount: Long?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<Organization>
 
     @SqlQuery("select count(1) from users where type = 'Organization'")
-    fun countOrganizations(): Int
+    fun countOrganizations(): Long
 
     @SqlQuery("select count(1) from users where type = 'Organization' and stargazers_count = :stargazersCount")
-    fun countOrganizationsHavingStars(@Bind("stargazersCount") stargazersCount: Int): Int
+    fun countOrganizationsHavingStars(@Bind("stargazersCount") stargazersCount: Long): Long
     class OrganizationMapper : ResultSetMapper<Organization> {
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): Organization {
             return Organization(
-                id = r.getInt("id"),
+                id = r.getLong("id"),
                 login = r.getString("login"),
-                stargazersCount = r.getInt("stargazers_count"),
+                stargazersCount = r.getLong("stargazers_count"),
                 updatedAt = r.getTimestamp("updated_at"),
             )
         }

@@ -101,7 +101,7 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         return orgRanks[orgRanks.size - 1]
     }
 
-    private fun calcProgress(child: Int, parent: Int): String {
+    private fun calcProgress(child: Long, parent: Long): String {
         return String.format("%.3f%%", child.toFloat() / parent.toFloat())
     }
 }

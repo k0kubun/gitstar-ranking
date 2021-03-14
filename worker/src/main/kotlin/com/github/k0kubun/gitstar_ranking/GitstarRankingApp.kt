@@ -91,8 +91,10 @@ class GitstarRankingApp {
 }
 
 fun main(args: Array<String>) {
-    Sentry.init { options ->
-        options.dsn = System.getenv("SENTRY_DSN")
+    System.getenv("SENTRY_DSN")?.let { dsn ->
+        Sentry.init { options ->
+            options.dsn = dsn
+        }
     }
 
     var schedule = true

@@ -42,15 +42,19 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 return null
             }
             for (user in users) {
-                if (currentRank == null) {
-                    currentRank = UserRank(user.stargazersCount, 1)
-                    currentRankNum = 1
-                } else if (currentRank.stargazersCount == user.stargazersCount) {
-                    currentRankNum++
-                } else {
-                    commitPendingRanks.add(currentRank)
-                    currentRank = UserRank(user.stargazersCount, currentRank.rank + currentRankNum)
-                    currentRankNum = 1
+                when {
+                    currentRank == null -> {
+                        currentRank = UserRank(user.stargazersCount, 1)
+                        currentRankNum = 1
+                    }
+                    currentRank.stargazersCount == user.stargazersCount -> {
+                        currentRankNum++
+                    }
+                    else -> {
+                        commitPendingRanks.add(currentRank)
+                        currentRank = UserRank(user.stargazersCount, currentRank.rank + currentRankNum)
+                        currentRankNum = 1
+                    }
                 }
             }
             if (commitPendingRanks.isNotEmpty()) {
@@ -100,7 +104,7 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         return userRanks[userRanks.size - 1]
     }
 
-    private fun calcProgress(child: Int, parent: Int): String {
+    private fun calcProgress(child: Long, parent: Long): String {
         return String.format("%.3f%%", child.toFloat() / parent.toFloat())
     }
 }

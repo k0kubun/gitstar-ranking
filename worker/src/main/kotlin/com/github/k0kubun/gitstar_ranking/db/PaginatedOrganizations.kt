@@ -8,8 +8,8 @@ private const val PAGE_SIZE = 5000
 // This class does cursor-based-pagination for organizations order by stargazers_count DESC.
 class PaginatedOrganizations(handle: Handle) {
     private val orgDao: OrganizationDao = handle.attach(OrganizationDao::class.java)
-    private var lastMinStars: Int? = null
-    private var lastMinId: Int? = null
+    private var lastMinStars: Long? = null
+    private var lastMinId: Long? = null
 
     fun nextOrgs(): List<Organization> {
         val orgs: List<Organization> = if (lastMinId == null && lastMinStars == null) {

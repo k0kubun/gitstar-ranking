@@ -31,13 +31,13 @@ interface RepositoryDao {
     @SqlQuery("select id, stargazers_count from repositories where (stargazers_count, id) \\< (:stargazersCount, :id) " +
         "order by stargazers_count desc, id desc limit :limit")
     @Mapper(RepositoryStarMapper::class)
-    fun starsDescReposAfter(@Bind("stargazersCount") stargazersCount: Int?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<Repository>
+    fun starsDescReposAfter(@Bind("stargazersCount") stargazersCount: Long?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<Repository>
 
     @SqlQuery("select count(1) from repositories")
-    fun countRepos(): Int
+    fun countRepos(): Long
 
     @SqlQuery("select count(1) from repositories where stargazers_count = :stargazersCount")
-    fun countReposHavingStars(@Bind("stargazersCount") stargazersCount: Int): Int
+    fun countReposHavingStars(@Bind("stargazersCount") stargazersCount: Long): Long
 
     @SqlUpdate("delete from repositories where owner_id = :userId")
     fun deleteAllOwnedBy(@Bind("userId") userId: Long?): Long
@@ -46,7 +46,7 @@ interface RepositoryDao {
     fun deleteAllOwnedByExcept(@Bind("userId") userId: Long?, @BindIn("ids") ids: List<Long?>?): Long
     class RepositoryStarMapper : ResultSetMapper<Repository> {
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): Repository {
-            return Repository(id = r.getLong("id"), stargazersCount = r.getInt("stargazers_count"))
+            return Repository(id = r.getLong("id"), stargazersCount = r.getLong("stargazers_count"))
         }
     }
 }

@@ -9,6 +9,6 @@ data class User(
     val avatarUrl: String? = null,
 ) {
     val isOrganization: Boolean = (type == "Organization")
-    var stargazersCount = 0
+    var stargazersCount = 0L
     var updatedAt: Timestamp? = null
 }

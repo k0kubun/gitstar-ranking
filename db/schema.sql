@@ -92,5 +92,5 @@ CREATE TABLE users (
     "location" text,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_users_on_login ON users (login);
+CREATE UNIQUE INDEX index_users_on_login ON users (login);
 CREATE INDEX index_users_on_stargazers_count ON users (stargazers_count);

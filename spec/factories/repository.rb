@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :repository do
+    sequence(:id) { |n| n + 1 }
     name { 'gitstar-ranking' }
     full_name { 'k0kubun/gitstar-ranking' }
     association :owner, factory: :user

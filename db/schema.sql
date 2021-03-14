@@ -31,7 +31,7 @@ CREATE UNIQUE INDEX index_organization_ranks_on_stargazers_count ON organization
 CREATE TABLE repositories (
     "id" bigserial NOT NULL,
     "name" text,
-    "full_name" citext,
+    "full_name" citext NOT NULL,
     "owner_id" bigint,
     "description" text,
     "fork" boolean,

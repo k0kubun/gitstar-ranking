@@ -144,7 +144,7 @@ class GitHubClient(private val token: String) {
                 }
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "bearer $token")
-                .get(Response::class.java)
+                .get()
                 .apply {
                     getHeaderString("X-RateLimit-Remaining")?.also {
                         rateLimitRemaining = it.toInt()

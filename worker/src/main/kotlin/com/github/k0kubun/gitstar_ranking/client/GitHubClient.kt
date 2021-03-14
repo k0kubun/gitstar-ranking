@@ -1,10 +1,13 @@
 package com.github.k0kubun.gitstar_ranking.client
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.GenericUrl
-import com.google.api.client.http.HttpHeaders
 import com.google.api.client.http.HttpRequest
 import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.HttpResponse
@@ -19,6 +22,10 @@ import java.util.concurrent.TimeUnit
 import javax.json.Json
 import javax.json.JsonObject
 import javax.json.JsonString
+import javax.ws.rs.client.ClientBuilder
+import javax.ws.rs.core.HttpHeaders
+import javax.ws.rs.core.MediaType
+import org.glassfish.jersey.client.ClientProperties
 import org.slf4j.LoggerFactory
 
 private const val MAX_RETRY = 3
@@ -30,14 +37,27 @@ class NodeNotFoundException(message: String) : RuntimeException(message)
 class UserNotFoundException(message: String) : RuntimeException(message)
 class GraphQLUnhandledException(message: String) : RuntimeException(message)
 
+private data class RateLimitResponse(val resources: RateLimitResources)
+private data class RateLimitResources(val core: RateLimit, val graphql: RateLimit)
+private data class RateLimit(val remaining: Int)
+
 class GitHubClient(private val token: String) {
     private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
+    private val client = ClientBuilder.newBuilder()
+        .property(ClientProperties.CONNECT_TIMEOUT, 5000)
+        .property(ClientProperties.READ_TIMEOUT, 30000)
+        .register(
+            JacksonJsonProvider(
+                ObjectMapper().registerModule(KotlinModule())
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            )
+        )
+        .build().target(API_ENDPOINT)
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
 
     val rateLimitRemaining: Int
         get() {
-            val responseObject = graphql("query { rateLimit { remaining } }")
-            return responseObject.getJsonObject("data").getJsonObject("rateLimit").getInt("remaining")
+            return requestGet<RateLimitResponse>("/rate_limit").resources.graphql.remaining
         }
 
     fun getLogin(userId: Long): String {
@@ -81,7 +101,7 @@ class GitHubClient(private val token: String) {
 
     fun getUserWithLogin(login: String): User {
         val request = requestFactory.buildGetRequest(GenericUrl("$API_ENDPOINT/users/$login"))
-        val headers = HttpHeaders()
+        val headers = com.google.api.client.http.HttpHeaders()
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
@@ -94,7 +114,7 @@ class GitHubClient(private val token: String) {
 
     fun getUsersSince(since: Long): List<User> {
         val request = requestFactory.buildGetRequest(GenericUrl("$API_ENDPOINT/users?per_page=100&since=$since"))
-        val headers = HttpHeaders()
+        val headers = com.google.api.client.http.HttpHeaders()
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
@@ -117,7 +137,7 @@ class GitHubClient(private val token: String) {
         val request = requestFactory.buildPostRequest(
             GenericUrl(GRAPHQL_ENDPOINT),
             ByteArrayContent.fromString("application/json", payload))
-        val headers = HttpHeaders()
+        val headers = com.google.api.client.http.HttpHeaders()
         headers.authorization = "bearer $token"
         request.headers = headers
         val response = executeWithRetry(request)
@@ -260,5 +280,12 @@ class GitHubClient(private val token: String) {
             }
         }
         return request.execute()
+    }
+
+    private inline fun <reified T> requestGet(path: String): T {
+        return client.path(path)
+            .request(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, "bearer $token")
+            .get(T::class.java)
     }
 }

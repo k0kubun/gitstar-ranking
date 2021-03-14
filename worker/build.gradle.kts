@@ -23,6 +23,15 @@ dependencies {
     implementation("org.glassfish:javax.json:1.1.4")
     implementation("org.jdbi:jdbi:2.78")
     implementation("org.postgresql:postgresql:42.2.19")
+
+    val jerseyVersion = "2.33"
+    implementation("org.glassfish.jersey.core:jersey-client:$jerseyVersion")
+    implementation("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
+
+    implementation(enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.12.2"))
+    implementation("com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 
 tasks.withType<KotlinCompile> {

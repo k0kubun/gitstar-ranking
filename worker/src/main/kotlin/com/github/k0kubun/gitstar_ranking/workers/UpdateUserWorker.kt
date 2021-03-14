@@ -91,14 +91,11 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
         val userId = user.id
         val login = user.login
         try {
-            logger.debug("[$login] finished: find User")
             if (!user.isOrganization) {
                 val newLogin = client.getLogin(userId)
                 handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
-                logger.debug("[$login] finished: update Login")
             }
             val repos = client.getPublicRepos(userId, user.isOrganization)
-            logger.debug("[$login] finished: getPublicRepos")
             val repoIds: MutableList<Long> = ArrayList()
             for (repo in repos) {
                 repoIds.add(repo.id)
@@ -110,9 +107,7 @@ open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
                     conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
                 }
                 conn.attach(RepositoryDao::class.java).bulkInsert(repos)
-                logger.debug("[$login] finished: bulkInsert")
                 conn.attach(UserDao::class.java).updateStars(userId, calcTotalStars(repos))
-                logger.debug("[$login] finished: updateStars")
             }
             logger.info("[$login] imported repos: ${repos.size}")
         } catch (e: UserNotFoundException) {

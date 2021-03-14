@@ -34,7 +34,7 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         val commitPendingRanks: MutableList<RepositoryRank> = ArrayList() // listed in stargazers_count DESC
         var currentRank: RepositoryRank? = null
         var currentRankNum = 0
-        while (!paginatedRepos.nextRepos().also { repos = it }.isEmpty()) {
+        while (paginatedRepos.nextRepos().also { repos = it }.isNotEmpty()) {
             // Shutdown immediately if requested, even if it's in progress.
             if (isStopped) {
                 return null
@@ -56,9 +56,8 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
-            logger.info("RepositoryRankingWorker (" + calcProgress(rows, count) + ", " + Integer.valueOf(rows).toString() +
-                "/" + Integer.valueOf(count).toString() + " rows, rank " + Integer.valueOf(currentRank.rank).toString() + ", " +
-                Integer.valueOf(currentRank.stargazersCount).toString() + " stars)")
+            logger.info("RepositoryRankingWorker (${calcProgress(rows, count)}, $rows/$count rows, " +
+                "rank ${currentRank.rank}, ${currentRank.stargazersCount} stars)")
 
             // Switch the way to calculate ranking under 10 stars
             if (currentRank.stargazersCount <= ITERATE_MIN_STARS) {
@@ -72,8 +71,8 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         val repoRanks: MutableList<RepositoryRank> = ArrayList() // listed in stargazers_count DESC
         repoRanks.add(lastRepoRank)
         var lastRank = lastRepoRank.rank
-        for (lastStars in lastRepoRank.stargazersCount downTo 1) {
-            logger.info("RepositoryRankingWorker for " + Integer.valueOf(lastStars - 1).toString())
+        (lastRepoRank.stargazersCount downTo 1).forEach { lastStars ->
+            logger.info("RepositoryRankingWorker for ${lastStars - 1}")
             val count = handle.attach(RepositoryDao::class.java).countReposHavingStars(lastStars)
             repoRanks.add(RepositoryRank(lastStars - 1, lastRank + count))
             lastRank += count

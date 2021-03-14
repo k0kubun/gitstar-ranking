@@ -16,15 +16,20 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import java.io.StringReader
 import java.lang.RuntimeException
 import java.net.SocketTimeoutException
+import java.time.temporal.ChronoUnit
 import java.util.ArrayList
 import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.json.Json
 import javax.json.JsonObject
 import javax.json.JsonString
+import javax.ws.rs.ServerErrorException
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
+import net.jodah.failsafe.Failsafe
+import net.jodah.failsafe.Policy
+import net.jodah.failsafe.RetryPolicy
 import org.glassfish.jersey.client.ClientProperties
 import org.slf4j.LoggerFactory
 
@@ -39,7 +44,8 @@ class GraphQLUnhandledException(message: String) : RuntimeException(message)
 
 private data class RateLimitResponse(val resources: RateLimitResources)
 private data class RateLimitResources(val core: RateLimit, val graphql: RateLimit)
-private data class RateLimit(val remaining: Int)
+private data class RateLimit(val limit: Int, val remaining: Int, val reset: Long)
+private data class UserResponse(val login: String)
 
 class GitHubClient(private val token: String) {
     private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
@@ -53,30 +59,25 @@ class GitHubClient(private val token: String) {
             )
         )
         .build().target(API_ENDPOINT)
+    private val retryPolicy = RetryPolicy<Any>()
+        .handleIf { e ->
+            when (e) {
+                is SocketTimeoutException -> true
+                is ServerErrorException -> e.response.status == 502
+                else -> false
+            }
+        }
+        .withBackoff(1, 8, ChronoUnit.SECONDS)
+        .withMaxRetries(3)
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
 
-    val rateLimitRemaining: Int
+    val graphqlRemaining: Int
         get() {
             return requestGet<RateLimitResponse>("/rate_limit").resources.graphql.remaining
         }
 
     fun getLogin(userId: Long): String {
-        val responseObject = graphql("""
-            query {
-                node(id:"${encodeUserId(userId)}") {
-                    ... on User {
-                        login
-                    }
-                }
-            }
-        """.trimIndent())
-        handleUserNodeErrors(responseObject)
-        val userNode = responseObject.getJsonObject("data").getJsonObject("node")
-        return if (userNode.containsKey("login")) {
-            userNode.getString("login")
-        } else { // bot user like id=30333062 returns `node {}`
-            throw UserNotFoundException("user_id = $userId did not have login")
-        }
+        return requestGet<UserResponse>("/user/$userId").login
     }
 
     fun getPublicRepos(userId: Long, isOrganization: Boolean): List<Repository> {
@@ -283,9 +284,15 @@ class GitHubClient(private val token: String) {
     }
 
     private inline fun <reified T> requestGet(path: String): T {
-        return client.path(path)
-            .request(MediaType.APPLICATION_JSON)
-            .header(HttpHeaders.AUTHORIZATION, "bearer $token")
-            .get(T::class.java)
+        return failsafe(retryPolicy) {
+            client.path(path)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "bearer $token")
+                .get(T::class.java)
+        }
+    }
+
+    private fun <R, T : R> failsafe(vararg policies: Policy<R>, call: () -> T): T {
+        return Failsafe.with(*policies).get(call)
     }
 }

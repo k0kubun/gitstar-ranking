@@ -50,7 +50,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             }
         }
         val client = clientBuilder.buildForUser(TOKEN_USER_ID)
-        logger.info("----- started UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
+        logger.info("----- started UserStarScanWorker (API: ${client.graphqlRemaining}/5000) -----")
         dbi.open().use { handle ->
             var numUsers = 1000 // 2 * (1000 / 30 min) ≒ 4000 / hour
             var numChecks = 2000 // Avoid issuing too many queries by skips
@@ -73,7 +73,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                                 conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_USER_ID)
                                 conn.attach(LastUpdateDao::class.java).resetCursor(STAR_SCAN_STARS)
                             }
-                            logger.info("--- completed and reset UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) ---")
+                            logger.info("--- completed and reset UserStarScanWorker (API: ${client.graphqlRemaining}/5000) ---")
                             return
                         }
                         lastUpdatedId = 0
@@ -89,7 +89,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     }
 
                     // Check rate limit
-                    val remaining = client.rateLimitRemaining
+                    val remaining = client.graphqlRemaining
                     logger.info("API remaining: $remaining/5000 (numUsers: $numUsers, numChecks: $numChecks)")
                     if (remaining < MIN_RATE_LIMIT_REMAINING) {
                         logger.info("API remaining is smaller than $remaining. Stopping.")
@@ -122,7 +122,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 }
             }
         }
-        logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
+        logger.info("----- finished UserStarScanWorker (API: ${client.graphqlRemaining}/5000) -----")
     }
 
     override fun updateUser(handle: Handle, user: User, client: GitHubClient) {

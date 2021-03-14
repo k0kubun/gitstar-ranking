@@ -43,7 +43,7 @@ CREATE TABLE repositories (
     "fetched_at" timestamp with time zone,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_repositories_on_full_name ON repositories (full_name);
+CREATE UNIQUE INDEX index_repositories_on_full_name ON repositories (full_name);
 CREATE INDEX index_repositories_on_owner_id_and_stargazers_count ON repositories (owner_id, stargazers_count);
 CREATE INDEX index_repositories_on_stargazers_count ON repositories (stargazers_count);
 

@@ -42,7 +42,7 @@ class GitstarRankingApp {
             }
             .build()
         val scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory)
-        if (!schedule) return scheduler;
+        if (!schedule) return scheduler
 
         // Schedule at most every 8 hours
         scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userRankingQueue) }, 1, 8, TimeUnit.HOURS)
@@ -55,12 +55,7 @@ class GitstarRankingApp {
 
     private fun scheduleIfEmpty(queue: BlockingQueue<Boolean>) {
         if (queue.size == 0) {
-            try {
-                queue.put(true)
-            } catch (e: InterruptedException) {
-                Sentry.capture(e)
-                logger.error("Scheduling interrupted: " + e.message)
-            }
+            queue.put(true)
         }
     }
 

@@ -2,7 +2,9 @@ package com.github.k0kubun.gitstar_ranking
 
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
-import javax.sql.DataSource
+import org.jooq.SQLDialect
+import org.jooq.impl.DSL
+import org.jooq.impl.DefaultConfiguration
 import org.postgresql.ds.PGSimpleDataSource
 
 data class DatabaseConfiguration(
@@ -12,11 +14,16 @@ data class DatabaseConfiguration(
     val password: String,
     val database: String,
 ) {
-    val dataSource: DataSource = PGSimpleDataSource().also {
+    val dataSource = PGSimpleDataSource().also {
         it.setUrl("jdbc:postgresql://$host:$port/$database")
         it.user = user
         it.password = password
     }
+    val dslContext = DSL.using(
+        DefaultConfiguration()
+            .set(dataSource)
+            .set(SQLDialect.POSTGRES)
+    )
 
     constructor(env: Map<String, String> = System.getenv()) : this(
         host = env.getOrDefault("DATABASE_HOST", "127.0.0.1"),

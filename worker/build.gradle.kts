@@ -22,6 +22,7 @@ dependencies {
     implementation("org.antlr:stringtemplate:3.2.1") // Using ST3 because ST4 isn"t supported by JDBI 2
     implementation("org.glassfish:javax.json:1.1.4")
     implementation("org.jdbi:jdbi:2.78")
+    implementation("org.jooq:jooq:3.14.8")
     implementation("org.postgresql:postgresql:42.2.19")
 
     val jerseyVersion = "2.33"

@@ -20,12 +20,12 @@ private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
 private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
 private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 
-class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource) {
+class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource, config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserFullScanWorker::class.simpleName)
     private val userFullScanQueue: BlockingQueue<Boolean> = config.queue.userFullScanQueue
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
     override val dbi: DBI = DBI(config.database.dataSource)
-    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dataSource)
+    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
 
     override fun perform() {
         while (userFullScanQueue.poll(5, TimeUnit.SECONDS) == null) {

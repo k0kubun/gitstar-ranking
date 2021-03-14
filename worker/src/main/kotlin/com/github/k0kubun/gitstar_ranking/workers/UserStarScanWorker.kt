@@ -36,11 +36,11 @@ private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 private const val BATCH_SIZE = 100
 
 // Scan all starred users
-class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource) {
+class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource, config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
     override val dbi: DBI = DBI(config.database.dataSource)
-    override val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dataSource)
+    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
     override fun perform() {

@@ -20,15 +20,16 @@ import java.time.ZoneId
 import java.util.ArrayList
 import javax.sql.DataSource
 import javax.ws.rs.NotFoundException
+import org.jooq.DSLContext
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
 
-open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
+open class UpdateUserWorker(dataSource: DataSource?, database: DSLContext) : Worker() {
     private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
     open val dbi: DBI = DBI(dataSource)
-    open val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(dataSource)
+    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
 
     // Dequeue a record from update_user_jobs and call updateUser().
     override fun perform() {

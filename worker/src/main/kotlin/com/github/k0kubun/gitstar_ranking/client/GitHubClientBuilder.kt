@@ -1,14 +1,11 @@
 package com.github.k0kubun.gitstar_ranking.client
 
-import org.skife.jdbi.v2.DBI
-import com.github.k0kubun.gitstar_ranking.db.AccessTokenDao
-import javax.sql.DataSource
+import com.github.k0kubun.gitstar_ranking.db.AccessTokenQuery
+import org.jooq.DSLContext
 
-class GitHubClientBuilder(dataSource: DataSource?) {
-    private val dbi: DBI = DBI(dataSource)
-
+class GitHubClientBuilder(private val database: DSLContext) {
     fun buildForUser(userId: Long): GitHubClient {
-        val token = dbi.onDemand(AccessTokenDao::class.java).findByUserId(userId)
+        val token = AccessTokenQuery(database).findToken(userId = userId)
         return GitHubClient(token!!)
     }
 }

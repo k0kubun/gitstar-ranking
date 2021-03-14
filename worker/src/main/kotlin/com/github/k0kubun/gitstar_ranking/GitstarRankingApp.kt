@@ -63,7 +63,7 @@ class GitstarRankingApp {
         val dataSource = config.database.dataSource
         val workers = WorkerManager()
         repeat(NUM_UPDATE_USER_WORKERS) {
-            workers.add(UpdateUserWorker(dataSource))
+            workers.add(UpdateUserWorker(dataSource, config.database.dslContext))
         }
         workers.add(UserStarScanWorker(config))
         workers.add(UserFullScanWorker(config))

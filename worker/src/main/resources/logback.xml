@@ -17,6 +17,7 @@
   <logger name="org.jooq.Constants" level="warn" />
   <logger name="org.jooq.tools.Convert" level="info" />
   <logger name="org.jooq.tools.LoggerListener" level="info" />
+  <logger name="org.jooq.impl.DefaultConnectionProvider" level="info" />
 
   <root level="DEBUG">
     <appender-ref ref="file"/>

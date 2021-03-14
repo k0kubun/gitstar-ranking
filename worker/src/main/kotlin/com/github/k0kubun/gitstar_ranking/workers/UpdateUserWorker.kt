@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
 
-open class UpdateUserWorker(dataSource: DataSource?, database: DSLContext) : Worker() {
+open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLContext) : Worker() {
     private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
     open val dbi: DBI = DBI(dataSource)
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
@@ -34,42 +34,40 @@ open class UpdateUserWorker(dataSource: DataSource?, database: DSLContext) : Wor
     // Dequeue a record from update_user_jobs and call updateUser().
     override fun perform() {
         dbi.open().use { handle ->
-            dbi.open().use { lockHandle ->
-                val lock = DatabaseLock(lockHandle)
+            val lock = DatabaseLock(database)
 
-                // Poll until it succeeds to acquire a job...
-                var timeoutAt: Timestamp
-                while (acquireUntil(lock, handle, nextTimeout().also { timeoutAt = it }) == 0L) {
-                    if (isStopped) {
-                        return
-                    }
-                    TimeUnit.SECONDS.sleep(1)
+            // Poll until it succeeds to acquire a job...
+            var timeoutAt: Timestamp
+            while (acquireUntil(lock, handle, nextTimeout().also { timeoutAt = it }) == 0L) {
+                if (isStopped) {
+                    return
                 }
+                TimeUnit.SECONDS.sleep(1)
+            }
 
-                // Succeeded to acquire a job. Fetch job to execute.
-                val dao = handle.attach(UpdateUserJobDao::class.java)
-                val job = dao.fetchByTimeout(timeoutAt)
-                    ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
+            // Succeeded to acquire a job. Fetch job to execute.
+            val dao = handle.attach(UpdateUserJobDao::class.java)
+            val job = dao.fetchByTimeout(timeoutAt)
+                ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
 
-                try {
-                    val client = clientBuilder.buildForUser(job.tokenUserId)
-                    val userId: Long = if (job.userName == null) {
-                        job.userId!!
-                    } else {
-                        createUser(handle, job.userName, client)
-                    }
-                    lock.withUserUpdate(userId) {
-                        val user = handle.attach(UserDao::class.java).find(userId)!!
-                        logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
-                        updateUser(handle, user, client)
-                        logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
-                    }
-                } catch (e: Exception) {
-                    Sentry.captureException(e)
-                    logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
-                } finally {
-                    dao.delete(job.id)
+            try {
+                val client = clientBuilder.buildForUser(job.tokenUserId)
+                val userId: Long = if (job.userName == null) {
+                    job.userId!!
+                } else {
+                    createUser(handle, job.userName, client)
                 }
+                lock.withUserUpdate(userId) {
+                    val user = handle.attach(UserDao::class.java).find(userId)!!
+                    logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
+                    updateUser(handle, user, client)
+                    logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
+                }
+            } catch (e: Exception) {
+                Sentry.captureException(e)
+                logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
+            } finally {
+                dao.delete(job.id)
             }
         }
     }

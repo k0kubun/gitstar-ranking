@@ -2,7 +2,7 @@
   # For db:migrate convenience on servers
   if system('systemctl --user --quiet is-active gitstar-ranking-server')
     env = `systemctl --user show gitstar-ranking-server`.lines.find { |l| l.start_with?('Environment=') }
-    env = env.remove_prefix('Environment=').chomp.split(' ').map { |e| e.split('=', 2) }.to_h
+    env = env.delete_prefix('Environment=').chomp.split(' ').map { |e| e.split('=', 2) }.to_h
     env['DATABASE_PASSWORD']
   end
 end %>

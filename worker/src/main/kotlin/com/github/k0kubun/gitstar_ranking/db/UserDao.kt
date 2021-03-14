@@ -69,19 +69,24 @@ interface UserDao {
     fun delete(@Bind("id") id: Long?): Long
     class UserMapper : ResultSetMapper<User> {
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
-            val user = User(r.getLong("id"), r.getString("type"))
-            user.login = r.getString("login")
-            return user
+            return User(
+                id = r.getLong("id"),
+                type = r.getString("type"),
+                login = r.getString("login"),
+            )
         }
     }
 
     class UserStarMapper : ResultSetMapper<User> {
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
-            val user = User(r.getInt("id").toLong(), r.getString("type"))
-            user.login = r.getString("login")
-            user.stargazersCount = r.getInt("stargazers_count")
-            user.updatedAt = r.getTimestamp("updated_at")
-            return user
+            return User(
+                id = r.getInt("id").toLong(),
+                type = r.getString("type"),
+                login = r.getString("login"),
+            ).apply {
+                stargazersCount = r.getInt("stargazers_count")
+                updatedAt = r.getTimestamp("updated_at")
+            }
         }
     }
 }

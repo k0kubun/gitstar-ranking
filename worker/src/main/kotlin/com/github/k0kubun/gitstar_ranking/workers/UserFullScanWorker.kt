@@ -34,7 +34,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
             }
         }
         val client = clientBuilder.buildForUser(TOKEN_USER_ID)
-        logger.info("----- started UserFullScanWorker (API: ${client.graphqlRemaining}/5000) -----")
+        logger.info("----- started UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
         dbi.open().use { handle ->
             val lastUserId = handle.attach(UserDao::class.java).lastId()
 
@@ -56,7 +56,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
                         // Check rate limit
-                        val remaining = client.graphqlRemaining
+                        val remaining = client.rateLimitRemaining
                         logger.info("API remaining: $remaining/5000")
                         if (remaining < MIN_RATE_LIMIT_REMAINING) {
                             logger.info("API remaining is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
@@ -79,7 +79,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 i++
             }
         }
-        logger.info("----- finished UserFullScanWorker (API: ${client.graphqlRemaining}/5000) -----")
+        logger.info("----- finished UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
     override fun updateUser(handle: Handle, user: User, client: GitHubClient) {

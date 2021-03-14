@@ -1,5 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.client
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -9,11 +10,19 @@ import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
 import java.net.SocketTimeoutException
 import java.time.temporal.ChronoUnit
+import javax.ws.rs.BadRequestException
+import javax.ws.rs.ClientErrorException
+import javax.ws.rs.ForbiddenException
+import javax.ws.rs.InternalServerErrorException
+import javax.ws.rs.NotAuthorizedException
+import javax.ws.rs.NotFoundException
+import javax.ws.rs.RedirectionException
 import javax.ws.rs.ServerErrorException
+import javax.ws.rs.ServiceUnavailableException
 import javax.ws.rs.client.ClientBuilder
-import javax.ws.rs.core.GenericType
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.Policy
 import net.jodah.failsafe.RetryPolicy
@@ -25,7 +34,7 @@ private const val API_ENDPOINT = "https://api.github.com"
 
 // https://docs.github.com/en/rest/reference/rate-limit#get-rate-limit-status-for-the-authenticated-user
 private data class RateLimitResponse(val resources: RateLimitResources)
-private data class RateLimitResources(val core: RateLimit, val graphql: RateLimit)
+private data class RateLimitResources(val core: RateLimit)
 private data class RateLimit(val limit: Int, val remaining: Int, val reset: Long)
 
 // https://docs.github.com/en/rest/reference/users#get-a-user
@@ -67,16 +76,13 @@ private data class RepositoryOwner(val id: Long)
 
 class GitHubClient(private val token: String) {
     private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
+    private val objectMapper = ObjectMapper().registerModule(KotlinModule())
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = ClientBuilder.newBuilder()
         .property(ClientProperties.CONNECT_TIMEOUT, 5000)
         .property(ClientProperties.READ_TIMEOUT, 30000)
-        .register(
-            JacksonJsonProvider(
-                ObjectMapper().registerModule(KotlinModule())
-                    .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            )
-        )
+        .register(JacksonJsonProvider(objectMapper))
         .build().target(API_ENDPOINT)
     private val retryPolicy = RetryPolicy<Any>()
         .handleIf { e ->
@@ -89,10 +95,7 @@ class GitHubClient(private val token: String) {
         .withBackoff(1, 8, ChronoUnit.SECONDS)
         .withMaxRetries(3)
 
-    val graphqlRemaining: Int
-        get() {
-            return requestGet<RateLimitResponse>("/rate_limit").resources.graphql.remaining
-        }
+    var rateLimitRemaining = requestGet<RateLimitResponse>("/rate_limit").resources.core.remaining
 
     fun getLogin(userId: Long): String {
         return requestGet<UserResponse>("/user/$userId").login
@@ -103,11 +106,7 @@ class GitHubClient(private val token: String) {
     }
 
     fun getUsersSince(since: Long): List<User> {
-        return requestGet(
-            "/users",
-            params = mapOf("since" to since),
-            responseType = object : GenericType<List<UserResponse>>() {},
-        ).map { it.user }
+        return requestGet<List<UserResponse>>("/users", params = mapOf("since" to since)).map { it.user }
     }
 
     fun getPublicRepos(userId: Long): List<Repository> {
@@ -115,11 +114,7 @@ class GitHubClient(private val token: String) {
     }
 
     private fun paginateRepositories(userId: Long): (Int) -> List<RepositoryResponse> = { page ->
-        requestGet(
-            "/user/$userId/repositories",
-            params = mapOf("page" to page, "per_page" to PAGE_SIZE),
-            responseType = object : GenericType<List<RepositoryResponse>>() {},
-        )
+        requestGet("/user/$userId/repos", params = mapOf("page" to page, "per_page" to PAGE_SIZE))
     }
 
     private fun <T> paginateAll(getPage: (Int) -> List<T>): List<T> {
@@ -139,7 +134,6 @@ class GitHubClient(private val token: String) {
     private inline fun <reified T> requestGet(
         path: String,
         params: Map<String, Any> = emptyMap(),
-        responseType: GenericType<T>? = null,
     ): T {
         return failsafe(retryPolicy) {
             client.path(path)
@@ -150,13 +144,30 @@ class GitHubClient(private val token: String) {
                 }
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "bearer $token")
-                .run {
-                    if (responseType != null) {
-                        get(responseType)
-                    } else {
-                        get(T::class.java)
+                .get(Response::class.java)
+                .apply {
+                    getHeaderString("X-RateLimit-Remaining")?.also {
+                        rateLimitRemaining = it.toInt()
                     }
+                    checkStatus(this)
                 }
+                .run {
+                    objectMapper.readValue(readEntity(String::class.java), object : TypeReference<T>() {})
+                }
+        }
+    }
+
+    private fun checkStatus(response: Response) {
+        when (response.status) {
+            Response.Status.BAD_REQUEST.statusCode -> throw BadRequestException(response)
+            Response.Status.UNAUTHORIZED.statusCode -> throw NotAuthorizedException(response)
+            Response.Status.FORBIDDEN.statusCode -> throw ForbiddenException(response)
+            Response.Status.NOT_FOUND.statusCode -> throw NotFoundException(response)
+            Response.Status.INTERNAL_SERVER_ERROR.statusCode -> throw InternalServerErrorException(response)
+            Response.Status.SERVICE_UNAVAILABLE.statusCode -> throw ServiceUnavailableException(response)
+            in 300..399 -> throw RedirectionException(response)
+            in 400..499 -> throw ClientErrorException(response)
+            in 500..599 -> throw ServerErrorException(response)
         }
     }
 

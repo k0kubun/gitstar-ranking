@@ -14,7 +14,7 @@ import io.sentry.Sentry
 import java.io.IOException
 import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
-import com.github.k0kubun.gitstar_ranking.client.GitHubClient.UserNotFoundException
+import com.github.k0kubun.gitstar_ranking.client.UserNotFoundException
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
 import java.sql.Timestamp

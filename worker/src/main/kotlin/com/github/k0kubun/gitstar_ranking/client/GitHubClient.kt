@@ -25,8 +25,18 @@ import javax.json.JsonObject
 import javax.json.JsonString
 import org.slf4j.LoggerFactory
 
+private const val MAX_RETRY = 3
+private const val PAGE_SIZE = 100
+private const val API_ENDPOINT = "https://api.github.com"
+private const val GRAPHQL_ENDPOINT = "$API_ENDPOINT/graphql"
+
+class NodeNotFoundException(message: String?) : RuntimeException(message)
+class UserNotFoundException(message: String?) : RuntimeException(message)
+class GraphQLUnhandledException(message: String?) : RuntimeException(message)
+
 class GitHubClient(private val token: String) {
     private val requestFactory: HttpRequestFactory = NetHttpTransport().createRequestFactory()
+    private val logger = LoggerFactory.getLogger(GitHubClient::class.java)
 
     fun getLogin(userId: Long): String {
         val responseObject = graphql(
@@ -48,7 +58,7 @@ node(id:"${encodeUserId(userId)}") {
 
     fun getPublicRepos(userId: Long, isOrganization: Boolean): List<Repository> {
         val repos: MutableList<Repository> = ArrayList()
-        for (node in getPublicRepoNodes(userId, isOrganization)) {
+        getPublicRepoNodes(userId, isOrganization).forEach { node ->
             try {
                 val id = decodeRepositoryId(node.getString("id"))
                 val encodedOwnerId = node.getJsonObject("owner").getString("id")
@@ -65,7 +75,7 @@ node(id:"${encodeUserId(userId)}") {
                 }
             } catch (e: ClassCastException) {
                 Sentry.capture(e)
-                LOG.debug("node: $node")
+                logger.debug("node: $node")
                 throw e
             }
         }
@@ -84,7 +94,7 @@ node(id:"${encodeUserId(userId)}") {
         }
 
     fun getUserWithLogin(login: String): User {
-        val request = requestFactory.buildGetRequest(GenericUrl(API_ENDPOINT + "/users/" + login))
+        val request = requestFactory.buildGetRequest(GenericUrl("$API_ENDPOINT/users/$login"))
         val headers = HttpHeaders()
         headers.authorization = "bearer $token"
         request.headers = headers
@@ -98,7 +108,7 @@ node(id:"${encodeUserId(userId)}") {
     }
 
     fun getUsersSince(since: Long): List<User> {
-        val request = requestFactory.buildGetRequest(GenericUrl(API_ENDPOINT + "/users?per_page=100&since=" + since))
+        val request = requestFactory.buildGetRequest(GenericUrl("$API_ENDPOINT/users?per_page=100&since=$since"))
         val headers = HttpHeaders()
         headers.authorization = "bearer $token"
         request.headers = headers
@@ -130,8 +140,8 @@ node(id:"${encodeUserId(userId)}") {
         // TODO: Handle error status code
         val responseObject = Json.createReader(StringReader(response.parseAsString())).readObject()
         if (responseObject.containsKey("errors")) {
-            LOG.debug("errors with query:\n$query")
-            LOG.debug("response:\n$responseObject")
+            logger.debug("errors with query:\n$query")
+            logger.debug("response:\n$responseObject")
         }
         return responseObject
     }
@@ -188,7 +198,7 @@ node(id:"${encodeUserId(userId)}") {
             }
             if (edges.size == PAGE_SIZE) {
                 cursor = edges[PAGE_SIZE - 1].getString("cursor")
-                LOG.debug("Paginate user_id: " + userId.toString() + " with cursor: " + cursor + " size: " + nodes.size)
+                logger.debug("Paginate user_id: ${userId} with cursor: $cursor size: ${nodes.size}")
             } else {
                 break
             }
@@ -249,12 +259,12 @@ node(id:"${encodeUserId(userId)}") {
     }
 
     private fun executeWithRetry(request: HttpRequest): HttpResponse {
-        for (i in 0 until MAX_RETRY) {
+        repeat(MAX_RETRY) { i ->
             try {
                 return request.execute()
             } catch (e: HttpResponseException) {
                 if (e.statusCode == 502) {
-                    LOG.debug("retrying 502: " + e.message + ", i=" + i)
+                    logger.debug("retrying 502: ${e.message}, i=" + i)
                     try {
                         TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
                     } catch (ie: InterruptedException) {
@@ -264,7 +274,7 @@ node(id:"${encodeUserId(userId)}") {
                     throw e
                 }
             } catch (e: SocketTimeoutException) {
-                LOG.debug("retrying socket timeout: " + e.message + ", i=" + i)
+                logger.debug("retrying socket timeout: ${e.message}, i=" + i)
                 try {
                     TimeUnit.SECONDS.sleep((i * i).toLong()) // exponential retry
                 } catch (ie: InterruptedException) {
@@ -273,16 +283,5 @@ node(id:"${encodeUserId(userId)}") {
             }
         }
         return request.execute()
-    }
-
-    inner class NodeNotFoundException(message: String?) : RuntimeException(message)
-    inner class UserNotFoundException(message: String?) : RuntimeException(message)
-    inner class GraphQLUnhandledException(message: String?) : RuntimeException(message)
-    companion object {
-        private const val MAX_RETRY = 3
-        private const val PAGE_SIZE = 100
-        private val LOG = LoggerFactory.getLogger(GitHubClient::class.java)
-        private const val API_ENDPOINT = "https://api.github.com"
-        private const val GRAPHQL_ENDPOINT = API_ENDPOINT + "/graphql"
     }
 }

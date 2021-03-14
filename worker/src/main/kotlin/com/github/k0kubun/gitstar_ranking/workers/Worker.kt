@@ -8,7 +8,7 @@ import java.util.concurrent.Callable
 import org.slf4j.LoggerFactory
 
 abstract class Worker : Callable<Void?> {
-    private val logger = LoggerFactory.getLogger(Worker::class.java)
+    private val logger = LoggerFactory.getLogger(Worker::class.simpleName)
 
     // Subclass must prepare to shut down if this is true.
     var isStopped = false

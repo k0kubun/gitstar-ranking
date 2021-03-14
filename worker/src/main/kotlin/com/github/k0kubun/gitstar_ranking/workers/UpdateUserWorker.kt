@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 private const val TIMEOUT_MINUTES = 1
 
 open class UpdateUserWorker(dataSource: DataSource?) : Worker() {
-    private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.java)
+    private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
     open val dbi: DBI = DBI(dataSource)
     open val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(dataSource)
 

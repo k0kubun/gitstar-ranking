@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit
 import javax.json.Json
 import javax.json.JsonObject
 import javax.json.JsonString
-import kotlin.Throws
 import org.slf4j.LoggerFactory
 
 class GitHubClient(private val token: String) {
@@ -116,7 +115,6 @@ node(id:"${encodeUserId(userId)}") {
         return users
     }
 
-    @Throws(IOException::class)
     private fun graphql(query: String): JsonObject {
         val payload = Json.createObjectBuilder()
             .add("query", query)
@@ -138,7 +136,6 @@ node(id:"${encodeUserId(userId)}") {
         return responseObject
     }
 
-    @Throws(IOException::class)
     private fun getPublicRepoNodes(userId: Long, isOrganization: Boolean): List<JsonObject> {
         var cursor: String? = null
         val nodes: MutableList<JsonObject> = ArrayList()

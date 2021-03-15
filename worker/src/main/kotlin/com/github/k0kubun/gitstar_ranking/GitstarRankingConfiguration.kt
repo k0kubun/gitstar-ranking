@@ -17,7 +17,8 @@ data class DatabaseConfiguration(
     val dslContext = DSL.using(
         DefaultConfiguration().set(SQLDialect.POSTGRES).set(
             PGSimpleDataSource().also {
-                it.setUrl("jdbc:postgresql://$host:$port/$database")
+                // stringtype for citext: https://github.com/jOOQ/jOOQ/issues/7093
+                it.setUrl("jdbc:postgresql://$host:$port/$database?stringtype=unspecified")
                 it.user = user
                 it.password = password
             }

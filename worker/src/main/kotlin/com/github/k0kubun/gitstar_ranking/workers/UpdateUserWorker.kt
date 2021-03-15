@@ -58,7 +58,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             val userId: Long = job.userName?.let { login -> // TODO: Unify to use user_id
                 createUserByLogin(login, client).id
             } ?: job.userId!!
-            updateUserId(userId = userId, tokenUserId = job.tokenUserId, logger = logger)
+            updateUserId(userId = userId, client = client, logger = logger)
         } catch (e: Exception) {
             Sentry.captureException(e)
             logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
@@ -67,13 +67,12 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
         }
     }
 
-    open fun updateUserId(userId: Long, tokenUserId: Long, logger: Logger) {
-        val client = clientBuilder.buildForUser(tokenUserId)
+    open fun updateUserId(userId: Long, client: GitHubClient, logger: Logger) {
         DatabaseLock(database).withUserUpdate(userId) {
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
             if (user != null) {
                 logger.info("updateUserId started (userId = $userId, login = ${user.login})")
-                updateUser(user = user, client = client, tokenUserId = tokenUserId)
+                updateUser(user = user, client = client, logger = logger)
                 logger.info("updateUserId finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
             }
         }
@@ -101,12 +100,12 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    private fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
+    private fun updateUser(user: User, client: GitHubClient, logger: Logger) {
         val userId = user.id
         try {
             val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
             if (user.login != newLogin) {
-                updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = tokenUserId)
+                updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = client.userId)
             }
         } catch (e: NotFoundException) {
             logger.error("User NotFoundException: ${e.message}")

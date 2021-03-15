@@ -80,7 +80,7 @@ private data class RepositoryResponse(
 }
 private data class RepositoryOwner(val id: Long)
 
-class GitHubClient(private val token: String) {
+class GitHubClient(val userId: Long, private val token: String) {
     private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
     private val client = ClientBuilder.newBuilder()
         .property(ClientProperties.CONNECT_TIMEOUT, 5000)

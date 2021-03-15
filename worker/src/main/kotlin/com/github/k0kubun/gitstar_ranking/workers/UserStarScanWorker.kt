@@ -1,6 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
+import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
@@ -92,7 +93,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                         numChecks = 0
                         break
                     }
-                    updateUserId(userId = user.id, tokenUserId = TOKEN_USER_ID, logger = logger)
+                    updateUserId(userId = user.id, client = client, logger = logger)
                     numUsers--
                 } else {
                     logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${oldUser.updatedAt})")
@@ -117,8 +118,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUserId(userId: Long, tokenUserId: Long, logger: Logger) {
-        super.updateUserId(userId = userId, tokenUserId = tokenUserId, logger = logger)
-        Thread.sleep(200)
+    override fun updateUserId(userId: Long, client: GitHubClient, logger: Logger) {
+        super.updateUserId(userId = userId, client = client, logger = logger)
+        Thread.sleep(200) // Doing this here to avoid sleeping when skipped
     }
 }

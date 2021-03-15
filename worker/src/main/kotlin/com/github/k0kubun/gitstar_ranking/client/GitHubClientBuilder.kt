@@ -6,6 +6,9 @@ import org.jooq.DSLContext
 class GitHubClientBuilder(private val database: DSLContext) {
     fun buildForUser(userId: Long): GitHubClient {
         val token = AccessTokenQuery(database).findToken(userId = userId)
-        return GitHubClient(token!!)
+        return GitHubClient(
+            userId = userId,
+            token = token!!,
+        )
     }
 }

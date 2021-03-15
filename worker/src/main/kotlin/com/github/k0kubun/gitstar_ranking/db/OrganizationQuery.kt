@@ -29,7 +29,7 @@ class OrganizationQuery(private val database: DSLContext) {
     fun count(stars: Long? = null): Long {
         return database
             .selectCount()
-            .from("organizations")
+            .from("users")
             .where(field("type").eq("Organization"))
             .run {
                 if (stars != null) {
@@ -42,7 +42,7 @@ class OrganizationQuery(private val database: DSLContext) {
     fun orderByStarsDesc(limit: Int, after: StarsCursor? = null): List<Organization> {
         return database
             .select(organizationColumns)
-            .from("organizations")
+            .from("users")
             .where(field("type").eq("Organization"))
             .run {
                 if (after != null) {

@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.jooq.impl.DSL.using
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 val PENDING_USERS = listOf(
@@ -83,21 +84,19 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     continue
                 }
 
-                // Check rate limit
-                val remaining = client.rateLimitRemaining
-                logger.info("API remaining: $remaining/5000 (numUsers: $numUsers, numChecks: $numChecks)")
-                if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                    logger.info("API remaining is smaller than $remaining. Stopping.")
-                    numChecks = 0
-                    break
-                }
-                val updatedAt = UserQuery(database).find(id = user.id)!!.updatedAt // TODO: Fix N+1
-                if (updatedAt.before(updateThreshold)) {
-                    updateUser(user, client, TOKEN_USER_ID)
-                    logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
+                val oldUser = UserQuery(database).find(id = user.id)
+                if (oldUser == null || oldUser.updatedAt.before(updateThreshold)) {
+                    // Check rate limit
+                    logger.info("[${user.login}] stars = ${stars} (numUsers: $numUsers, numChecks: $numChecks), API remaining: ${client.rateLimitRemaining}/5000")
+                    if (client.rateLimitRemaining < MIN_RATE_LIMIT_REMAINING) {
+                        logger.info("API remaining ${client.rateLimitRemaining} is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
+                        numChecks = 0
+                        break
+                    }
+                    updateUserId(userId = user.id, tokenUserId = TOKEN_USER_ID, logger = logger)
                     numUsers--
                 } else {
-                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${updatedAt})")
+                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${oldUser.updatedAt})")
                 }
                 numChecks--
                 if (lastUpdatedId < user.id) {
@@ -119,8 +118,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
-        super.updateUser(user, client, tokenUserId)
-        Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
+    override fun updateUserId(userId: Long, tokenUserId: Long, logger: Logger) {
+        super.updateUserId(userId = userId, tokenUserId = tokenUserId, logger = logger)
+        Thread.sleep(200)
     }
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit
 import javax.ws.rs.NotFoundException
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
@@ -54,22 +55,27 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
 
         try {
             val client = clientBuilder.buildForUser(job.tokenUserId)
-            val userId: Long = job.userName?.let { login ->
+            val userId: Long = job.userName?.let { login -> // TODO: Unify to use user_id
                 createUserByLogin(login, client).id
             } ?: job.userId!!
-            DatabaseLock(database).withUserUpdate(userId) {
-                val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
-                if (user != null) {
-                    logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
-                    updateUser(user, client, job.tokenUserId)
-                    logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
-                }
-            }
+            updateUserId(userId = userId, tokenUserId = job.tokenUserId, logger = logger)
         } catch (e: Exception) {
             Sentry.captureException(e)
             logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
         } finally {
             UpdateUserJobQuery(database).delete(id = job.id)
+        }
+    }
+
+    open fun updateUserId(userId: Long, tokenUserId: Long, logger: Logger) {
+        val client = clientBuilder.buildForUser(tokenUserId)
+        DatabaseLock(database).withUserUpdate(userId) {
+            val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
+            if (user != null) {
+                logger.info("updateUserId started (userId = $userId, login = ${user.login})")
+                updateUser(user = user, client = client, tokenUserId = tokenUserId)
+                logger.info("updateUserId finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
+            }
         }
     }
 
@@ -95,7 +101,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    open fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
+    private fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
         val userId = user.id
         try {
             val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?

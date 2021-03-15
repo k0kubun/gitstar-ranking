@@ -12,6 +12,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
@@ -39,31 +40,24 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         var i = 0
         while (i < 10) {
             var lastUpdatedId = LastUpdateQuery(database).findCursor(key = FULL_SCAN_USER_ID) ?: 0L
-            val users = client.getUsersSince(lastUpdatedId)
-            if (users.isEmpty()) {
-                break
-            }
-            UserQuery(database).insertAll(users)
-            for (user in users) {
+            for (user in client.getUsersSince(lastUpdatedId)) {
                 if (PENDING_USERS.contains(user.login)) {
                     logger.info("Skipping a user with too many repositories: ${user.login}")
                     continue
                 }
 
-                val updatedAt = UserQuery(database).find(id = user.id)!!.updatedAt // TODO: Fix N+1
-                if (updatedAt.before(updateThreshold)) {
+                val oldUser = UserQuery(database).find(id = user.id)
+                if (oldUser == null || oldUser.updatedAt.before(updateThreshold)) {
                     // Check rate limit
-                    val remaining = client.rateLimitRemaining
-                    logger.info("API remaining: $remaining/5000")
-                    if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                        logger.info("API remaining is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
+                    logger.info("[${user.login}] userId = ${user.id} / $lastUserId (${String.format("%.4f%%", 100.0 * user.id / lastUserId)}), API remaining: ${client.rateLimitRemaining}/5000") // TODO: show this from updateUserId
+                    if (client.rateLimitRemaining < MIN_RATE_LIMIT_REMAINING) {
+                        logger.info("API remaining ${client.rateLimitRemaining} is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
                         i = 10
                         break
                     }
-                    updateUser(UserQuery(database).find(id = user.id)!!, client, TOKEN_USER_ID) // TODO: Remove the user conversion, or at least fix N+1?
-                    logger.info(String.format("[${user.login}] userId = ${user.id} / $lastUserId (%.4f%%)", 100.0 * user.id / lastUserId))
+                    updateUserId(userId = user.id, tokenUserId = TOKEN_USER_ID, logger = logger)
                 } else {
-                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: $updatedAt)")
+                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${oldUser.updatedAt})")
                 }
                 if (lastUpdatedId < user.id) {
                     lastUpdatedId = user.id
@@ -78,8 +72,8 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
-        super.updateUser(user, client, tokenUserId)
-        Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
+    override fun updateUserId(userId: Long, tokenUserId: Long, logger: Logger) {
+        super.updateUserId(userId = userId, tokenUserId = tokenUserId, logger = logger)
+        Thread.sleep(200)
     }
 }

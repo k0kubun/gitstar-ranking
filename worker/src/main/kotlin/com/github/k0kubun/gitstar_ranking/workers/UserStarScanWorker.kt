@@ -8,15 +8,14 @@ import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_STARS
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.UserDao
+import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.ArrayList
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.jooq.impl.DSL.using
 import org.skife.jdbi.v2.DBI
-import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 val PENDING_USERS = listOf(
@@ -36,10 +35,10 @@ private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 private const val BATCH_SIZE = 100
 
 // Scan all starred users
-class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource, config.database.dslContext) {
+class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
-    override val dbi: DBI = DBI(config.database.dataSource)
+    private val dbi: DBI = DBI(config.database.dataSource)
     private val database = config.database.dslContext
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
@@ -64,9 +63,11 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 }
 
                 // Query a next batch
-                var users: List<User> = ArrayList()
+                var users = emptyList<User>()
                 while (users.isEmpty()) {
-                    users = handle.attach(UserDao::class.java).usersWithStarsAfter(stars, lastUpdatedId, numUsers.coerceAtMost(BATCH_SIZE))
+                    users = UserQuery(database).orderByIdAsc(
+                        stargazersCount = stars, idAfter = lastUpdatedId, limit = numUsers.coerceAtMost(BATCH_SIZE),
+                    )
                     if (users.isEmpty()) {
                         stars = handle.attach(UserDao::class.java).nextStargazersCount(stars)
                         if (stars == 0L) {
@@ -96,7 +97,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     }
                     val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
                     if (updatedAt.before(updateThreshold)) {
-                        updateUser(handle, user, client)
+                        updateUser(user, client)
                         logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
                         numUsers--
                     } else {
@@ -123,8 +124,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(handle: Handle, user: User, client: GitHubClient) {
-        super.updateUser(handle, user, client)
+    override fun updateUser(user: User, client: GitHubClient) {
+        super.updateUser(user, client)
         Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
     }
 }

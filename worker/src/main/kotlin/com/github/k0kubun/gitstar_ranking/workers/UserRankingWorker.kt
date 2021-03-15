@@ -73,7 +73,7 @@ class UserRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         var lastRank = lastUserRank.rank
         for (lastStars in lastUserRank.stargazersCount downTo 1) {
             logger.info("UserRankingWorker for ${lastStars - 1}")
-            val count = UserQuery(database).count(stars = lastStars)
+            val count = UserQuery(database).count(stargazersCount = lastStars)
             userRanks.add(UserRank(lastStars - 1, lastRank + count))
             lastRank += count
         }

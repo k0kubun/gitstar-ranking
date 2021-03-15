@@ -9,7 +9,6 @@ import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
 import com.github.k0kubun.gitstar_ranking.db.RepositoryQuery
 import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobQuery
-import com.github.k0kubun.gitstar_ranking.db.UserDao
 import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import io.sentry.Sentry
 import java.lang.Exception
@@ -20,20 +19,15 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.ArrayList
 import java.util.concurrent.TimeUnit
-import javax.sql.DataSource
 import javax.ws.rs.NotFoundException
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
-import org.skife.jdbi.v2.DBI
-import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
 
-open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLContext) : Worker() {
+open class UpdateUserWorker(private val database: DSLContext) : Worker() {
     private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
-    open val dbi: DBI = DBI(dataSource)
-    private val lock = DatabaseLock(database)
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
 
     // Dequeue a record from update_user_jobs and call updateUser().
@@ -59,17 +53,15 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
         }
 
         try {
-            dbi.open().use { handle ->
-                val client = clientBuilder.buildForUser(job.tokenUserId)
-                val userId: Long = job.userName?.let { userName ->
-                    createUser(handle, userName, client).id
-                } ?: job.userId!!
-                lock.withUserUpdate(userId) {
-                    val user = handle.attach(UserDao::class.java).find(userId)!!
-                    logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
-                    updateUser(handle, user, client)
-                    logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
-                }
+            val client = clientBuilder.buildForUser(job.tokenUserId)
+            val userId: Long = job.userName?.let { login ->
+                createUser(login, client).id
+            } ?: job.userId!!
+            DatabaseLock(database).withUserUpdate(userId) {
+                val user = UserQuery(database).find(id = userId)!!
+                logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
+                updateUser(user, client)
+                logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
             }
         } catch (e: Exception) {
             Sentry.captureException(e)
@@ -80,9 +72,9 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
     }
 
     // Create a pre-required user record for a give userName.
-    private fun createUser(handle: Handle, userName: String, client: GitHubClient): UserResponse {
-        val user = client.getUserWithLogin(userName)
-        handle.attach(UserDao::class.java).bulkInsert(listOf(user))
+    private fun createUser(login: String, client: GitHubClient): UserResponse {
+        val user = client.getUserWithLogin(login)
+        UserQuery(database).create(user)
         return user
     }
 
@@ -90,12 +82,12 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    open fun updateUser(handle: Handle, user: User, client: GitHubClient) {
+    open fun updateUser(user: User, client: GitHubClient) {
         val userId = user.id
         try {
             val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
             if (user.login != newLogin) {
-                handle.attach(UserDao::class.java).updateLogin(userId, newLogin)
+                UserQuery(database).update(id = userId, login = newLogin)
             }
         } catch (e: NotFoundException) {
             logger.error("User NotFoundException: ${e.message}")
@@ -126,7 +118,9 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
     private fun acquireUntil(conn: Connection, timeoutAt: Timestamp): Long {
-        return lock.withUpdateUserJobs { UpdateUserJobQuery(using(conn)).acquireUntil(timeoutAt) }
+        return DatabaseLock(database).withUpdateUserJobs {
+            UpdateUserJobQuery(using(conn)).acquireUntil(timeoutAt)
+        }
     }
 
     private fun nextTimeout(): Timestamp {

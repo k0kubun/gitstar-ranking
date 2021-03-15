@@ -14,18 +14,17 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.skife.jdbi.v2.DBI
-import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
 private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
 private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
 private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 
-class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dataSource, config.database.dslContext) {
+class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserFullScanWorker::class.simpleName)
     private val userFullScanQueue: BlockingQueue<Boolean> = config.queue.userFullScanQueue
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
-    override val dbi: DBI = DBI(config.database.dataSource)
+    private val dbi: DBI = DBI(config.database.dataSource)
     private val database = config.database.dslContext
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
 
@@ -48,7 +47,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 if (users.isEmpty()) {
                     break
                 }
-                handle.attach(UserDao::class.java).bulkInsert(users)
+                UserQuery(database).insertAll(users)
                 for (user in users) {
                     if (PENDING_USERS.contains(user.login)) {
                         logger.info("Skipping a user with too many repositories: ${user.login}")
@@ -65,7 +64,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                             i = 10
                             break
                         }
-                        updateUser(handle, UserQuery(database).find(id = user.id)!!, client) // TODO: Remove the user conversion, or at least fix N+1?
+                        updateUser(UserQuery(database).find(id = user.id)!!, client) // TODO: Remove the user conversion, or at least fix N+1?
                         logger.info(String.format("[${user.login}] userId = ${user.id} / $lastUserId (%.4f%%)", 100.0 * user.id / lastUserId))
                     } else {
                         logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: $updatedAt)")
@@ -84,8 +83,8 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(handle: Handle, user: User, client: GitHubClient) {
-        super.updateUser(handle, user, client)
+    override fun updateUser(user: User, client: GitHubClient) {
+        super.updateUser(user, client)
         Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
     }
 }

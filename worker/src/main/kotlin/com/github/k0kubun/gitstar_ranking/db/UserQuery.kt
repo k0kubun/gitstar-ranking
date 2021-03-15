@@ -14,12 +14,12 @@ import org.jooq.impl.DSL.row
 
 class UserQuery(private val database: DSLContext) {
     private val userColumns = listOf(
-        "id",
-        "type",
-        "login",
-        "stargazers_count",
-        "updated_at",
-    ).map { field(it) }
+        field("id"),
+        field("type"),
+        field("login"),
+        field("stargazers_count"),
+        field("updated_at", Timestamp::class.java),
+    )
 
     private val userMapper = RecordMapper<Record, User> { record ->
         User(

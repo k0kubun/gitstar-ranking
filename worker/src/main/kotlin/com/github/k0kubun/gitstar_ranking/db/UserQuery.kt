@@ -6,8 +6,10 @@ import java.sql.Timestamp
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.RecordMapper
+import org.jooq.impl.DSL
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.row
+import org.jooq.impl.DSL.table
 
 class UserQuery(private val database: DSLContext) {
     private val userColumns = listOf(
@@ -34,6 +36,14 @@ class UserQuery(private val database: DSLContext) {
             .from("users")
             .where(field("id").eq(id))
             .fetchOne(userMapper)
+    }
+
+    fun update(id: Long, stargazersCount: Long) {
+        database
+            .update(table("users"))
+            .set(field("stargazers_count"), stargazersCount)
+            .where(field("id").eq(id))
+            .execute()
     }
 
     fun count(stars: Long? = null): Long {
@@ -64,5 +74,12 @@ class UserQuery(private val database: DSLContext) {
             .orderBy(field("stargazers_count").desc(), field("id").desc())
             .limit(limit)
             .fetch(userMapper)
+    }
+
+    fun destroy(id: Long) {
+        database
+            .delete(table("users"))
+            .where(field("id").eq(id))
+            .execute()
     }
 }

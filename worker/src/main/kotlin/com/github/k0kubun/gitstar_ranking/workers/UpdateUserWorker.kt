@@ -7,9 +7,10 @@ import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
-import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
+import com.github.k0kubun.gitstar_ranking.db.RepositoryQuery
 import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobQuery
 import com.github.k0kubun.gitstar_ranking.db.UserDao
+import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import io.sentry.Sentry
 import java.lang.Exception
 import java.lang.RuntimeException
@@ -25,7 +26,6 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
 import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
-import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
@@ -100,9 +100,9 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
         } catch (e: NotFoundException) {
             logger.error("User NotFoundException: ${e.message}")
             logger.info("Deleting user id: $userId, login: ${user.login}")
-            handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-                conn.attach(UserDao::class.java).delete(userId)
-                conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
+            database.transaction { tx ->
+                UserQuery(using(tx)).destroy(id = userId)
+                RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
             }
             return
         }
@@ -112,14 +112,14 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
         for (repo in repos) {
             repoIds.add(repo.id)
         }
-        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
+        database.transaction { tx ->
             if (repoIds.size > 0) {
-                conn.attach(RepositoryDao::class.java).deleteAllOwnedByExcept(userId, repoIds) // Delete obsolete ones
+                RepositoryQuery(using(tx)).deleteAll(ownerId = userId, exceptIds = repoIds) // Delete obsoleted ones
             } else {
-                conn.attach(RepositoryDao::class.java).deleteAllOwnedBy(userId)
+                RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
             }
-            conn.attach(RepositoryDao::class.java).bulkInsert(repos)
-            conn.attach(UserDao::class.java).updateStars(userId, calcTotalStars(repos))
+            RepositoryQuery(using(tx)).insertAll(repos)
+            UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
         }
         logger.info("[${user.login}] imported repos: ${repos.size}")
     }

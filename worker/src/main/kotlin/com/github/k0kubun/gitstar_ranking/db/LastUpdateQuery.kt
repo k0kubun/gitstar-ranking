@@ -1,6 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.db
 
 import com.github.k0kubun.gitstar_ranking.core.table
+import java.sql.Timestamp
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
@@ -26,8 +27,8 @@ class LastUpdateQuery(private val database: DSLContext) {
             .set(field("cursor"), cursor)
             .set(field("updated_at"), now())
             .onDuplicateKeyUpdate()
-            .set(field("cursor"), cursor)
-            .set(field("updated_at"), now())
+            .set(field("cursor", Long::class.java), field("exclud.cursor", Long::class.java))
+            .set(field("updated_at", Timestamp::class.java), field("updated_at", Timestamp::class.java))
             .execute()
     }
 

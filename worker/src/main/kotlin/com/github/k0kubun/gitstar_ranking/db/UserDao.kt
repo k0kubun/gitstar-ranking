@@ -31,9 +31,6 @@ interface UserDao {
     @SqlUpdate("update users set login = :login where id = :id")
     fun updateLogin(@Bind("id") id: Long?, @Bind("login") login: String?): Long
 
-    @SqlUpdate("update users set stargazers_count = :stargazersCount, updated_at = current_timestamp(0) where id = :id")
-    fun updateStars(@Bind("id") id: Long?, @Bind("stargazersCount") stargazersCount: Long?): Long
-
     @SqlQuery("select id from users order by id desc limit 1")
     fun lastId(): Long
 

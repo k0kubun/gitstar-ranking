@@ -37,15 +37,19 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 return null
             }
             for (repo in repos) {
-                if (currentRank == null) {
-                    currentRank = RepositoryRank(repo.stargazersCount, 1)
-                    currentRankNum = 1
-                } else if (currentRank.stargazersCount == repo.stargazersCount) {
-                    currentRankNum++
-                } else {
-                    commitPendingRanks.add(currentRank)
-                    currentRank = RepositoryRank(repo.stargazersCount, currentRank.rank + currentRankNum)
-                    currentRankNum = 1
+                when {
+                    currentRank == null -> {
+                        currentRank = RepositoryRank(repo.stargazersCount, 1)
+                        currentRankNum = 1
+                    }
+                    currentRank.stargazersCount == repo.stargazersCount -> {
+                        currentRankNum++
+                    }
+                    else -> {
+                        commitPendingRanks.add(currentRank)
+                        currentRank = RepositoryRank(repo.stargazersCount, currentRank.rank + currentRankNum)
+                        currentRankNum = 1
+                    }
                 }
             }
             if (commitPendingRanks.isNotEmpty()) {

@@ -93,7 +93,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 }
                 val updatedAt = UserQuery(database).find(id = user.id)!!.updatedAt // TODO: Fix N+1
                 if (updatedAt.before(updateThreshold)) {
-                    updateUser(user, client)
+                    updateUser(user, client, TOKEN_USER_ID)
                     logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
                     numUsers--
                 } else {
@@ -119,8 +119,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(user: User, client: GitHubClient) {
-        super.updateUser(user, client)
+    override fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
+        super.updateUser(user, client, tokenUserId)
         Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
     }
 }

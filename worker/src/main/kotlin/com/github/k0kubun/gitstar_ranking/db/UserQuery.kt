@@ -39,6 +39,14 @@ class UserQuery(private val database: DSLContext) {
             .fetchOne(userMapper)
     }
 
+    fun findBy(login: String): User? {
+        return database
+            .select(userColumns)
+            .from("users")
+            .where(field("login").eq(login))
+            .fetchOne(userMapper)
+    }
+
     fun create(user: UserResponse) {
         insertAll(listOf(user))
     }

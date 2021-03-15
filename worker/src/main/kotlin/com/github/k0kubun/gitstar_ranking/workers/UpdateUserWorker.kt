@@ -60,7 +60,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             DatabaseLock(database).withUserUpdate(userId) {
                 val user = UserQuery(database).find(id = userId)!!
                 logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
-                updateUser(user, client)
+                updateUser(user, client, job.tokenUserId)
                 logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
             }
         } catch (e: Exception) {
@@ -82,12 +82,12 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    open fun updateUser(user: User, client: GitHubClient) {
+    open fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
         val userId = user.id
         try {
             val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
             if (user.login != newLogin) {
-                UserQuery(database).update(id = userId, login = newLogin)
+                updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = tokenUserId)
             }
         } catch (e: NotFoundException) {
             logger.error("User NotFoundException: ${e.message}")
@@ -110,6 +110,17 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
         }
         logger.info("[${user.login}] imported repos: ${repos.size}")
+    }
+
+    private fun updateUserLogin(userId: Long, newLogin: String, tokenUserId: Long) {
+        database.transaction { tx ->
+            val conflictUser = UserQuery(using(tx)).findBy(login = newLogin)
+            if (conflictUser != null) { // Lazily recreate it to avoid recursive conflict handling here
+                UserQuery(using(tx)).destroy(id = conflictUser.id)
+                UpdateUserJobQuery(using(tx)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
+            }
+            UserQuery(using(tx)).update(id = userId, login = newLogin)
+        }
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.

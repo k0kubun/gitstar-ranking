@@ -60,7 +60,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                         i = 10
                         break
                     }
-                    updateUser(UserQuery(database).find(id = user.id)!!, client) // TODO: Remove the user conversion, or at least fix N+1?
+                    updateUser(UserQuery(database).find(id = user.id)!!, client, TOKEN_USER_ID) // TODO: Remove the user conversion, or at least fix N+1?
                     logger.info(String.format("[${user.login}] userId = ${user.id} / $lastUserId (%.4f%%)", 100.0 * user.id / lastUserId))
                 } else {
                     logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: $updatedAt)")
@@ -78,8 +78,8 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         logger.info("----- finished UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
     }
 
-    override fun updateUser(user: User, client: GitHubClient) {
-        super.updateUser(user, client)
+    override fun updateUser(user: User, client: GitHubClient, tokenUserId: Long) {
+        super.updateUser(user, client, tokenUserId)
         Thread.sleep(500) // 0.5s: 1000 * 0.5s = 500s = 8.3 min (out of 15 min)
     }
 }

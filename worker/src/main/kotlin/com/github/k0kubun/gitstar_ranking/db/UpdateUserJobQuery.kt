@@ -8,11 +8,12 @@ import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
+import org.jooq.impl.DSL.now
 import org.jooq.impl.DSL.table
 
 private data class UpdateUserJobPayload(
     val userId: Long?,
-    val userName: String?,
+    val userName: String? = null,
     val tokenUserId: Long,
 )
 
@@ -28,13 +29,13 @@ class UpdateUserJobQuery(private val database: DSLContext) {
         )
     }
 
-    fun acquireUntil(timeoutAt: Timestamp): Long {
-        return database
-            .fetchOne("""
-                with t1 as (select id from update_user_jobs where timeout_at < current_timestamp(0) order by timeout_at asc limit 1) 
-                update update_user_jobs t2 set timeout_at = ?, owner = pg_backend_pid() from t1 where t1.id = t2.id
-            """.trimIndent(), timeoutAt)
-            ?.get(0, Long::class.java) ?: 0
+    fun create(userId: Long, tokenUserId: Long) {
+        val payload = UpdateUserJobPayload(userId = userId, tokenUserId = tokenUserId)
+        database
+            .insertInto(table("update_user_jobs"))
+            .set(field("timeout_at"), now())
+            .set(field("payload"), objectMapper.writeValueAsString(payload))
+            .execute()
     }
 
     fun find(timeoutAt: Timestamp): UpdateUserJob? {
@@ -51,5 +52,14 @@ class UpdateUserJobQuery(private val database: DSLContext) {
             .delete(table("update_user_jobs"))
             .where(field("id").eq(id))
             .execute()
+    }
+
+    fun acquireUntil(timeoutAt: Timestamp): Long {
+        return database
+            .fetchOne("""
+                with t1 as (select id from update_user_jobs where timeout_at < current_timestamp(0) order by timeout_at asc limit 1) 
+                update update_user_jobs t2 set timeout_at = ?, owner = pg_backend_pid() from t1 where t1.id = t2.id
+            """.trimIndent(), timeoutAt)
+            ?.get(0, Long::class.java) ?: 0
     }
 }

@@ -7,6 +7,7 @@ import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.FULL_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.UserDao
+import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -64,7 +65,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                             i = 10
                             break
                         }
-                        updateUser(handle, user, client)
+                        updateUser(handle, UserQuery(database).find(id = user.id)!!, client) // TODO: Remove the user conversion, or at least fix N+1?
                         logger.info(String.format("[${user.login}] userId = ${user.id} / $lastUserId (%.4f%%)", 100.0 * user.id / lastUserId))
                     } else {
                         logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: $updatedAt)")

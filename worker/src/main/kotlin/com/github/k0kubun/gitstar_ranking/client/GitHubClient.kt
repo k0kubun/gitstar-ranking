@@ -10,6 +10,7 @@ import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.core.objectMapper
 import java.net.SocketTimeoutException
+import java.sql.Timestamp
 import java.time.temporal.ChronoUnit
 import javax.ws.rs.BadRequestException
 import javax.ws.rs.ClientErrorException
@@ -46,14 +47,12 @@ private data class RateLimit(val limit: Int, val remaining: Int, val reset: Long
 
 // https://docs.github.com/en/rest/reference/users#get-a-user
 // https://docs.github.com/en/rest/reference/users#list-users
-private data class UserResponse(
+data class UserResponse(
     val id: Long,
     val type: String,
     val login: String,
     val avatarUrl: String,
-) {
-    val user = User(id = id, type = type, login = login, avatarUrl = avatarUrl)
-}
+)
 
 // https://docs.github.com/en/rest/reference/repos#list-repositories-for-a-user
 private data class RepositoryResponse(
@@ -105,12 +104,12 @@ class GitHubClient(private val token: String) {
         return requestGet<UserResponse>("/user/$userId").login
     }
 
-    fun getUserWithLogin(login: String): User {
-        return requestGet<UserResponse>("/users/$login").user
+    fun getUserWithLogin(login: String): UserResponse {
+        return requestGet("/users/$login")
     }
 
-    fun getUsersSince(since: Long): List<User> {
-        return requestGet<List<UserResponse>>("/users", params = mapOf("since" to since)).map { it.user }
+    fun getUsersSince(since: Long): List<UserResponse> {
+        return requestGet("/users", params = mapOf("since" to since))
     }
 
     fun getPublicRepos(userId: Long): List<Repository> {

@@ -1,5 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.db
 
+import com.github.k0kubun.gitstar_ranking.client.UserResponse
 import com.github.k0kubun.gitstar_ranking.core.User
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -48,7 +49,7 @@ interface UserDao {
         "values (:id, :type, :login, :avatarUrl, current_timestamp(0), current_timestamp(0)) " +
         "on conflict (id) do update set login=excluded.login, avatar_url=excluded.avatar_url") // DO NOT update updated_at on conflict for threshold check
     @BatchChunkSize(100)
-    fun bulkInsert(@BindBean users: List<User?>?)
+    fun bulkInsert(@BindBean users: List<UserResponse>)
 
     @SqlUpdate("delete from users where id = :id")
     fun delete(@Bind("id") id: Long?): Long

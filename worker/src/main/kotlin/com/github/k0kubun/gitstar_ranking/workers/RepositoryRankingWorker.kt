@@ -1,40 +1,37 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.RepositoryRank
 import com.github.k0kubun.gitstar_ranking.db.PaginatedRepositories
-import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
-import com.github.k0kubun.gitstar_ranking.db.RepositoryRankDao
+import com.github.k0kubun.gitstar_ranking.db.RepositoryQuery
+import com.github.k0kubun.gitstar_ranking.db.RepositoryRankQuery
 import java.util.ArrayList
-import org.skife.jdbi.v2.DBI
-import org.skife.jdbi.v2.Handle
-import org.skife.jdbi.v2.TransactionStatus
+import org.jooq.impl.DSL.using
 import org.slf4j.LoggerFactory
 
 private const val ITERATE_MIN_STARS = 10
 
 class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val logger = LoggerFactory.getLogger(RepositoryRankingWorker::class.simpleName)
-    private val dbi: DBI = DBI(config.database.dataSource)
+    private val database = config.database.dslContext
 
     override fun perform() {
         logger.info("----- started RepositoryRankingWorker -----")
-        dbi.open().use { handle ->
-            val lastRank = updateUpperRanking(handle)
-            lastRank?.let { updateLowerRanking(handle, it) }
-        }
+        val lastRank = updateUpperRanking() // stars > 10
+        lastRank?.let { updateLowerRanking(it) }
         logger.info("----- finished RepositoryRankingWorker -----")
     }
 
-    private fun updateUpperRanking(handle: Handle): RepositoryRank? {
-        val count = handle.attach(RepositoryDao::class.java).countRepos() // warmup
-        val paginatedRepos = PaginatedRepositories(handle)
-        var repos: List<Repository>
+    private fun updateUpperRanking(): RepositoryRank? {
+        val count = RepositoryQuery(database).count() // warmup
+        val paginatedRepos = PaginatedRepositories(database)
         val commitPendingRanks: MutableList<RepositoryRank> = ArrayList() // listed in stargazers_count DESC
         var currentRank: RepositoryRank? = null
         var currentRankNum = 0
-        while (paginatedRepos.nextRepos().also { repos = it }.isNotEmpty()) {
+        while (true) {
+            val repos = paginatedRepos.nextRepos()
+            if (repos.isEmpty()) break
+
             // Shutdown immediately if requested, even if it's in progress.
             if (isStopped) {
                 return null
@@ -52,7 +49,7 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
                 }
             }
             if (commitPendingRanks.isNotEmpty()) {
-                commitRanks(handle, commitPendingRanks)
+                commitRanks(commitPendingRanks)
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
@@ -67,29 +64,29 @@ class RepositoryRankingWorker(config: GitstarRankingConfiguration) : Worker() {
         return currentRank
     }
 
-    private fun updateLowerRanking(handle: Handle, lastRepoRank: RepositoryRank) {
+    private fun updateLowerRanking(lastRepoRank: RepositoryRank) {
         val repoRanks: MutableList<RepositoryRank> = ArrayList() // listed in stargazers_count DESC
         repoRanks.add(lastRepoRank)
         var lastRank = lastRepoRank.rank
         (lastRepoRank.stargazersCount downTo 1).forEach { lastStars ->
             logger.info("RepositoryRankingWorker for ${lastStars - 1}")
-            val count = handle.attach(RepositoryDao::class.java).countReposHavingStars(lastStars)
+            val count = RepositoryQuery(database).count(stars = lastStars)
             repoRanks.add(RepositoryRank(lastStars - 1, lastRank + count))
             lastRank += count
         }
-        commitRanks(handle, repoRanks)
+        commitRanks(repoRanks)
     }
 
-    private fun commitRanks(handle: Handle, repoRanks: List<RepositoryRank>) {
-        // `repoRanks` is listed in stargazers_count DESC
-        val maxStars = repoRanks[0].stargazersCount
-        val highestRank = repoRanks[0].rank
-        val minStars = lastOf(repoRanks).stargazersCount
-        val lowestRank = lastOf(repoRanks).rank
-        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-            conn.attach(RepositoryRankDao::class.java).deleteStarsBetween(minStars, maxStars)
-            conn.attach(RepositoryRankDao::class.java).deleteRankBetween(highestRank, lowestRank)
-            conn.attach(RepositoryRankDao::class.java).bulkInsert(repoRanks)
+    private fun commitRanks(ranks: List<RepositoryRank>) {
+        // `ranks` is listed in stargazers_count DESC
+        val maxStars = ranks[0].stargazersCount
+        val bestRank = ranks[0].rank
+        val minStars = lastOf(ranks).stargazersCount
+        val worstRank = lastOf(ranks).rank
+        database.transaction { tx ->
+            RepositoryRankQuery(using(tx)).deleteByStars(min = minStars, max = maxStars)
+            RepositoryRankQuery(using(tx)).deleteByRank(min = bestRank, max = worstRank)
+            RepositoryRankQuery(using(tx)).insertAll(ranks)
         }
     }
 

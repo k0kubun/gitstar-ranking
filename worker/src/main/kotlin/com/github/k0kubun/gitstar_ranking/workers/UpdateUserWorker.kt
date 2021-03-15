@@ -2,6 +2,7 @@ package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
+import com.github.k0kubun.gitstar_ranking.client.UserResponse
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
 import com.github.k0kubun.gitstar_ranking.core.User
@@ -79,11 +80,9 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
     }
 
     // Create a pre-required user record for a give userName.
-    private fun createUser(handle: Handle, userName: String, client: GitHubClient): User {
+    private fun createUser(handle: Handle, userName: String, client: GitHubClient): UserResponse {
         val user = client.getUserWithLogin(userName)
-        val users: MutableList<User> = ArrayList()
-        users.add(user)
-        handle.attach(UserDao::class.java).bulkInsert(users)
+        handle.attach(UserDao::class.java).bulkInsert(listOf(user))
         return user
     }
 

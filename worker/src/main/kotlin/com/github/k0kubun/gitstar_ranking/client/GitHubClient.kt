@@ -155,6 +155,7 @@ class GitHubClient(private val token: String) {
                     getHeaderString("X-RateLimit-Remaining")?.also {
                         rateLimitRemaining = it.toInt()
                     }
+                    //stargazers_count, rank, created_at, updated_at
                     checkStatus(this)
                 }
                 .run {

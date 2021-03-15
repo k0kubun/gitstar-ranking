@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit
 import java.util.ArrayList
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
-import org.jooq.impl.DSL
+import org.jooq.impl.DSL.using
 import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
@@ -115,8 +115,8 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                 val nextUpdatedId = lastUpdatedId
                 val nextStars = stars
                 database.transaction { tx ->
-                    LastUpdateQuery(DSL.using(tx)).update(key = STAR_SCAN_USER_ID, cursor = nextUpdatedId)
-                    LastUpdateQuery(DSL.using(tx)).update(key = STAR_SCAN_STARS, cursor = nextStars)
+                    LastUpdateQuery(using(tx)).update(key = STAR_SCAN_USER_ID, cursor = nextUpdatedId)
+                    LastUpdateQuery(using(tx)).update(key = STAR_SCAN_STARS, cursor = nextStars)
                 }
             }
         }

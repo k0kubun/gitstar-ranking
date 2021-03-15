@@ -9,7 +9,6 @@ class AccessTokenQuery(private val database: DSLContext) {
             .select(field("token"))
             .from("access_tokens")
             .where(field("user_id").eq(userId))
-            .fetchOne()
-            ?.get("token", String::class.java)
+            .fetchOne("token", String::class.java)
     }
 }

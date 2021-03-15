@@ -16,8 +16,7 @@ class LastUpdateQuery(private val database: DSLContext) {
             .select(field("cursor"))
             .from("last_updates")
             .where(field("id").eq(key))
-            .fetchOne()
-            ?.get("cursor", Long::class.java)
+            .fetchOne("cursor", Long::class.java)
     }
 
     fun update(key: Int, cursor: Long) {

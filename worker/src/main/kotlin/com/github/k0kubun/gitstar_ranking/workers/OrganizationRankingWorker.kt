@@ -1,40 +1,36 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import com.github.k0kubun.gitstar_ranking.core.Organization
 import com.github.k0kubun.gitstar_ranking.core.OrganizationRank
-import com.github.k0kubun.gitstar_ranking.db.OrganizationDao
-import com.github.k0kubun.gitstar_ranking.db.OrganizationRankDao
+import com.github.k0kubun.gitstar_ranking.db.OrganizationQuery
+import com.github.k0kubun.gitstar_ranking.db.OrganizationRankQuery
 import com.github.k0kubun.gitstar_ranking.db.PaginatedOrganizations
-import java.util.ArrayList
-import org.skife.jdbi.v2.DBI
-import org.skife.jdbi.v2.Handle
-import org.skife.jdbi.v2.TransactionStatus
+import org.jooq.impl.DSL.using
 import org.slf4j.LoggerFactory
 
 private const val ITERATE_MIN_STARS = 10
 
 class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() {
     private val logger = LoggerFactory.getLogger(OrganizationRankingWorker::class.simpleName)
-    private val dbi: DBI = DBI(config.database.dataSource)
+    private val database = config.database.dslContext
 
     override fun perform() {
         logger.info("----- started OrganizationRankingWorker -----")
-        dbi.open().use { handle ->
-            val lastRank = updateUpperRanking(handle)
-            lastRank?.let { updateLowerRanking(handle, it) }
-        }
+        val lastRank = updateUpperRanking() // stars > 10
+        lastRank?.let { updateLowerRanking(it) }
         logger.info("----- finished OrganizationRankingWorker -----")
     }
 
-    private fun updateUpperRanking(handle: Handle): OrganizationRank? {
-        val count = handle.attach(OrganizationDao::class.java).countOrganizations() // warmup
-        val paginatedOrgs = PaginatedOrganizations(handle)
-        var orgs: List<Organization>
-        val commitPendingRanks: MutableList<OrganizationRank> = ArrayList() // listed in stargazers_count DESC
+    private fun updateUpperRanking(): OrganizationRank? {
+        val count = OrganizationQuery(database).count() // warmup
+        val paginatedOrgs = PaginatedOrganizations(database)
+        val commitPendingRanks = mutableListOf<OrganizationRank>() // listed in stargazers_count DESC
         var currentRank: OrganizationRank? = null
         var currentRankNum = 0
-        while (paginatedOrgs.nextOrgs().also { orgs = it }.isNotEmpty()) {
+        while (true) {
+            val orgs = paginatedOrgs.nextOrgs()
+            if (orgs.isEmpty()) break
+
             // Shutdown immediately if requested, even if it's in progress.
             if (isStopped) {
                 return null
@@ -56,7 +52,7 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
                 }
             }
             if (commitPendingRanks.isNotEmpty()) {
-                commitRanks(handle, commitPendingRanks)
+                commitRanks(commitPendingRanks)
                 commitPendingRanks.clear()
             }
             val rows = currentRank!!.rank + currentRankNum - 1
@@ -71,29 +67,28 @@ class OrganizationRankingWorker(config: GitstarRankingConfiguration) : Worker() 
         return currentRank
     }
 
-    private fun updateLowerRanking(handle: Handle, lastOrgRank: OrganizationRank) {
-        val orgRanks: MutableList<OrganizationRank> = ArrayList() // listed in stargazers_count DESC
-        orgRanks.add(lastOrgRank)
+    private fun updateLowerRanking(lastOrgRank: OrganizationRank) {
+        val orgRanks = mutableListOf(lastOrgRank) // listed in stargazers_count DESC
         var lastRank = lastOrgRank.rank
         for (lastStars in lastOrgRank.stargazersCount downTo 1) {
             logger.info("OrganizationRankingWorker for ${lastStars - 1}")
-            val count = handle.attach(OrganizationDao::class.java).countOrganizationsHavingStars(lastStars)
+            val count = OrganizationQuery(database).count(stars = lastStars)
             orgRanks.add(OrganizationRank(lastStars - 1, lastRank + count))
             lastRank += count
         }
-        commitRanks(handle, orgRanks)
+        commitRanks(orgRanks)
     }
 
-    private fun commitRanks(handle: Handle, orgRanks: List<OrganizationRank>) {
-        // `orgRanks` is listed in stargazers_count DESC
-        val maxStars = orgRanks[0].stargazersCount
-        val highestRank = orgRanks[0].rank
-        val minStars = lastOf(orgRanks).stargazersCount
-        val lowestRank = lastOf(orgRanks).rank
-        handle.useTransaction { conn: Handle, _: TransactionStatus? ->
-            conn.attach(OrganizationRankDao::class.java).deleteStarsBetween(minStars, maxStars)
-            conn.attach(OrganizationRankDao::class.java).deleteRankBetween(highestRank, lowestRank)
-            conn.attach(OrganizationRankDao::class.java).bulkInsert(orgRanks)
+    private fun commitRanks(ranks: List<OrganizationRank>) {
+        // `ranks` is listed in stargazers_count DESC
+        val maxStars = ranks[0].stargazersCount
+        val bestRank = ranks[0].rank
+        val minStars = lastOf(ranks).stargazersCount
+        val worstRank = lastOf(ranks).rank
+        database.transaction { tx ->
+            OrganizationRankQuery(using(tx)).deleteByStars(min = minStars, max = maxStars)
+            OrganizationRankQuery(using(tx)).deleteByRank(min = bestRank, max = worstRank)
+            OrganizationRankQuery(using(tx)).insertAll(ranks)
         }
     }
 

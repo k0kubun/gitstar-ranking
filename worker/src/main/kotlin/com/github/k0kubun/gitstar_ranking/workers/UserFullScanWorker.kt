@@ -1,9 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
-import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.FULL_SCAN_USER_ID
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.UserQuery

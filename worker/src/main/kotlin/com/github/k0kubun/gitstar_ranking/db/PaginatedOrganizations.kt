@@ -1,6 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.db
 
 import com.github.k0kubun.gitstar_ranking.core.Organization
+import com.github.k0kubun.gitstar_ranking.core.StarsCursor
 import org.jooq.DSLContext
 
 private const val PAGE_SIZE = 5000
@@ -14,7 +15,7 @@ class PaginatedOrganizations(private val database: DSLContext) {
         val orgs: List<Organization> = if (lastMinId != null && lastMinStars != null) {
             OrganizationQuery(database).orderByStarsDesc(
                 limit = PAGE_SIZE,
-                after = RepositoryCursor(id = lastMinId!!, stars = lastMinStars!!)
+                after = StarsCursor(id = lastMinId!!, stars = lastMinStars!!)
             )
         } else {
             OrganizationQuery(database).orderByStarsDesc(limit = PAGE_SIZE)

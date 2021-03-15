@@ -16,8 +16,8 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper
 
 @UseStringTemplate3StatementLocator
 interface UserDao {
-    @SqlQuery("select id, login, type from users where id = :id")
-    @Mapper(UserMapper::class)
+    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where id = :id")
+    @Mapper(UserStarMapper::class)
     fun find(@Bind("id") id: Long): User?
 
     @SqlQuery("select updated_at from users where id = :id")
@@ -36,15 +36,6 @@ interface UserDao {
     @SqlQuery("select id from users order by id desc limit 1")
     fun lastId(): Long
 
-    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' order by stargazers_count desc, id desc limit :limit")
-    @Mapper(UserStarMapper::class)
-    fun starsDescFirstUsers(@Bind("limit") limit: Int?): List<User>
-
-    @SqlQuery("select id, login, type, stargazers_count, updated_at from users where type = 'User' and " +
-        "(stargazers_count, id) \\< (:stargazersCount, :id) order by stargazers_count desc, id desc limit :limit")
-    @Mapper(UserStarMapper::class)
-    fun starsDescUsersAfter(@Bind("stargazersCount") stargazersCount: Long?, @Bind("id") id: Long?, @Bind("limit") limit: Int?): List<User>
-
     @SqlQuery("select id, login, type, stargazers_count, updated_at from users " +
         "where stargazers_count = :stargazersCount and :id \\< id order by id asc limit :limit")
     @Mapper(UserStarMapper::class)
@@ -52,12 +43,6 @@ interface UserDao {
 
     @SqlQuery("select stargazers_count from users where stargazers_count \\< :stargazersCount order by stargazers_count desc limit 1")
     fun nextStargazersCount(@Bind("stargazersCount") stargazersCount: Long): Long
-
-    @SqlQuery("select count(1) from users where type = 'User'")
-    fun countUsers(): Long
-
-    @SqlQuery("select count(1) from users where type = 'User' and stargazers_count = :stargazersCount")
-    fun countUsersHavingStars(@Bind("stargazersCount") stargazersCount: Long): Long
 
     @SqlBatch("insert into users (id, type, login, avatar_url, created_at, updated_at) " +
         "values (:id, :type, :login, :avatarUrl, current_timestamp(0), current_timestamp(0)) " +
@@ -67,15 +52,6 @@ interface UserDao {
 
     @SqlUpdate("delete from users where id = :id")
     fun delete(@Bind("id") id: Long?): Long
-    class UserMapper : ResultSetMapper<User> {
-        override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
-            return User(
-                id = r.getLong("id"),
-                type = r.getString("type"),
-                login = r.getString("login"),
-            )
-        }
-    }
 
     class UserStarMapper : ResultSetMapper<User> {
         override fun map(index: Int, r: ResultSet, ctx: StatementContext): User {
@@ -83,10 +59,9 @@ interface UserDao {
                 id = r.getInt("id").toLong(),
                 type = r.getString("type"),
                 login = r.getString("login"),
-            ).apply {
-                stargazersCount = r.getLong("stargazers_count")
-                updatedAt = r.getTimestamp("updated_at")
-            }
+                stargazersCount = r.getLong("stargazers_count"),
+                updatedAt = r.getTimestamp("updated_at"),
+            )
         }
     }
 }

@@ -5,10 +5,8 @@ import java.sql.Timestamp
 data class User(
     val id: Long,
     val type: String,
+    var stargazersCount: Long,
+    var updatedAt: Timestamp?,
     val login: String? = null,
     val avatarUrl: String? = null,
-) {
-    val isOrganization: Boolean = (type == "Organization")
-    var stargazersCount = 0L
-    var updatedAt: Timestamp? = null
-}
+)

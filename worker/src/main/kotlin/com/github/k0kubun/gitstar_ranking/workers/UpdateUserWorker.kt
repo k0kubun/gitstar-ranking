@@ -5,7 +5,6 @@ import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import java.lang.Exception
 import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
 import java.util.concurrent.TimeUnit
-import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobDao
 import java.lang.RuntimeException
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.db.UserDao
@@ -13,14 +12,18 @@ import io.sentry.Sentry
 import org.skife.jdbi.v2.TransactionStatus
 import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
 import com.github.k0kubun.gitstar_ranking.core.Repository
+import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
 import com.github.k0kubun.gitstar_ranking.core.User
+import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobQuery
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.ArrayList
 import javax.sql.DataSource
 import javax.ws.rs.NotFoundException
+import org.jooq.Configuration
 import org.jooq.DSLContext
+import org.jooq.impl.DSL.using
 import org.skife.jdbi.v2.Handle
 import org.slf4j.LoggerFactory
 
@@ -29,56 +32,59 @@ private const val TIMEOUT_MINUTES = 1
 open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLContext) : Worker() {
     private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
     open val dbi: DBI = DBI(dataSource)
+    private val lock = DatabaseLock(database)
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
 
     // Dequeue a record from update_user_jobs and call updateUser().
     override fun perform() {
-        dbi.open().use { handle ->
-            val lock = DatabaseLock(database)
-
-            // Poll until it succeeds to acquire a job...
-            var timeoutAt: Timestamp
-            while (acquireUntil(lock, handle, nextTimeout().also { timeoutAt = it }) == 0L) {
-                if (isStopped) {
-                    return
-                }
+        // Poll until it succeeds to acquire a job...
+        var job: UpdateUserJob? = null
+        while (job == null) {
+            if (isStopped) {
+                return
+            }
+            val timeoutAt = nextTimeout()
+            job = database.transactionResult { tx ->
+                if (acquireUntil(tx, timeoutAt) != 0L) {
+                    // Succeeded to acquire a job. Fetch job to execute.
+                    UpdateUserJobQuery(using(tx)).find(timeoutAt = timeoutAt).also {
+                        it ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
+                    }
+                } else null
+            }
+            if (job == null) {
                 TimeUnit.SECONDS.sleep(1)
             }
+        }
 
-            // Succeeded to acquire a job. Fetch job to execute.
-            val dao = handle.attach(UpdateUserJobDao::class.java)
-            val job = dao.fetchByTimeout(timeoutAt)
-                ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
-
-            try {
+        try {
+            dbi.open().use { handle ->
                 val client = clientBuilder.buildForUser(job.tokenUserId)
-                val userId: Long = if (job.userName == null) {
-                    job.userId!!
-                } else {
-                    createUser(handle, job.userName, client)
-                }
+                val userId: Long = job.userName?.let { userName ->
+                    createUser(handle, userName, client).id
+                } ?: job.userId!!
                 lock.withUserUpdate(userId) {
                     val user = handle.attach(UserDao::class.java).find(userId)!!
                     logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
                     updateUser(handle, user, client)
                     logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
                 }
-            } catch (e: Exception) {
-                Sentry.captureException(e)
-                logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
-            } finally {
-                dao.delete(job.id)
             }
+        } catch (e: Exception) {
+            Sentry.captureException(e)
+            logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
+        } finally {
+            UpdateUserJobQuery(database).delete(id = job.id)
         }
     }
 
     // Create a pre-required user record for a give userName.
-    private fun createUser(handle: Handle, userName: String, client: GitHubClient): Long {
+    private fun createUser(handle: Handle, userName: String, client: GitHubClient): User {
         val user = client.getUserWithLogin(userName)
         val users: MutableList<User> = ArrayList()
         users.add(user)
         handle.attach(UserDao::class.java).bulkInsert(users)
-        return user.id
+        return user
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.
@@ -120,8 +126,8 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
-    private fun acquireUntil(lock: DatabaseLock, handle: Handle, timeoutAt: Timestamp): Long {
-        return lock.withUpdateUserJobs { handle.attach(UpdateUserJobDao::class.java).acquireUntil(timeoutAt) }
+    private fun acquireUntil(tx: Configuration, timeoutAt: Timestamp): Long {
+        return lock.withUpdateUserJobs { UpdateUserJobQuery(using(tx)).acquireUntil(timeoutAt) }
     }
 
     private fun nextTimeout(): Timestamp {

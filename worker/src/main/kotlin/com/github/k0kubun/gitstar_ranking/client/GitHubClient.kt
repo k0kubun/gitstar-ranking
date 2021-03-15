@@ -8,6 +8,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.User
+import com.github.k0kubun.gitstar_ranking.core.objectMapper
 import java.net.SocketTimeoutException
 import java.time.temporal.ChronoUnit
 import javax.ws.rs.BadRequestException
@@ -82,9 +83,6 @@ private data class RepositoryOwner(val id: Long)
 
 class GitHubClient(private val token: String) {
     private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
-    private val objectMapper = ObjectMapper().registerModule(KotlinModule())
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = ClientBuilder.newBuilder()
         .property(ClientProperties.CONNECT_TIMEOUT, 5000)
         .property(ClientProperties.READ_TIMEOUT, 30000)

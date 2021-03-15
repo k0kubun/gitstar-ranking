@@ -59,9 +59,11 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             } ?: job.userId!!
             DatabaseLock(database).withUserUpdate(userId) {
                 val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
-                logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
-                updateUser(user, client, job.tokenUserId)
-                logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
+                if (user != null) {
+                    logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
+                    updateUser(user, client, job.tokenUserId)
+                    logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
+                }
             }
         } catch (e: Exception) {
             Sentry.captureException(e)
@@ -78,8 +80,13 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
         return user
     }
 
-    private fun createUserById(id: Long, client: GitHubClient): User {
-        val user = client.getUser(userId = id)
+    private fun createUserById(id: Long, client: GitHubClient): User? {
+        val user = try {
+            client.getUser(userId = id)
+        } catch (e: NotFoundException) {
+            logger.debug("Skipping to create a user because user_id=$id didn't exist")
+            return null
+        }
         UserQuery(database).create(user)
         return UserQuery(database).find(id = id)!!
     }

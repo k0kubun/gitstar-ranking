@@ -105,11 +105,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             repoIds.add(repo.id)
         }
         database.transaction { tx ->
-            if (repoIds.size > 0) {
-                RepositoryQuery(using(tx)).deleteAll(ownerId = userId, exceptIds = repoIds) // Delete obsoleted ones
-            } else {
-                RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
-            }
+            RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
             RepositoryQuery(using(tx)).insertAll(repos)
             UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
         }

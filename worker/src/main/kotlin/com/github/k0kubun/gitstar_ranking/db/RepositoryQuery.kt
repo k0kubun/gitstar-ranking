@@ -77,15 +77,10 @@ class RepositoryQuery(private val database: DSLContext) {
         }
     }
 
-    fun deleteAll(ownerId: Long, exceptIds: List<Long>? = null) {
+    fun deleteAll(ownerId: Long) {
         database
             .delete(table("repositories"))
             .where(field("owner_id").eq(ownerId))
-            .run {
-                if (exceptIds != null) {
-                    and(field("id").notIn(*exceptIds.toTypedArray()))
-                } else this
-            }
             .execute()
     }
 

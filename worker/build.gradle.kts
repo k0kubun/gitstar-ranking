@@ -29,7 +29,6 @@ dependencies {
     implementation(enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.12.2"))
     implementation("com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider")
     implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 

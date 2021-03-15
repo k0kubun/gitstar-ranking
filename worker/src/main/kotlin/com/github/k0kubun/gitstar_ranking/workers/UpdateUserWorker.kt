@@ -55,10 +55,10 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
         try {
             val client = clientBuilder.buildForUser(job.tokenUserId)
             val userId: Long = job.userName?.let { login ->
-                createUser(login, client).id
+                createUserByLogin(login, client).id
             } ?: job.userId!!
             DatabaseLock(database).withUserUpdate(userId) {
-                val user = UserQuery(database).find(id = userId)!!
+                val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
                 logger.info("UpdateUserWorker started: (userId = $userId, login = ${user.login})")
                 updateUser(user, client, job.tokenUserId)
                 logger.info("UpdateUserWorker finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
@@ -72,10 +72,16 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
     }
 
     // Create a pre-required user record for a give userName.
-    private fun createUser(login: String, client: GitHubClient): UserResponse {
+    private fun createUserByLogin(login: String, client: GitHubClient): UserResponse {
         val user = client.getUserWithLogin(login)
         UserQuery(database).create(user)
         return user
+    }
+
+    private fun createUserById(id: Long, client: GitHubClient): User {
+        val user = client.getUser(userId = id)
+        UserQuery(database).create(user)
+        return UserQuery(database).find(id = id)!!
     }
 
     // Main part of this class. Given enqueued userId, it updates a user and his repositories.

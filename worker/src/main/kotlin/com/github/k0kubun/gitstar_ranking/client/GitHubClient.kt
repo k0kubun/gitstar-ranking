@@ -101,7 +101,11 @@ class GitHubClient(private val token: String) {
     var rateLimitRemaining = requestGet<RateLimitResponse>("/rate_limit").resources.core.remaining
 
     fun getLogin(userId: Long): String {
-        return requestGet<UserResponse>("/user/$userId").login
+        return getUser(userId = userId).login
+    }
+
+    fun getUser(userId: Long): UserResponse {
+        return requestGet("/user/$userId")
     }
 
     fun getUserWithLogin(login: String): UserResponse {

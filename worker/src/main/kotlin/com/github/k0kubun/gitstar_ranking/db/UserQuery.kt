@@ -127,6 +127,7 @@ class UserQuery(private val database: DSLContext) {
             .select(field(column))
             .from("users")
             .orderBy(field(column).desc())
+            .limit(1)
             .fetchOne(column, Long::class.java)
     }
 
@@ -136,6 +137,7 @@ class UserQuery(private val database: DSLContext) {
             .from("users")
             .where(field("stargazers_count").lessThan(stargazersCountLessThan))
             .orderBy(field("stargazers_count").desc())
+            .limit(1)
             .fetchOne("stargazers_count", Long::class.java)
     }
 

@@ -33,6 +33,8 @@ class UpdateUserJobQuery(private val database: DSLContext) {
         val payload = UpdateUserJobPayload(userId = userId, tokenUserId = tokenUserId)
         database
             .insertInto(table("update_user_jobs"))
+            .set(field("created_at"), now())
+            .set(field("updated_at"), now())
             .set(field("timeout_at"), now())
             .set(field("payload"), objectMapper.writeValueAsString(payload))
             .execute()

@@ -8,7 +8,6 @@ import java.sql.Timestamp
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.RecordMapper
-import org.jooq.impl.DSL
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
 import org.jooq.impl.DSL.row
@@ -62,6 +61,13 @@ class UserQuery(private val database: DSLContext) {
             .execute()
     }
 
+    fun destroy(id: Long) {
+        database
+            .delete(table("users"))
+            .where(field("id").eq(id))
+            .execute()
+    }
+
     fun count(stargazersCount: Long? = null): Long {
         return database
             .selectCount()
@@ -94,8 +100,8 @@ class UserQuery(private val database: DSLContext) {
                             repo.type,
                             repo.login,
                             repo.avatarUrl,
-                            DSL.now(), // created_at
-                            DSL.now(), // updated_at
+                            now(), // created_at
+                            now(), // updated_at
                         )
                     }
                 }
@@ -106,6 +112,23 @@ class UserQuery(private val database: DSLContext) {
                 .set(field("updated_at", Timestamp::class.java), field("excluded.updated_at", Timestamp::class.java))
                 .execute()
         }
+    }
+
+    fun max(column: String): Long? {
+        return database
+            .select(field(column))
+            .from("users")
+            .orderBy(field(column).desc())
+            .fetchOne(column, Long::class.java)
+    }
+
+    fun findStargazersCount(stargazersCountLessThan: Long): Long? {
+        return database
+            .select(field("stargazers_count"))
+            .from("users")
+            .where(field("stargazers_count").lessThan(stargazersCountLessThan))
+            .orderBy(field("stargazers_count").desc())
+            .fetchOne("stargazers_count", Long::class.java)
     }
 
     fun orderByIdAsc(stargazersCount: Long, idAfter: Long, limit: Int): List<User> {
@@ -134,12 +157,5 @@ class UserQuery(private val database: DSLContext) {
             .orderBy(field("stargazers_count").desc(), field("id").desc())
             .limit(limit)
             .fetch(userMapper)
-    }
-
-    fun destroy(id: Long) {
-        database
-            .delete(table("users"))
-            .where(field("id").eq(id))
-            .execute()
     }
 }

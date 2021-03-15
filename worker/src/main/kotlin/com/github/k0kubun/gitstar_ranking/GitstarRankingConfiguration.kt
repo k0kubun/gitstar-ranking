@@ -14,15 +14,14 @@ data class DatabaseConfiguration(
     val password: String,
     val database: String,
 ) {
-    val dataSource = PGSimpleDataSource().also {
-        it.setUrl("jdbc:postgresql://$host:$port/$database")
-        it.user = user
-        it.password = password
-    }
     val dslContext = DSL.using(
-        DefaultConfiguration()
-            .set(dataSource)
-            .set(SQLDialect.POSTGRES)
+        DefaultConfiguration().set(SQLDialect.POSTGRES).set(
+            PGSimpleDataSource().also {
+                it.setUrl("jdbc:postgresql://$host:$port/$database")
+                it.user = user
+                it.password = password
+            }
+        )
     )
 
     constructor(env: Map<String, String> = System.getenv()) : this(

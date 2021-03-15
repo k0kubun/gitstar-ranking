@@ -7,7 +7,6 @@ import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_STARS
 import com.github.k0kubun.gitstar_ranking.db.STAR_SCAN_USER_ID
-import com.github.k0kubun.gitstar_ranking.db.UserDao
 import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import java.sql.Timestamp
 import java.time.Instant
@@ -15,7 +14,6 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.jooq.impl.DSL.using
-import org.skife.jdbi.v2.DBI
 import org.slf4j.LoggerFactory
 
 val PENDING_USERS = listOf(
@@ -30,7 +28,7 @@ val PENDING_USERS = listOf(
 )
 
 private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
-private const val THRESHOLD_DAYS: Long = 1 // At least later than Mar 6th
+private const val THRESHOLD_DAYS: Long = 7 // At least later than Mar 6th
 private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 private const val BATCH_SIZE = 100
 
@@ -38,7 +36,6 @@ private const val BATCH_SIZE = 100
 class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
-    private val dbi: DBI = DBI(config.database.dataSource)
     private val database = config.database.dslContext
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
     private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
@@ -51,74 +48,72 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
         }
         val client = clientBuilder.buildForUser(TOKEN_USER_ID)
         logger.info("----- started UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
-        dbi.open().use { handle ->
-            var numUsers = 1000 // 2 * (1000 / 30 min) ≒ 4000 / hour
-            var numChecks = 2000 // Avoid issuing too many queries by skips
-            while (numUsers > 0 && numChecks > 0 && !isStopped) {
-                // Find a current cursor
-                var lastUpdatedId = LastUpdateQuery(database).findCursor(key = STAR_SCAN_USER_ID) ?: 0L
-                var stars = LastUpdateQuery(database).findCursor(key = STAR_SCAN_STARS) ?: 0L
-                if (stars == 0L) {
-                    stars = handle.attach(UserDao::class.java).maxStargazersCount()
+        var numUsers = 1000 // 2 * (1000 / 30 min) ≒ 4000 / hour
+        var numChecks = 2000 // Avoid issuing too many queries by skips
+        while (numUsers > 0 && numChecks > 0 && !isStopped) {
+            // Find a current cursor
+            var lastUpdatedId = LastUpdateQuery(database).findCursor(key = STAR_SCAN_USER_ID) ?: 0L
+            var stars = LastUpdateQuery(database).findCursor(key = STAR_SCAN_STARS) ?: 0L
+            if (stars == 0L) {
+                stars = UserQuery(database).max("stargazers_count") ?: 0L
+            }
+
+            // Query a next batch
+            var users = emptyList<User>()
+            while (users.isEmpty()) {
+                users = UserQuery(database).orderByIdAsc(
+                    stargazersCount = stars, idAfter = lastUpdatedId, limit = numUsers.coerceAtMost(BATCH_SIZE),
+                )
+                if (users.isEmpty()) {
+                    stars = UserQuery(database).findStargazersCount(stargazersCountLessThan = stars) ?: 0L
+                    if (stars == 0L) {
+                        LastUpdateQuery(database).delete(key = listOf(STAR_SCAN_USER_ID, STAR_SCAN_STARS))
+                        logger.info("--- completed and reset UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) ---")
+                        return
+                    }
+                    lastUpdatedId = 0
+                }
+            }
+
+            // Update users in the batch
+            logger.info("Batch size: ${users.size} (stars: $stars)")
+            for (user in users) {
+                if (PENDING_USERS.contains(user.login)) {
+                    logger.info("Skipping a user with too many repositories: ${user.login}")
+                    continue
                 }
 
-                // Query a next batch
-                var users = emptyList<User>()
-                while (users.isEmpty()) {
-                    users = UserQuery(database).orderByIdAsc(
-                        stargazersCount = stars, idAfter = lastUpdatedId, limit = numUsers.coerceAtMost(BATCH_SIZE),
-                    )
-                    if (users.isEmpty()) {
-                        stars = handle.attach(UserDao::class.java).nextStargazersCount(stars)
-                        if (stars == 0L) {
-                            LastUpdateQuery(database).delete(key = listOf(STAR_SCAN_USER_ID, STAR_SCAN_STARS))
-                            logger.info("--- completed and reset UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) ---")
-                            return
-                        }
-                        lastUpdatedId = 0
-                    }
+                // Check rate limit
+                val remaining = client.rateLimitRemaining
+                logger.info("API remaining: $remaining/5000 (numUsers: $numUsers, numChecks: $numChecks)")
+                if (remaining < MIN_RATE_LIMIT_REMAINING) {
+                    logger.info("API remaining is smaller than $remaining. Stopping.")
+                    numChecks = 0
+                    break
                 }
-
-                // Update users in the batch
-                logger.info("Batch size: ${users.size} (stars: $stars)")
-                for (user in users) {
-                    if (PENDING_USERS.contains(user.login)) {
-                        logger.info("Skipping a user with too many repositories: ${user.login}")
-                        continue
-                    }
-
-                    // Check rate limit
-                    val remaining = client.rateLimitRemaining
-                    logger.info("API remaining: $remaining/5000 (numUsers: $numUsers, numChecks: $numChecks)")
-                    if (remaining < MIN_RATE_LIMIT_REMAINING) {
-                        logger.info("API remaining is smaller than $remaining. Stopping.")
-                        numChecks = 0
-                        break
-                    }
-                    val updatedAt = handle.attach(UserDao::class.java).userUpdatedAt(user.id)!! // TODO: Fix N+1
-                    if (updatedAt.before(updateThreshold)) {
-                        updateUser(user, client)
-                        logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
-                        numUsers--
-                    } else {
-                        logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${updatedAt})")
-                    }
-                    numChecks--
-                    if (lastUpdatedId < user.id) {
-                        lastUpdatedId = user.id
-                    }
-                    if (isStopped) { // Shutdown immediately if requested
-                        break
-                    }
+                val updatedAt = UserQuery(database).find(id = user.id)!!.updatedAt // TODO: Fix N+1
+                if (updatedAt.before(updateThreshold)) {
+                    updateUser(user, client)
+                    logger.info("[${user.login}] userId = ${user.id} (stars: ${user.stargazersCount})")
+                    numUsers--
+                } else {
+                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${updatedAt})")
                 }
-
-                // Update the counter
-                val nextUpdatedId = lastUpdatedId
-                val nextStars = stars
-                database.transaction { tx ->
-                    LastUpdateQuery(using(tx)).update(key = STAR_SCAN_USER_ID, cursor = nextUpdatedId)
-                    LastUpdateQuery(using(tx)).update(key = STAR_SCAN_STARS, cursor = nextStars)
+                numChecks--
+                if (lastUpdatedId < user.id) {
+                    lastUpdatedId = user.id
                 }
+                if (isStopped) { // Shutdown immediately if requested
+                    break
+                }
+            }
+
+            // Update the counter
+            val nextUpdatedId = lastUpdatedId
+            val nextStars = stars
+            database.transaction { tx ->
+                LastUpdateQuery(using(tx)).update(key = STAR_SCAN_USER_ID, cursor = nextUpdatedId)
+                LastUpdateQuery(using(tx)).update(key = STAR_SCAN_STARS, cursor = nextStars)
             }
         }
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")

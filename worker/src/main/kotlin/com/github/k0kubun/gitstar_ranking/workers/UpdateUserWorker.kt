@@ -1,30 +1,30 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
-import org.skife.jdbi.v2.DBI
-import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
-import java.lang.Exception
-import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
-import java.util.concurrent.TimeUnit
-import java.lang.RuntimeException
 import com.github.k0kubun.gitstar_ranking.client.GitHubClient
-import com.github.k0kubun.gitstar_ranking.db.UserDao
-import io.sentry.Sentry
-import org.skife.jdbi.v2.TransactionStatus
-import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
+import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.Repository
 import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
 import com.github.k0kubun.gitstar_ranking.core.User
+import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
+import com.github.k0kubun.gitstar_ranking.db.RepositoryDao
 import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobQuery
+import com.github.k0kubun.gitstar_ranking.db.UserDao
+import io.sentry.Sentry
+import java.lang.Exception
+import java.lang.RuntimeException
+import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.ArrayList
+import java.util.concurrent.TimeUnit
 import javax.sql.DataSource
 import javax.ws.rs.NotFoundException
-import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
+import org.skife.jdbi.v2.DBI
 import org.skife.jdbi.v2.Handle
+import org.skife.jdbi.v2.TransactionStatus
 import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
@@ -44,10 +44,10 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
                 return
             }
             val timeoutAt = nextTimeout()
-            job = database.transactionResult { tx ->
-                if (acquireUntil(tx, timeoutAt) != 0L) {
+            job = database.connectionResult { conn ->
+                if (acquireUntil(conn, timeoutAt) != 0L) {
                     // Succeeded to acquire a job. Fetch job to execute.
-                    UpdateUserJobQuery(using(tx)).find(timeoutAt = timeoutAt).also {
+                    UpdateUserJobQuery(using(conn)).find(timeoutAt = timeoutAt).also {
                         it ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
                     }
                 } else null
@@ -126,8 +126,8 @@ open class UpdateUserWorker(dataSource: DataSource?, private val database: DSLCo
     }
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
-    private fun acquireUntil(tx: Configuration, timeoutAt: Timestamp): Long {
-        return lock.withUpdateUserJobs { UpdateUserJobQuery(using(tx)).acquireUntil(timeoutAt) }
+    private fun acquireUntil(conn: Connection, timeoutAt: Timestamp): Long {
+        return lock.withUpdateUserJobs { UpdateUserJobQuery(using(conn)).acquireUntil(timeoutAt) }
     }
 
     private fun nextTimeout(): Timestamp {

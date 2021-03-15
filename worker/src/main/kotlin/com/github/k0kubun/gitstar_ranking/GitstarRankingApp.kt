@@ -24,7 +24,7 @@ class GitstarRankingApp {
     private val config = GitstarRankingConfiguration()
 
     fun run(schedule: Boolean) {
-        val scheduler = buildAndRunScheduler(false)
+        val scheduler = buildAndRunScheduler(schedule)
         val workers = buildWorkers(config)
         workers.start()
         Runtime.getRuntime().addShutdownHook(Thread {

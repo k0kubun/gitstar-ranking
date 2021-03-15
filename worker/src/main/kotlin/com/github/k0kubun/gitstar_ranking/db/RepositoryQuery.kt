@@ -13,10 +13,10 @@ import org.jooq.impl.DSL.row
 
 class RepositoryQuery(private val database: DSLContext) {
     private val repositoryColumns = listOf(
-        "id",
-        "full_name",
-        "stargazers_count",
-    ).map { field(it) }
+        field("id"),
+        field("full_name"),
+        field("stargazers_count"),
+    )
 
     private val repositoryMapper = RecordMapper<Record, Repository> { record ->
         Repository(

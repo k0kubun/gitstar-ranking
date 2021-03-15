@@ -11,11 +11,11 @@ import org.jooq.impl.DSL.row
 
 class OrganizationQuery(private val database: DSLContext) {
     private val organizationColumns = listOf(
-        "id",
-        "login",
-        "stargazers_count",
-        "updated_at",
-    ).map { field(it) }
+        field("id"),
+        field("login"),
+        field("stargazers_count"),
+        field("updated_at", Timestamp::class.java),
+    )
 
     private val organizationMapper = RecordMapper<Record, Organization> { record ->
         Organization(

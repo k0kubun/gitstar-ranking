@@ -27,8 +27,8 @@ class LastUpdateQuery(private val database: DSLContext) {
             .set(field("cursor"), cursor)
             .set(field("updated_at"), now())
             .onDuplicateKeyUpdate()
-            .set(field("cursor", Long::class.java), field("exclude.cursor", Long::class.java))
-            .set(field("updated_at", Timestamp::class.java), field("exclude.updated_at", Timestamp::class.java))
+            .set(field("cursor", Long::class.java), field("excluded.cursor", Long::class.java))
+            .set(field("updated_at", Timestamp::class.java), field("excluded.updated_at", Timestamp::class.java))
             .execute()
     }
 

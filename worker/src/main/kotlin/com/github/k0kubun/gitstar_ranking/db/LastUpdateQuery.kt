@@ -1,5 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.db
 
+import com.github.k0kubun.gitstar_ranking.core.table
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
@@ -21,13 +22,13 @@ class LastUpdateQuery(private val database: DSLContext) {
 
     fun update(key: Int, cursor: Long) {
         database
-            .insertInto(table("last_updates"))
-            .set(field("key"), key)
+            .insertInto(table("last_updates", primaryKey = "id"))
+            .set(field("id"), key)
             .set(field("cursor"), cursor)
             .set(field("updated_at"), now())
             .onDuplicateKeyUpdate()
-            .set(field("cursor"), table("excluded").field("cursor"))
-            .set(field("updated_at"), table("excluded").field("updated_at"))
+            .set(field("cursor"), cursor)
+            .set(field("updated_at"), now())
             .execute()
     }
 

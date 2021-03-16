@@ -9,7 +9,6 @@ import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
-import org.jooq.impl.DSL.row
 
 class RepositoryQuery(private val database: DSLContext) {
     private val repositoryColumns = listOf(
@@ -90,7 +89,7 @@ class RepositoryQuery(private val database: DSLContext) {
             .from("repositories")
             .run {
                 if (stars != null) {
-                    where(field("stargazers_count", Long::class.java)!!.eq(stars))
+                    where("stargazers_count = ?", stars)
                 } else this
             }
             .fetchOne(0, Long::class.java)!!

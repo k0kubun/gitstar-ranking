@@ -7,7 +7,6 @@ import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
-import org.jooq.impl.DSL.row
 
 class OrganizationQuery(private val database: DSLContext) {
     private val organizationColumns = listOf(
@@ -33,7 +32,7 @@ class OrganizationQuery(private val database: DSLContext) {
             .where(field("type").eq("Organization"))
             .run {
                 if (stars != null) {
-                    and(field("stargazers_count", Long::class.java)!!.eq(stars))
+                    and("stargazers_count = ?", stars)
                 } else this
             }
             .fetchOne(0, Long::class.java)!!

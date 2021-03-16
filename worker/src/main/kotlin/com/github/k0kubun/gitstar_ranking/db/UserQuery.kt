@@ -9,7 +9,6 @@ import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
-import org.jooq.impl.DSL.row
 import org.jooq.impl.DSL.table
 
 class UserQuery(private val database: DSLContext) {
@@ -101,7 +100,7 @@ class UserQuery(private val database: DSLContext) {
             .where(field("type").eq("User"))
             .run {
                 if (stargazersCount != null) {
-                    and(field("stargazers_count", Long::class.java)!!.eq(stargazersCount))
+                    and("stargazers_count = ?", stargazersCount)
                 } else this
             }
             .fetchOne(0, Long::class.java)!!

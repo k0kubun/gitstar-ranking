@@ -56,7 +56,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     }
                     updateUserId(userId = user.id, client = client, logger = logger)
                 } else {
-                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${oldUser.updatedAt})")
+                    logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt})")
                 }
                 if (lastUpdatedId < user.id) {
                     lastUpdatedId = user.id

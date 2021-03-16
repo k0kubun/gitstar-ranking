@@ -96,7 +96,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker
                     updateUserId(userId = user.id, client = client, logger = logger)
                     numUsers--
                 } else {
-                    logger.info("Skip up-to-date user (id: ${user.id}, login: ${user.login}, updatedAt: ${oldUser.updatedAt})")
+                    logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt})")
                 }
                 numChecks--
                 if (lastUpdatedId < user.id) {

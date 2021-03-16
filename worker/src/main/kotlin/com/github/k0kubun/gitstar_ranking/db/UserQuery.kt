@@ -141,7 +141,7 @@ class UserQuery(private val database: DSLContext) {
         return database
             .select(userColumns)
             .from("users")
-            .where(field("type").eq("Type"))
+            .where(field("type").eq("User"))
             .run {
                 if (after != null) {
                     and(

@@ -20,6 +20,8 @@ import java.time.ZoneId
 import java.util.ArrayList
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.NotFoundException
+import org.jooq.Condition
+import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
 import org.slf4j.Logger
@@ -120,7 +122,10 @@ open class UserUpdateWorker(
             logger.debug("Skipping to create a user because user_id=$id didn't exist")
             return null
         }
-        UserQuery(database).create(user)
+        database.transaction { tx ->
+            tx.rebuildConflictUser(login = user.login, tokenUserId = client.userId)
+            UserQuery(using(tx)).create(user)
+        }
         return UserQuery(database).find(id = id)!!
     }
 
@@ -133,12 +138,16 @@ open class UserUpdateWorker(
 
     private fun updateUserLogin(userId: Long, newLogin: String, tokenUserId: Long) {
         database.transaction { tx ->
-            val conflictUser = UserQuery(using(tx)).findBy(login = newLogin)
-            if (conflictUser != null) { // Lazily recreate it to avoid recursive conflict handling here
-                UserQuery(using(tx)).destroy(id = conflictUser.id)
-                UserUpdateJobQuery(using(tx)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
-            }
+            tx.rebuildConflictUser(login = newLogin, tokenUserId = tokenUserId)
             UserQuery(using(tx)).update(id = userId, login = newLogin)
+        }
+    }
+
+    private fun Configuration.rebuildConflictUser(login: String, tokenUserId: Long) {
+        val conflictUser = UserQuery(using(this)).findBy(login = login)
+        if (conflictUser != null) { // Lazily recreate it to avoid recursive conflict handling here
+            UserQuery(using(this)).destroy(id = conflictUser.id)
+            UserUpdateJobQuery(using(this)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
         }
     }
 

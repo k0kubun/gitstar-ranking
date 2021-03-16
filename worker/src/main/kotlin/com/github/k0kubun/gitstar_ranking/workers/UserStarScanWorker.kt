@@ -86,7 +86,7 @@ class UserStarScanWorker(
                 val oldUser = UserQuery(database).find(id = user.id)
                 if (oldUser == null || oldUser.updatedAt.before(updateThreshold)) {
                     // Check rate limit
-                    logger.info("[${user.login}] stars = $stars (numUsers: $numUsers, numChecks: $numChecks), API remaining: ${client.rateLimitRemaining}/5000")
+                    logger.info("[${user.login}] stars = $stars (numUsers: $numUsers, numChecks: $numChecks), API: ${client.rateLimitRemaining}/5000")
                     if (client.rateLimitRemaining < MIN_RATE_LIMIT_REMAINING) {
                         logger.info("API remaining ${client.rateLimitRemaining} is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
                         numChecks = 0

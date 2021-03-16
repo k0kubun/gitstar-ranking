@@ -52,7 +52,7 @@ class UserFullScanWorker(
                 val oldUser = UserQuery(database).find(id = user.id)
                 if (oldUser == null || oldUser.updatedAt.before(updateThreshold)) {
                     // Check rate limit
-                    logger.info("[${user.login}] userId = ${user.id} / $lastUserId (${String.format("%.4f%%", 100.0 * user.id / lastUserId)}), API remaining: ${client.rateLimitRemaining}/5000") // TODO: show this from updateUserId
+                    logger.info("[${user.login}] userId = ${user.id} / $lastUserId (${String.format("%.4f%%", 100.0 * user.id / lastUserId)}), API: ${client.rateLimitRemaining}/5000") // TODO: show this from updateUserId
                     if (client.rateLimitRemaining < MIN_RATE_LIMIT_REMAINING) {
                         logger.info("API remaining ${client.rateLimitRemaining} is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
                         i = 10

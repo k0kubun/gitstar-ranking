@@ -35,6 +35,7 @@ import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.Policy
 import net.jodah.failsafe.RetryPolicy
 import org.glassfish.jersey.client.ClientProperties
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 private const val PAGE_SIZE = 100
@@ -80,8 +81,11 @@ private data class RepositoryResponse(
 }
 private data class RepositoryOwner(val id: Long)
 
-class GitHubClient(val userId: Long, private val token: String) {
-    private val logger = LoggerFactory.getLogger(GitHubClient::class.simpleName)
+class GitHubClient(
+    val userId: Long,
+    private val logger: Logger,
+    private val token: String,
+) {
     private val client = ClientBuilder.newBuilder()
         .property(ClientProperties.CONNECT_TIMEOUT, 5000)
         .property(ClientProperties.READ_TIMEOUT, 30000)

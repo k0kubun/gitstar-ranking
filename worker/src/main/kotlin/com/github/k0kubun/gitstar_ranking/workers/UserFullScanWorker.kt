@@ -9,7 +9,6 @@ import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,12 +17,13 @@ private const val TOKEN_USER_ID: Long = 3138447 // k0kubun
 private const val THRESHOLD_DAYS: Long = 7 // At least later than Mar 6th
 private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 
-class UserFullScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker(config.database.dslContext) {
-    private val logger = LoggerFactory.getLogger(UserFullScanWorker::class.simpleName)
-    private val userFullScanQueue: BlockingQueue<Boolean> = config.queue.userFullScanQueue
-    private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
+class UserFullScanWorker(
+    config: GitstarRankingConfiguration,
+    private val logger: Logger = LoggerFactory.getLogger(UserFullScanWorker::class.simpleName),
+) : UserUpdateWorker(config.database.dslContext, logger) {
+    private val userFullScanQueue = config.queue.userFullScanQueue
+    private val updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
     private val database = config.database.dslContext
-    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
 
     override fun perform() {
         while (userFullScanQueue.poll(5, TimeUnit.SECONDS) == null) {
@@ -31,7 +31,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
                 return
             }
         }
-        val client = clientBuilder.buildForUser(TOKEN_USER_ID)
+        val client = GitHubClientBuilder(database).buildForUser(TOKEN_USER_ID, logger = logger)
         logger.info("----- started UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
         val lastUserId = UserQuery(database).max("id") ?: 0L
 
@@ -59,7 +59,7 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
                         i = 10
                         break
                     }
-                    updateUserId(userId = user.id, client = client, logger = logger)
+                    updateUserId(userId = user.id, client = client, sleepMillis = 200)
                 } else {
                     logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt})")
                 }
@@ -74,10 +74,5 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
             i++
         }
         logger.info("----- finished UserFullScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
-    }
-
-    override fun updateUserId(userId: Long, client: GitHubClient, logger: Logger) {
-        super.updateUserId(userId = userId, client = client, logger = logger)
-        Thread.sleep(200) // Doing this here to avoid sleeping when skipped
     }
 }

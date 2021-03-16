@@ -34,12 +34,13 @@ private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 private const val BATCH_SIZE = 100
 
 // Scan all starred users
-class UserStarScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker(config.database.dslContext) {
-    private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
-    private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
+class UserStarScanWorker(
+    config: GitstarRankingConfiguration,
+    private val logger: Logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName),
+) : UserUpdateWorker(config.database.dslContext, logger) {
+    private val userStarScanQueue = config.queue.userStarScanQueue
     private val database = config.database.dslContext
-    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(config.database.dslContext)
-    private val updateThreshold: Timestamp = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
+    private val updateThreshold = Timestamp.from(Instant.now().minus(THRESHOLD_DAYS, ChronoUnit.DAYS))
 
     override fun perform() {
         while (userStarScanQueue.poll(5, TimeUnit.SECONDS) == null) {
@@ -47,7 +48,7 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
                 return
             }
         }
-        val client = clientBuilder.buildForUser(TOKEN_USER_ID)
+        val client = GitHubClientBuilder(database).buildForUser(TOKEN_USER_ID, logger = logger)
         logger.info("----- started UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
         var numUsers = 1000 // 2 * (1000 / 30 min) ≒ 4000 / hour
         var numChecks = 2000 // Avoid issuing too many queries by skips
@@ -87,13 +88,13 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
                 val oldUser = UserQuery(database).find(id = user.id)
                 if (oldUser == null || oldUser.updatedAt.before(updateThreshold)) {
                     // Check rate limit
-                    logger.info("[${user.login}] stars = ${stars} (numUsers: $numUsers, numChecks: $numChecks), API remaining: ${client.rateLimitRemaining}/5000")
+                    logger.info("[${user.login}] stars = $stars (numUsers: $numUsers, numChecks: $numChecks), API remaining: ${client.rateLimitRemaining}/5000")
                     if (client.rateLimitRemaining < MIN_RATE_LIMIT_REMAINING) {
                         logger.info("API remaining ${client.rateLimitRemaining} is smaller than $MIN_RATE_LIMIT_REMAINING. Stopping.")
                         numChecks = 0
                         break
                     }
-                    updateUserId(userId = user.id, client = client, logger = logger)
+                    updateUserId(userId = user.id, client = client, sleepMillis = 200)
                     numUsers--
                 } else {
                     logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt})")
@@ -116,10 +117,5 @@ class UserStarScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
             }
         }
         logger.info("----- finished UserStarScanWorker (API: ${client.rateLimitRemaining}/5000) -----")
-    }
-
-    override fun updateUserId(userId: Long, client: GitHubClient, logger: Logger) {
-        super.updateUserId(userId = userId, client = client, logger = logger)
-        Thread.sleep(200) // Doing this here to avoid sleeping when skipped
     }
 }

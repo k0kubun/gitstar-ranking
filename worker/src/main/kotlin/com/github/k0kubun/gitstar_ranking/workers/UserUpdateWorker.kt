@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
 
-open class UserUpdateWorker(private val database: DSLContext) : Worker() {
-    private val logger = LoggerFactory.getLogger(UserUpdateWorker::class.simpleName)
-    private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
-
+open class UserUpdateWorker(
+    private val database: DSLContext,
+    private val logger: Logger = LoggerFactory.getLogger(UserUpdateWorker::class.simpleName),
+) : Worker() {
     // Dequeue a record from update_user_jobs and call updateUser().
     override fun perform() {
         // Poll until it succeeds to acquire a job...
@@ -54,11 +54,11 @@ open class UserUpdateWorker(private val database: DSLContext) : Worker() {
         }
 
         try {
-            val client = clientBuilder.buildForUser(job.tokenUserId)
+            val client = GitHubClientBuilder(database).buildForUser(job.tokenUserId, logger = logger)
             val userId: Long = job.userName?.let { login -> // TODO: Unify to use user_id
                 createUserByLogin(login, client).id
             } ?: job.userId!!
-            updateUserId(userId = userId, client = client, logger = logger)
+            updateUserId(userId = userId, client = client)
         } catch (e: Exception) {
             Sentry.captureException(e)
             logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
@@ -67,15 +67,16 @@ open class UserUpdateWorker(private val database: DSLContext) : Worker() {
         }
     }
 
-    open fun updateUserId(userId: Long, client: GitHubClient, logger: Logger) {
+    open fun updateUserId(userId: Long, client: GitHubClient, sleepMillis: Long = 0) {
         DatabaseLock(database).withUserUpdate(userId) {
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
             if (user != null) {
                 logger.info("[${user.login}] updateUserId started (userId = $userId)")
-                updateUser(user = user, client = client, logger = logger)
+                updateUser(user = user, client = client)
                 logger.info("[${user.login}] updateUserId finished: (userId = $userId)") // TODO: Log elapsed time
             }
         }
+        Thread.sleep(sleepMillis)
     }
 
     // Create a pre-required user record for a give userName.
@@ -100,7 +101,7 @@ open class UserUpdateWorker(private val database: DSLContext) : Worker() {
     // * Sync information of all repositories owned by specified user.
     // * Update fetched_at and updated_at, and set total stars to user.
     // TODO: Requeue if GitHub API limit exceeded
-    private fun updateUser(user: User, client: GitHubClient, logger: Logger) {
+    private fun updateUser(user: User, client: GitHubClient) {
         val userId = user.id
         try {
             val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?

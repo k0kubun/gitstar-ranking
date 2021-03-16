@@ -3,7 +3,6 @@ package com.github.k0kubun.gitstar_ranking.db
 import com.github.k0kubun.gitstar_ranking.client.UserResponse
 import com.github.k0kubun.gitstar_ranking.core.StarsCursor
 import com.github.k0kubun.gitstar_ranking.core.User
-import com.github.k0kubun.gitstar_ranking.core.table
 import java.sql.Timestamp
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -11,6 +10,7 @@ import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
 import org.jooq.impl.DSL.row
+import org.jooq.impl.DSL.table
 
 class UserQuery(private val database: DSLContext) {
     private val userColumns = listOf(
@@ -48,7 +48,25 @@ class UserQuery(private val database: DSLContext) {
     }
 
     fun create(user: UserResponse) {
-        insertAll(listOf(user))
+        database
+            .insertInto(table("users"))
+            .columns(
+                field("id"),
+                field("type"),
+                field("login"),
+                field("avatar_url"),
+                field("created_at"),
+                field("updated_at"),
+            )
+            .values(
+                user.id,
+                user.type,
+                user.login,
+                user.avatarUrl,
+                now(), // created_at
+                now(), // updated_at
+            )
+            .execute()
     }
 
     fun update(id: Long, login: String? = null, stargazersCount: Long? = null) {
@@ -87,39 +105,6 @@ class UserQuery(private val database: DSLContext) {
                 } else this
             }
             .fetchOne(0, Long::class.java)!!
-    }
-
-    fun insertAll(allUsers: List<UserResponse>) {
-        allUsers.chunked(100).forEach { users ->
-            database
-                .insertInto(table("users", primaryKey = "id"))
-                .columns(
-                    field("id"),
-                    field("type"),
-                    field("login"),
-                    field("avatar_url"),
-                    field("created_at"),
-                    field("updated_at"),
-                )
-                .let {
-                    users.fold(it) { query, repo ->
-                        query.values(
-                            repo.id,
-                            repo.type,
-                            repo.login,
-                            repo.avatarUrl,
-                            now(), // created_at
-                            now(), // updated_at
-                        )
-                    }
-                }
-                .onDuplicateKeyUpdate()
-                .set(field("type", String::class.java), field("excluded.type", String::class.java))
-                .set(field("login", String::class.java), field("excluded.login", String::class.java))
-                .set(field("avatar_url", String::class.java), field("excluded.avatar_url", String::class.java))
-                .set(field("updated_at", Timestamp::class.java), field("excluded.updated_at", Timestamp::class.java))
-                .execute()
-        }
     }
 
     fun max(column: String): Long? {

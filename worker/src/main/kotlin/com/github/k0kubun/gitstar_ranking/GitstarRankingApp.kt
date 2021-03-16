@@ -45,11 +45,11 @@ class GitstarRankingApp {
         if (!schedule) return scheduler
 
         // Schedule at most every 8 hours
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.rankingQueue) }, 1, 8, TimeUnit.HOURS)
+        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.rankingQueue) }, 0, 8, TimeUnit.HOURS)
 
         // Schedule at most every 30 minutes
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)
-        scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userFullScanQueue) }, 15, 30, TimeUnit.MINUTES)
+        //scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userStarScanQueue) }, 0, 30, TimeUnit.MINUTES)
+        //scheduler.scheduleWithFixedDelay({ scheduleIfEmpty(config.queue.userFullScanQueue) }, 15, 30, TimeUnit.MINUTES)
         return scheduler
     }
 

@@ -72,18 +72,45 @@ open class UserUpdateWorker(
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
             if (user != null) {
                 logger.info("[${user.login}] updateUserId started (userId = $userId)")
-                updateUser(user = user, client = client)
-                logger.info("[${user.login}] updateUserId finished: (userId = $userId)") // TODO: Log elapsed time
+                val numRepos = updateUser(user = user, client = client)
+                logger.info("[${user.login}] updateUserId finished: (userId = $userId, imported $numRepos repos)")
             }
         }
         Thread.sleep(sleepMillis)
     }
 
-    // Create a pre-required user record for a give userName.
-    private fun createUserByLogin(login: String, client: GitHubClient): UserResponse {
-        val user = client.getUserWithLogin(login)
-        UserQuery(database).create(user)
-        return user
+    // Main part of this class. Given enqueued userId, it updates a user and his repositories.
+    // * Sync information of all repositories owned by specified user.
+    // * Update fetched_at and updated_at, and set total stars to user.
+    // TODO: Requeue if GitHub API limit exceeded
+    private fun updateUser(user: User, client: GitHubClient): Int {
+        val userId = user.id
+        try {
+            val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
+            if (user.login != newLogin) {
+                updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = client.userId)
+            }
+        } catch (e: NotFoundException) {
+            logger.error("[${user.login}] User NotFoundException on updateUser: ${e.message}")
+            logger.info("[${user.login}] Deleting user id: $userId")
+            database.transaction { tx ->
+                UserQuery(using(tx)).destroy(id = userId)
+                RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
+            }
+            return 0
+        }
+
+        val repos = client.getPublicRepos(userId, logPrefix = "[${user.login}]")
+        val repoIds: MutableList<Long> = ArrayList()
+        for (repo in repos) {
+            repoIds.add(repo.id)
+        }
+        database.transaction { tx ->
+            RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
+            RepositoryQuery(using(tx)).insertAll(repos)
+            UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
+        }
+        return repos.size
     }
 
     private fun createUserById(id: Long, client: GitHubClient): User? {
@@ -97,38 +124,11 @@ open class UserUpdateWorker(
         return UserQuery(database).find(id = id)!!
     }
 
-    // Main part of this class. Given enqueued userId, it updates a user and his repositories.
-    // * Sync information of all repositories owned by specified user.
-    // * Update fetched_at and updated_at, and set total stars to user.
-    // TODO: Requeue if GitHub API limit exceeded
-    private fun updateUser(user: User, client: GitHubClient) {
-        val userId = user.id
-        try {
-            val newLogin = client.getLogin(userId) // TODO: Can we lazily this call using repository full_names?
-            if (user.login != newLogin) {
-                updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = client.userId)
-            }
-        } catch (e: NotFoundException) {
-            logger.error("User NotFoundException: ${e.message}")
-            logger.info("Deleting user id: $userId, login: ${user.login}")
-            database.transaction { tx ->
-                UserQuery(using(tx)).destroy(id = userId)
-                RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
-            }
-            return
-        }
-
-        val repos = client.getPublicRepos(userId)
-        val repoIds: MutableList<Long> = ArrayList()
-        for (repo in repos) {
-            repoIds.add(repo.id)
-        }
-        database.transaction { tx ->
-            RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
-            RepositoryQuery(using(tx)).insertAll(repos)
-            UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
-        }
-        logger.info("[${user.login}] imported repos: ${repos.size}")
+    // Create a pre-required user record for a give userName.
+    private fun createUserByLogin(login: String, client: GitHubClient): UserResponse {
+        val user = client.getUserWithLogin(login)
+        UserQuery(database).create(user)
+        return user
     }
 
     private fun updateUserLogin(userId: Long, newLogin: String, tokenUserId: Long) {

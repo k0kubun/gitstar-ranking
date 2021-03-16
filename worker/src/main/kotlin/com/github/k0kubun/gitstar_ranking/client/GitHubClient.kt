@@ -1,16 +1,10 @@
 package com.github.k0kubun.gitstar_ranking.client
 
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.k0kubun.gitstar_ranking.core.Repository
-import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.core.objectMapper
 import java.net.SocketTimeoutException
-import java.sql.Timestamp
 import java.time.temporal.ChronoUnit
 import javax.ws.rs.BadRequestException
 import javax.ws.rs.ClientErrorException
@@ -120,15 +114,15 @@ class GitHubClient(
         return requestGet("/users", params = mapOf("since" to since))
     }
 
-    fun getPublicRepos(userId: Long): List<Repository> {
-        return paginateAll(paginateRepositories(userId)).map { it.repository }
+    fun getPublicRepos(userId: Long, logPrefix: String = "Paginate"): List<Repository> {
+        return paginateAll(paginateRepositories(userId), logPrefix = logPrefix).map { it.repository }
     }
 
     private fun paginateRepositories(userId: Long): (Int) -> List<RepositoryResponse> = { page ->
         requestGet("/user/$userId/repos", params = mapOf("page" to page, "per_page" to PAGE_SIZE))
     }
 
-    private fun <T> paginateAll(getPage: (Int) -> List<T>): List<T> {
+    private fun <T> paginateAll(getPage: (Int) -> List<T>, logPrefix: String): List<T> {
         var page = 1
         val results = mutableListOf<T>()
         while (true) {
@@ -136,7 +130,7 @@ class GitHubClient(
             results.addAll(result)
 
             if (result.size < PAGE_SIZE) break
-            logger.debug("Paginate page: $page, size: ${results.size}")
+            logger.info("$logPrefix repositories page: $page, size: ${results.size}")
             page++
         }
         return results

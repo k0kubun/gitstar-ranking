@@ -1,7 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.workers
 
 import com.github.k0kubun.gitstar_ranking.GitstarRankingConfiguration
-import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.LastUpdateQuery
@@ -11,7 +10,6 @@ import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import org.jooq.impl.DSL.using
 import org.slf4j.Logger

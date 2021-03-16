@@ -95,7 +95,7 @@ class UserStarScanWorker(
                     updateUserId(userId = user.id, client = client, sleepMillis = 200)
                     numUsers--
                 } else {
-                    logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt.toLocalDateTime()})")
+                    logger.info("[${user.login}] Skip up-to-date user (id: ${user.id}, updatedAt: ${oldUser.updatedAt.toLocalDateTime().toLocalDate()})")
                 }
                 numChecks--
                 if (lastUpdatedId < user.id) {

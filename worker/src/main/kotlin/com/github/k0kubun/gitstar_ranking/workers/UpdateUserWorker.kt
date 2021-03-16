@@ -71,9 +71,9 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
         DatabaseLock(database).withUserUpdate(userId) {
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
             if (user != null) {
-                logger.info("updateUserId started (userId = $userId, login = ${user.login})")
+                logger.info("[${user.login}] updateUserId started (userId = $userId)")
                 updateUser(user = user, client = client, logger = logger)
-                logger.info("updateUserId finished: (userId = $userId, login = ${user.login})") // TODO: Log elapsed time
+                logger.info("[${user.login}] updateUserId finished: (userId = $userId)") // TODO: Log elapsed time
             }
         }
     }

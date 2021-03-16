@@ -73,9 +73,9 @@ open class UserUpdateWorker(
         DatabaseLock(database).withUserUpdate(userId) {
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
             if (user != null) {
-                logger.info("[${user.login}] updateUserId started (userId = $userId)")
+                logger.info("[${user.login}] updateUserId started  (userId = $userId)")
                 val numRepos = updateUser(user = user, client = client)
-                logger.info("[${user.login}] updateUserId finished: (userId = $userId, imported $numRepos repos)")
+                logger.info("[${user.login}] updateUserId finished (userId = $userId, imported $numRepos repos)")
             }
         }
         Thread.sleep(sleepMillis)

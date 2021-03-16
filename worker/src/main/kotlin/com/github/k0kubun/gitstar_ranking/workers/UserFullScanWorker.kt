@@ -39,7 +39,12 @@ class UserFullScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker
         var i = 0
         while (i < 10) {
             var lastUpdatedId = LastUpdateQuery(database).findCursor(key = FULL_SCAN_USER_ID) ?: 0L
-            for (user in client.getUsersSince(lastUpdatedId)) {
+            val users = client.getUsersSince(lastUpdatedId)
+            if (users.isEmpty()) {
+                logger.info("No newer user was found")
+                break
+            }
+            for (user in users) {
                 if (PENDING_USERS.contains(user.login)) {
                     logger.info("Skipping a user with too many repositories: ${user.login}")
                     continue

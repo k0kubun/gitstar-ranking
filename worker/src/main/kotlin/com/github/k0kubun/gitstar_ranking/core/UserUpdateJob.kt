@@ -1,7 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.core
 
 // Either user_id or user_name is not null. TODO: Always use user_id
-data class UpdateUserJob(
+data class UserUpdateJob(
     val id: Long,
     val userId: Long?,
     val userName: String?,

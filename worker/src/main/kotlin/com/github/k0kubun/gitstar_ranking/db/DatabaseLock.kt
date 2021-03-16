@@ -18,7 +18,7 @@ class DatabaseLock(private val database: DSLContext) {
 
     // Lock for `acquireUntil`. We need this to execute `acquireUntil` because concurrent execution of the query causes dead lock...:
     // com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException: Deadlock found when trying to get lock; try restarting transaction
-    fun withUpdateUserJobs(callback: () -> Long): Long {
+    fun withUserUpdateJobs(callback: () -> Long): Long {
         return database.transactionResult { tx ->
             DSL.using(tx).getLock(key = SHARED_KEY, namespace = UPDATE_USER_JOBS_LOCK)
             callback()

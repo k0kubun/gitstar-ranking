@@ -1,7 +1,7 @@
 package com.github.k0kubun.gitstar_ranking
 
 import com.github.k0kubun.gitstar_ranking.workers.RankingWorker
-import com.github.k0kubun.gitstar_ranking.workers.UpdateUserWorker
+import com.github.k0kubun.gitstar_ranking.workers.UserUpdateWorker
 import com.github.k0kubun.gitstar_ranking.workers.UserFullScanWorker
 import com.github.k0kubun.gitstar_ranking.workers.UserStarScanWorker
 import com.github.k0kubun.gitstar_ranking.workers.WorkerManager
@@ -62,7 +62,7 @@ class GitstarRankingApp {
     private fun buildWorkers(config: GitstarRankingConfiguration): WorkerManager {
         val workers = WorkerManager()
         repeat(NUM_UPDATE_USER_WORKERS) {
-            workers.add(UpdateUserWorker(config.database.dslContext))
+            workers.add(UserUpdateWorker(config.database.dslContext))
         }
         workers.add(UserStarScanWorker(config))
         workers.add(UserFullScanWorker(config))

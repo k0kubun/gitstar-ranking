@@ -34,7 +34,7 @@ private const val MIN_RATE_LIMIT_REMAINING: Long = 500 // Limit: 5000 / h
 private const val BATCH_SIZE = 100
 
 // Scan all starred users
-class UserStarScanWorker(config: GitstarRankingConfiguration) : UpdateUserWorker(config.database.dslContext) {
+class UserStarScanWorker(config: GitstarRankingConfiguration) : UserUpdateWorker(config.database.dslContext) {
     private val logger = LoggerFactory.getLogger(UserStarScanWorker::class.simpleName)
     private val userStarScanQueue: BlockingQueue<Boolean> = config.queue.userStarScanQueue
     private val database = config.database.dslContext

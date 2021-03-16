@@ -1,4 +1,4 @@
-class UpdateUserJob < ApplicationRecord
+class UserUpdateJob < ApplicationRecord
   # Kick UpdateUserWorker.java via MySQL queue
   # @param [Integer,nil] user_id
   # @param [String,nil] user_name

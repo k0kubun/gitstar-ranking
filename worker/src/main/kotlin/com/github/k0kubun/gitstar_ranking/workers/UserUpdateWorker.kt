@@ -4,11 +4,11 @@ import com.github.k0kubun.gitstar_ranking.client.GitHubClient
 import com.github.k0kubun.gitstar_ranking.client.GitHubClientBuilder
 import com.github.k0kubun.gitstar_ranking.client.UserResponse
 import com.github.k0kubun.gitstar_ranking.core.Repository
-import com.github.k0kubun.gitstar_ranking.core.UpdateUserJob
+import com.github.k0kubun.gitstar_ranking.core.UserUpdateJob
 import com.github.k0kubun.gitstar_ranking.core.User
 import com.github.k0kubun.gitstar_ranking.db.DatabaseLock
 import com.github.k0kubun.gitstar_ranking.db.RepositoryQuery
-import com.github.k0kubun.gitstar_ranking.db.UpdateUserJobQuery
+import com.github.k0kubun.gitstar_ranking.db.UserUpdateJobQuery
 import com.github.k0kubun.gitstar_ranking.db.UserQuery
 import io.sentry.Sentry
 import java.lang.Exception
@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory
 
 private const val TIMEOUT_MINUTES = 1
 
-open class UpdateUserWorker(private val database: DSLContext) : Worker() {
-    private val logger = LoggerFactory.getLogger(UpdateUserWorker::class.simpleName)
+open class UserUpdateWorker(private val database: DSLContext) : Worker() {
+    private val logger = LoggerFactory.getLogger(UserUpdateWorker::class.simpleName)
     private val clientBuilder: GitHubClientBuilder = GitHubClientBuilder(database)
 
     // Dequeue a record from update_user_jobs and call updateUser().
     override fun perform() {
         // Poll until it succeeds to acquire a job...
-        var job: UpdateUserJob? = null
+        var job: UserUpdateJob? = null
         while (job == null) {
             if (isStopped) {
                 return
@@ -43,7 +43,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             job = database.connectionResult { conn ->
                 if (acquireUntil(conn, timeoutAt) != 0L) {
                     // Succeeded to acquire a job. Fetch job to execute.
-                    UpdateUserJobQuery(using(conn)).find(timeoutAt = timeoutAt).also {
+                    UserUpdateJobQuery(using(conn)).find(timeoutAt = timeoutAt).also {
                         it ?: throw RuntimeException("Failed to fetch a job (timeoutAt = $timeoutAt)")
                     }
                 } else null
@@ -63,7 +63,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             Sentry.captureException(e)
             logger.error("Error in UpdateUserWorker! (userId = ${job.userId}: ${e.stackTraceToString()}")
         } finally {
-            UpdateUserJobQuery(database).delete(id = job.id)
+            UserUpdateJobQuery(database).delete(id = job.id)
         }
     }
 
@@ -135,7 +135,7 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
             val conflictUser = UserQuery(using(tx)).findBy(login = newLogin)
             if (conflictUser != null) { // Lazily recreate it to avoid recursive conflict handling here
                 UserQuery(using(tx)).destroy(id = conflictUser.id)
-                UpdateUserJobQuery(using(tx)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
+                UserUpdateJobQuery(using(tx)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
             }
             UserQuery(using(tx)).update(id = userId, login = newLogin)
         }
@@ -143,8 +143,8 @@ open class UpdateUserWorker(private val database: DSLContext) : Worker() {
 
     // Concurrently executing `dao.acquireUntil` causes deadlock. So this executes it in a lock.
     private fun acquireUntil(conn: Connection, timeoutAt: Timestamp): Long {
-        return DatabaseLock(database).withUpdateUserJobs {
-            UpdateUserJobQuery(using(conn)).acquireUntil(timeoutAt)
+        return DatabaseLock(database).withUserUpdateJobs {
+            UserUpdateJobQuery(using(conn)).acquireUntil(timeoutAt)
         }
     }
 

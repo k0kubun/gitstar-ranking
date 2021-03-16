@@ -20,7 +20,7 @@ class UsersController < ApplicationController
     user_name = request.path.sub(/\A\//, '')
     if current_user && user_exists_on_github?(user_name)
       if require_valid_apikey!
-        UpdateUserJob.perform_later(token_user_id: current_user.id, user_name: user_name)
+        UserUpdateJob.perform_later(token_user_id: current_user.id, user_name: user_name)
         redirect_to root_path, notice: "Requested to create a page for #{user_name.dump}. Wait for a while and check it later."
       end
     else
@@ -49,7 +49,7 @@ class UsersController < ApplicationController
 
     ActiveRecord::Base.transaction do
       user.update(queued_at: Time.now)
-      UpdateUserJob.perform_later(user_id: user.id, token_user_id: current_user.id)
+      UserUpdateJob.perform_later(user_id: user.id, token_user_id: current_user.id)
     end
 
     redirect_to user_path(user), notice: 'Update request is successfully queued. Please wait a moment.'
@@ -71,7 +71,7 @@ class UsersController < ApplicationController
       ActiveRecord::Base.transaction do
         User.where(id: valid_ids).update_all(queued_at: Time.now)
         valid_ids.each_with_index do |id, index|
-          UpdateUserJob.perform_later(user_id: id, token_user_id: current_user.id, wait: (index * 5).minutes)
+          UserUpdateJob.perform_later(user_id: id, token_user_id: current_user.id, wait: (index * 5).minutes)
         end
       end
     end

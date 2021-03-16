@@ -58,7 +58,7 @@ CREATE TABLE repository_ranks (
 CREATE UNIQUE INDEX index_repository_ranks_on_rank ON repository_ranks (rank);
 CREATE UNIQUE INDEX index_repository_ranks_on_stargazers_count ON repository_ranks (stargazers_count);
 
-CREATE TABLE update_user_jobs (
+CREATE TABLE user_update_jobs (
     "id" bigserial NOT NULL,
     "payload" text NOT NULL,
     "timeout_at" timestamp with time zone,
@@ -67,7 +67,7 @@ CREATE TABLE update_user_jobs (
     "updated_at" timestamp with time zone NOT NULL,
     PRIMARY KEY ("id")
 );
-CREATE INDEX index_update_user_jobs_on_timeout_at ON update_user_jobs (timeout_at);
+CREATE INDEX index_user_update_jobs_on_timeout_at ON user_update_jobs (timeout_at);
 
 CREATE TABLE user_ranks (
     "id" bigserial NOT NULL,

@@ -147,6 +147,7 @@ open class UserUpdateWorker(
         val conflictUser = UserQuery(using(this)).findBy(login = login)
         if (conflictUser != null) { // Lazily recreate it to avoid recursive conflict handling here
             UserQuery(using(this)).destroy(id = conflictUser.id)
+            RepositoryQuery(using(this)).deleteAll(ownerId = conflictUser.id)
             UserUpdateJobQuery(using(this)).create(userId = conflictUser.id, tokenUserId = tokenUserId)
         }
     }

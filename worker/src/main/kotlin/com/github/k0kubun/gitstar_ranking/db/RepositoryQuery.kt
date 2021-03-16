@@ -102,9 +102,7 @@ class RepositoryQuery(private val database: DSLContext) {
             .from("repositories")
             .run {
                 if (after != null) {
-                    where(
-                        row(field("stargazers_count", Long::class.java), field("id", Long::class.java))
-                        .lessThan(after.stars, after.id))
+                    where("(stargazers_count, id) < (?, ?)", after.stars, after.id)
                 } else this
             }
             .orderBy(field("stargazers_count").desc(), field("id").desc())

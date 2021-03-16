@@ -46,8 +46,7 @@ class OrganizationQuery(private val database: DSLContext) {
             .where(field("type").eq("Organization"))
             .run {
                 if (after != null) {
-                    and(row(field("stargazers_count", Long::class.java), field("id", Long::class.java))
-                        .lessThan(after.stars, after.id))
+                    and("(stargazers_count, id) < (?, ?)", after.stars, after.id)
                 } else this
             }
             .orderBy(field("stargazers_count").desc(), field("id").desc())

@@ -50,7 +50,7 @@ class RepositoryQuery(private val database: DSLContext) {
                             repo.ownerId,
                             repo.name,
                             repo.fullName,
-                            repo.description,
+                            repo.description?.stripNull(),
                             repo.fork,
                             repo.homepage,
                             repo.stargazersCount,
@@ -107,5 +107,9 @@ class RepositoryQuery(private val database: DSLContext) {
             .orderBy(field("stargazers_count").desc(), field("id").desc())
             .limit(limit)
             .fetch(repositoryMapper)
+    }
+
+    private fun String.stripNull(): String {
+        return replace("\u0000", "")
     }
 }

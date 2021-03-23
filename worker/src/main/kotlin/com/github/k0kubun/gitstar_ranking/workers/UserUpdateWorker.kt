@@ -108,7 +108,8 @@ open class UserUpdateWorker(
             repoIds.add(repo.id)
         }
         database.transaction { tx ->
-            RepositoryQuery(using(tx)).deleteAll(ownerId = userId)
+            RepositoryQuery(using(tx)).deleteAll(fullNames = repos.map { it.fullName }) // just to avoid conflicts
+            RepositoryQuery(using(tx)).deleteAll(ownerId = userId) // delete obsoleted repos
             RepositoryQuery(using(tx)).insertAll(repos)
             UserQuery(using(tx)).update(id = userId, stargazersCount = calcTotalStars(repos))
         }

@@ -83,6 +83,15 @@ class RepositoryQuery(private val database: DSLContext) {
             .execute()
     }
 
+    fun deleteAll(fullNames: List<String>) {
+        fullNames.chunked(1000).forEach { name ->
+            database
+                .delete(table("repositories"))
+                .where(field("full_name").`in`(*name.toTypedArray()))
+                .execute()
+        }
+    }
+
     fun count(stars: Long? = null): Long {
         return database
             .selectCount()

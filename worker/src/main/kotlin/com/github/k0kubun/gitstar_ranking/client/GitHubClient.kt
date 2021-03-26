@@ -30,7 +30,6 @@ import net.jodah.failsafe.Policy
 import net.jodah.failsafe.RetryPolicy
 import org.glassfish.jersey.client.ClientProperties
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 private const val PAGE_SIZE = 100
 private const val API_ENDPOINT = "https://api.github.com"
@@ -89,7 +88,7 @@ class GitHubClient(
         .handleIf { e ->
             when (e) {
                 is SocketTimeoutException -> true
-                is ServerErrorException -> e.response.status == 502
+                is ServerErrorException -> setOf(500, 502).contains(e.response.status)
                 else -> false
             }
         }

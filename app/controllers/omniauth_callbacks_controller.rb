@@ -3,7 +3,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     auth = request.env['omniauth.auth']
     raise BadRequest if auth.blank?
 
-    id    = auth[:uid]
+    id    = auth[:uid]&.to_i
     login = auth[:info][:nickname]
     image = auth[:info][:image]
     token = auth[:credentials][:token]

@@ -26,13 +26,13 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def without_user_conflict(id:, login:, &block)
     # Delete a conflicting user who changed its login
     user = User.find_by(login: login)
-    if user.id != id
+    if user && user.id != id
       user.destroy
     end
 
     result = block.call
 
-    if user.id != id
+    if user && user.id != id
       UserUpdateJob.perform_later(user_id: user.id, token_user_id: id)
     end
     result

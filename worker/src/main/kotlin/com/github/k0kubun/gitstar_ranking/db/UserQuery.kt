@@ -3,13 +3,13 @@ package com.github.k0kubun.gitstar_ranking.db
 import com.github.k0kubun.gitstar_ranking.client.UserResponse
 import com.github.k0kubun.gitstar_ranking.core.StarsCursor
 import com.github.k0kubun.gitstar_ranking.core.User
+import com.github.k0kubun.gitstar_ranking.core.table
 import java.sql.Timestamp
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.now
-import org.jooq.impl.DSL.table
 
 class UserQuery(private val database: DSLContext) {
     private val userColumns = listOf(
@@ -48,7 +48,7 @@ class UserQuery(private val database: DSLContext) {
 
     fun create(user: UserResponse) {
         database
-            .insertInto(table("users"))
+            .insertInto(table("users", primaryKey = "id"))
             .columns(
                 field("id"),
                 field("type"),
@@ -65,6 +65,8 @@ class UserQuery(private val database: DSLContext) {
                 now(), // created_at
                 now(), // updated_at
             )
+            .onDuplicateKeyUpdate()
+            .set(field("login", String::class.java), field("excluded.login", String::class.java))
             .execute()
     }
 

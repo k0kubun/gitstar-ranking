@@ -114,10 +114,10 @@ class GitHubClient(
     }
 
     fun getPublicRepos(userId: Long, logPrefix: String = "Paginate"): List<Repository> {
-        return paginateAll(paginateRepositories(userId), logPrefix = logPrefix).map { it.repository }
+        return paginateAll(paginateRepositories(userId), logPrefix = logPrefix).filterNotNull().map { it.repository }
     }
 
-    private fun paginateRepositories(userId: Long): (Int) -> List<RepositoryResponse> = { page ->
+    private fun paginateRepositories(userId: Long): (Int) -> List<RepositoryResponse?> = { page ->
         requestGet("/user/$userId/repos", params = mapOf("page" to page, "per_page" to PAGE_SIZE))
     }
 

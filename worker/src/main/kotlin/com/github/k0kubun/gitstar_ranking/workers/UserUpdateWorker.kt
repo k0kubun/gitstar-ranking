@@ -26,6 +26,7 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import javax.ws.rs.NotAuthorizedException
 
 private const val TIMEOUT_MINUTES = 1
 
@@ -55,8 +56,13 @@ open class UserUpdateWorker(
             }
         }
 
+        val client = try {
+            GitHubClientBuilder(database).buildForUser(job.tokenUserId, logger = logger)
+        } catch (e: NotAuthorizedException) {
+            logger.error("Skipped Job(id: ${job.userId}, name: ${job.userName}, token: ${job.tokenUserId}) since the token is invalid")
+            return
+        }
         try {
-            val client = GitHubClientBuilder(database).buildForUser(job.tokenUserId, logger = logger)
             val userId: Long = job.userName?.let { login -> // TODO: Unify to use user_id
                 createUserByLogin(login, client).id
             } ?: job.userId!!

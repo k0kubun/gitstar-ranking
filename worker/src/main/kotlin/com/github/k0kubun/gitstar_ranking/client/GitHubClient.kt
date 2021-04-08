@@ -12,6 +12,7 @@ import javax.ws.rs.ForbiddenException
 import javax.ws.rs.InternalServerErrorException
 import javax.ws.rs.NotAuthorizedException
 import javax.ws.rs.NotFoundException
+import javax.ws.rs.ProcessingException
 import javax.ws.rs.RedirectionException
 import javax.ws.rs.ServerErrorException
 import javax.ws.rs.ServiceUnavailableException
@@ -88,6 +89,7 @@ class GitHubClient(
         .handleIf { e ->
             when (e) {
                 is SocketTimeoutException -> true
+                is ProcessingException -> true
                 is ServerErrorException -> setOf(500, 502).contains(e.response.status)
                 else -> false
             }

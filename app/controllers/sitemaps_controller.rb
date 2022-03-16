@@ -1,4 +1,4 @@
-class SiteMapsController < ApplicationController
+class SitemapsController < ApplicationController
   def show
     @users         = User.not_organization.starred_first.first(10)
     @organizations = Organization.starred_first.first(10)

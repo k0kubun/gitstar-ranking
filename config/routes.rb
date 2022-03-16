@@ -31,7 +31,7 @@ Rails.application.routes.draw do
 
   resource :search, only: :show
 
-  resource :site_map, only: :show
+  resource :sitemap, only: :show
 
   resources :users, only: :show, param: :login, constraints: { login: /[a-zA-Z0-9-]+/ }, path: '/' do
     resources :repositories, only: :show, param: :name, constraints: { name: /[^\/]+/ }, path: '/', format: :html

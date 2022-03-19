@@ -22,7 +22,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: vendor/bundle
-          key: 2.6-gems-${{ hashFiles('**/Gemfile.lock') }}
+          key: 2.6-gems-${{ hashFiles('Gemfile.lock') }}
           restore-keys: ${{ runner.os }}-gems-
       - name: bundle install
         run: bundle config path vendor/bundle && bundle install -j$(nproc) --retry 3

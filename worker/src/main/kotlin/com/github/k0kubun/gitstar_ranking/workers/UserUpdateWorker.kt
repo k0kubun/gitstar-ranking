@@ -20,12 +20,12 @@ import java.time.ZoneId
 import java.util.ArrayList
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.NotFoundException
-import org.jooq.Condition
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.using
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import javax.ws.rs.ForbiddenException
 import javax.ws.rs.NotAuthorizedException
 
 private const val TIMEOUT_MINUTES = 1
@@ -98,6 +98,9 @@ open class UserUpdateWorker(
             if (user.login != newLogin) {
                 updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = client.userId)
             }
+        } catch (e: ForbiddenException) {
+            logger.error("[${user.login}] ForbiddenException on updateUser, skipping: ${e.message}")
+            return 0
         } catch (e: NotFoundException) {
             logger.error("[${user.login}] User NotFoundException on updateUser: ${e.message}")
             logger.info("[${user.login}] Deleting user id: $userId")

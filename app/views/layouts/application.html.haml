@@ -16,6 +16,9 @@
 
     = csrf_meta_tags
     = analytics_init if Rails.env.production?
+    - if user_signed_in?
+      :javascript
+        ga('set', 'userId', '#{current_user.id}');
     %script{ 'data-ad-client': 'ca-pub-1394383573150433', async: true, src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js' }
 
   %body{ class: "#{controller_path.gsub(/\//, '_')}_controller #{action_name}_action" }

@@ -99,7 +99,7 @@ open class UserUpdateWorker(
                 updateUserLogin(userId = userId, newLogin = newLogin, tokenUserId = client.userId)
             }
         } catch (e: ForbiddenException) {
-            logger.error("[${user.login}] ForbiddenException on updateUser, skipping: ${e.message}")
+            logger.error("[${user.login}] ForbiddenException on getLogin, skipping: ${e.message}")
             return 0
         } catch (e: NotFoundException) {
             logger.error("[${user.login}] User NotFoundException on updateUser: ${e.message}")
@@ -111,10 +111,11 @@ open class UserUpdateWorker(
             return 0
         }
 
-        val repos = client.getPublicRepos(userId, logPrefix = "[${user.login}]")
-        val repoIds: MutableList<Long> = ArrayList()
-        for (repo in repos) {
-            repoIds.add(repo.id)
+        val repos = try {
+            client.getPublicRepos(userId, logPrefix = "[${user.login}]")
+        } catch (e: ForbiddenException) {
+            logger.error("[${user.login}] ForbiddenException on getPublicRepos, skipping: ${e.message}")
+            return 0
         }
         database.transaction { tx ->
             RepositoryQuery(using(tx)).deleteAll(fullNames = repos.map { it.fullName }) // just to avoid conflicts

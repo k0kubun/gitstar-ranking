@@ -1,5 +1,6 @@
 package com.github.k0kubun.gitstar_ranking.client
 
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
 import com.github.k0kubun.gitstar_ranking.core.Repository
@@ -90,12 +91,13 @@ class GitHubClient(
             when (e) {
                 is SocketTimeoutException -> true
                 is ProcessingException -> true
-                is ServerErrorException -> setOf(500, 502).contains(e.response.status)
+                is ServerErrorException -> setOf(500, 502, 503).contains(e.response.status)
+                is JsonParseException -> true // Unexpected end-of-input
                 else -> false
             }
         }
         .withBackoff(1, 8, ChronoUnit.SECONDS)
-        .withMaxRetries(3)
+        .withMaxRetries(6)
 
     var rateLimitRemaining = requestGet<RateLimitResponse>("/rate_limit").resources.core.remaining
 

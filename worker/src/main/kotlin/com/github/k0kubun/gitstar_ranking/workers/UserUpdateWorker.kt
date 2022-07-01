@@ -30,6 +30,11 @@ import javax.ws.rs.NotAuthorizedException
 
 private const val TIMEOUT_MINUTES = 1
 
+// Workaround
+private val SKIPPED_USERS = setOf(
+    "robinpuri", // invalid byte sequence in UTF-8
+)
+
 open class UserUpdateWorker(
     private val database: DSLContext,
     private val logger: Logger = LoggerFactory.getLogger(UserUpdateWorker::class.simpleName),
@@ -78,7 +83,7 @@ open class UserUpdateWorker(
     open fun updateUserId(userId: Long, client: GitHubClient, sleepMillis: Long = 0) {
         DatabaseLock(database).withUserUpdate(userId) {
             val user = UserQuery(database).find(id = userId) ?: createUserById(id = userId, client = client)
-            if (user != null) {
+            if (user != null && !SKIPPED_USERS.contains(user.login)) {
                 logger.info("[${user.login}] updateUserId started  (userId = $userId)")
                 val numRepos = updateUser(user = user, client = client)
                 logger.info("[${user.login}] updateUserId finished (userId = $userId, imported $numRepos repos)")

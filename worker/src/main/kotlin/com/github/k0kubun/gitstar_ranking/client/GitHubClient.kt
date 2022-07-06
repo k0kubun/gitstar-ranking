@@ -1,6 +1,7 @@
 package com.github.k0kubun.gitstar_ranking.client
 
 import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
 import com.github.k0kubun.gitstar_ranking.core.Repository
@@ -93,6 +94,7 @@ class GitHubClient(
                 is ProcessingException -> true
                 is ServerErrorException -> setOf(500, 502, 503).contains(e.response.status)
                 is JsonParseException -> true // Unexpected end-of-input
+                is JsonMappingException -> true // Unexpected end-of-input
                 else -> false
             }
         }

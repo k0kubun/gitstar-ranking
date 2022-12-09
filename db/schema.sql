@@ -1,3 +1,5 @@
+CREATE EXTENSION citext;
+
 CREATE TABLE access_tokens (
     "id" bigserial NOT NULL,
     "user_id" bigint NOT NULL,

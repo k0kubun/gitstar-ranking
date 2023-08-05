@@ -12,3 +12,8 @@
   %span.stargazers_count.pull-right
     = fa_icon 'star'
     = repository.stargazers_count
+  %div
+    .repo-description{title: repository.description}
+      = repository.description.present? ? truncate(repository.description, length: 70) : 'No description available'
+    .repo-language
+      %span= repository.language.present? ? truncate(repository.language, length: 30) : 'No language available'
